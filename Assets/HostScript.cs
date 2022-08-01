@@ -5,12 +5,13 @@ using UnityEngine.UI;
 using TMPro;
 using System;
 
-public class ValueSlider : MonoBehaviour{
+public class HostScript : MonoBehaviour{
     private const int Z = 0;
     public Slider Players;
     public TextMeshProUGUI Value;
 
     public GameObject toggle;
+    public GameObject password;
     private float moving = 0;
     private float destanation;
     public float t;
@@ -35,12 +36,16 @@ public class ValueSlider : MonoBehaviour{
         {
             moving = -410;
             destanation = -400;
+            
         }
         else
         {
             moving = 10;
             destanation = 0;
+            
         }
+        password.SetActive(isPrivate);
+
         Debug.Log(moving);
         Debug.Log(toggle.transform.localPosition);
 
