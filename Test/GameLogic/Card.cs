@@ -196,10 +196,17 @@ namespace GameLogic
             var playerHandPile = new CardCollection();
 
             // Add cards that will be initially delt to player hands
-            playerHandPile.AddNew(5, () => new ShuffleCard());
-            playerHandPile.AddNew(5, () => new SkipCard());
+            playerHandPile.AddNew(4, () => new ShuffleCard());
+            playerHandPile.AddNew(4, () => new SkipCard());
             playerHandPile.AddNew(5, () => new NopeCard());
             playerHandPile.AddNew(5, () => new SeeTheFutureCard());
+            playerHandPile.AddNew(4, () => new AttackCard());
+            playerHandPile.AddNew(4, () => new FavorCard());
+            playerHandPile.AddNew(4, () => new WatermelonCard());
+            playerHandPile.AddNew(4, () => new PotatoCard());
+            playerHandPile.AddNew(4, () => new BeirdCard());
+            playerHandPile.AddNew(4, () => new RainbowCard());
+            playerHandPile.AddNew(4, () => new TacoCard());
 
             // Shuffle
             playerHandPile.Shuffle();
@@ -217,6 +224,7 @@ namespace GameLogic
             deck.AddNew(playerCount - 1, () => new AtomicPigletCard());
 
             // Add defusers to deck
+            // TODO: Ekstra defusers skal være i player hand pile, ikke i deck
             deck.AddMany(defusers.DrawTop(2));
 
 
