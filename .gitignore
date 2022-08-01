@@ -74,3 +74,5 @@ crashlytics-build.properties
 /Assets/GameLogic/GameLogic/obj/
 /Test/GameLogicTest/bin/
 /Test/GameLogicTest/obj/
+/Test/Build/bin/
+/Test/GameLogic/obj/
