@@ -73,4 +73,16 @@ public class HostScript : MonoBehaviour{
     {
         Value.text = Players.value.ToString("0" + " Players");
     }
+    
+    public void playeradd()
+    {
+        Players.value = Players.value + 1;
+        PlayerCount();
+    }
+
+    public void playerminus()
+    {
+        Players.value = Players.value - 1;
+        PlayerCount();
+    }
 }
