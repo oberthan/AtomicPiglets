@@ -103,7 +103,6 @@ namespace GameLogic
         {
             AddMany(cards);
         }
-
     }
 
 

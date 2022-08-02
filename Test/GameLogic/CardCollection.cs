@@ -35,6 +35,11 @@
             }
         }
 
+        public void InsertFromTop(Card card, int positionFromTop)
+        {
+            cards.Insert(cards.Count - positionFromTop, card);
+        }
+
         public void Shuffle()
         {
             GameHelper.Shuffle(cards);

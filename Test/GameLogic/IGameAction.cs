@@ -45,7 +45,8 @@
 
         public void Execute(AtomicGame game)
         {
-            throw new NotImplementedException();
+            game.EndTurn();
+            game.Deck.InsertFromTop(atomicPigletCard, AtomicPositionFromTop);
         }
     }
     public class SkipAction : ICardAction
@@ -64,7 +65,6 @@
         public void Execute(AtomicGame game)
         {
             game.EndTurn();
-            throw new NotImplementedException();
         }
     }
     public class AttackAction : ICardAction
@@ -82,7 +82,16 @@
 
         public void Execute(AtomicGame game)
         {
-            throw new NotImplementedException();
+            game.NextPlayer();
+            if (game.PlayerTurns == 1)
+            {
+                game.PlayerTurns += 1;
+            }
+            else
+            {
+                game.PlayerTurns += 2;
+            }
+
         }
     }
 
