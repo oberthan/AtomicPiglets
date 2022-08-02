@@ -15,7 +15,7 @@ namespace GameLogicTest
         [TestCase(6, 2*46 + 5 + 8)] // 2*46 + nukes + defusers
         public void TotalCardsDependsOnPlayers(int playerCount, int expectedTotal)
         {
-            var game = AtomicGame.CreateExplodingKittensLikeGame(playerCount);
+            var game = GameFactory.CreateExplodingKittensLikeGame(playerCount);
             var deckCount = game.Deck.Count;
             var playerHandsCount = game.Players.Sum(x => x.Hand.Count);
 
@@ -27,7 +27,7 @@ namespace GameLogicTest
         [TestCase(2, 1)]
         public void DeckContainsOneLessNukeThanPlayers(int players, int expectedNukes)
         {
-            var game = AtomicGame.CreateExplodingKittensLikeGame(players);
+            var game = GameFactory.CreateExplodingKittensLikeGame(players);
             var nukeCount = game.Deck.All.OfType<AtomicPigletCard>().Count();
 
             Assert.That(nukeCount, Is.EqualTo(expectedNukes));
@@ -40,7 +40,7 @@ namespace GameLogicTest
         [TestCase(2, 4)]
         public void TotalDefusersAsExpected(int players, int expectedDefusers)
         {
-            var game = AtomicGame.CreateExplodingKittensLikeGame(players);
+            var game = GameFactory.CreateExplodingKittensLikeGame(players);
 
             var allCards = game.Deck.All.Concat(game.Players.SelectMany(x => x.Hand.All)).ToList();
 
@@ -49,5 +49,48 @@ namespace GameLogicTest
             Assert.That(defuseCount, Is.EqualTo(expectedDefusers));
         }
 
+        [Test]
+        public void PlayerIsSelectedWhenGameIsCreated()
+        {
+            var game = GameFactory.CreateExplodingKittensLikeGame(5);
+            Assert.That(game.CurrentPlayer, Is.Not.Null);
+            Assert.That(game.PlayerRounds, Is.EqualTo(1));
+        }
+
+        [Test]
+        [TestCase(2)]
+        [TestCase(5)]
+        public void NextPlayerCyclesCurrentPlayer(int playerCount)
+        {
+            var game = GameFactory.CreateExplodingKittensLikeGame(playerCount);
+            var players = game.Players.ToList();
+            var currentPlayerIndex = players.IndexOf(game.CurrentPlayer);
+
+            for (int i = 0; i < playerCount*2+1; i++)
+            {
+                game.NextPlayer();
+
+                var nextPlayerIndex = players.IndexOf(game.CurrentPlayer);
+                Assert.That(nextPlayerIndex, Is.EqualTo((currentPlayerIndex+1)%playerCount));
+                currentPlayerIndex = nextPlayerIndex;
+            }
+        }
+
+
+        [Test]
+        public void PrintGame()
+        {
+            var game = GameFactory.CreateExplodingKittensLikeGame(5);
+
+            Console.WriteLine("-- Players --");
+            foreach (var player in game.Players)
+            {
+                Console.WriteLine($"{player.Name}: "+player.FormatHand());
+            }
+            Console.WriteLine();
+            Console.WriteLine("-- Deck --");
+            Console.WriteLine($"");
+
+        }
     }
 }
