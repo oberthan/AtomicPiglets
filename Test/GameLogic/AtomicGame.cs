@@ -34,7 +34,12 @@
 
         public void EndTurn()
         {
-            throw new NotImplementedException();
+            PlayerTurns--;
+            if (PlayerTurns == 0)
+            {
+                NextPlayer();
+                PlayerTurns++;
+            }
         }
     }
 
