@@ -18,7 +18,7 @@
                 if (hand.Contains<AtomicPigletCard>())
                 {
                     if (hand.Contains<DefuseCard>())
-                        yield return new DefuseAction(player, hand.DrawFirstFromTop<DefuseCard>());
+                        yield return new DefuseAction(player, hand.PeekFromTop<DefuseCard>(), hand.DrawFromTop<AtomicPigletCard>());
                     else
                         yield return new GameOverAction(player);
                 }
@@ -28,7 +28,7 @@
                     yield return new DrawFromDeckAction(player);
 
                     if (hand.Contains<SkipCard>())
-                        yield return new SkipAction(player, hand.DrawFirstFromTop<SkipCard>());
+                        yield return new SkipAction(player, hand.PeekFromTop<SkipCard>());
 
                 }
             }

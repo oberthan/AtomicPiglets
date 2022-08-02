@@ -52,7 +52,7 @@
             cards.RemoveRange(cards.Count - maxTake, maxTake);
             return new CardCollection(top);
         }
-        public T DrawFirstFromTop<T>() where T : Card
+        public T DrawFromTop<T>() where T : Card
         {
             for (int i = cards.Count-1; i >= 0; --i)
             {
@@ -64,6 +64,10 @@
                 }
             }
             throw new InvalidOperationException($"Could not find a card of type {typeof(T).Name}");
+        }
+        public T PeekFromTop<T>() where T : Card
+        {
+            return (T) cards.Last(x => x is T);
         }
 
         public override string ToString()

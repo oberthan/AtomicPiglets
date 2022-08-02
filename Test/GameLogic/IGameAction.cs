@@ -21,23 +21,34 @@
         }
     }
 
-    public class DefuseAction : IGameAction
+    public interface ICardAction : IGameAction
+    {
+        IEnumerable<Card> Cards { get; }
+    }
+
+    public class DefuseAction : ICardAction
     {
         private readonly Player player;
         private readonly DefuseCard defuseCard;
+        private readonly AtomicPigletCard atomicPigletCard;
 
-        public DefuseAction(Player player, DefuseCard defuseCard)
+        public DefuseAction(Player player, DefuseCard defuseCard, AtomicPigletCard atomicPigletCard)
         {
             this.player = player;
             this.defuseCard = defuseCard;
+            this.atomicPigletCard = atomicPigletCard;
         }
+
+        public IEnumerable<Card> Cards => new[] { defuseCard };
+
+        public int AtomicPositionFromTop { get; set; }
 
         public void Execute(AtomicGame game)
         {
             throw new NotImplementedException();
         }
     }
-    public class SkipAction : IGameAction
+    public class SkipAction : ICardAction
     {
         private readonly Player player;
         private readonly SkipCard skipCard;
@@ -48,9 +59,29 @@
             this.skipCard = skipCard;
         }
 
+        public IEnumerable<Card> Cards => new[] { skipCard };
+
         public void Execute(AtomicGame game)
         {
             game.EndTurn();
+            throw new NotImplementedException();
+        }
+    }
+    public class AttackAction : ICardAction
+    {
+        private readonly Player player;
+        private readonly AttackCard card;
+
+        public AttackAction(Player player, AttackCard card)
+        {
+            this.player = player;
+            this.card = card;
+        }
+
+        public IEnumerable<Card> Cards => new[] { card };
+
+        public void Execute(AtomicGame game)
+        {
             throw new NotImplementedException();
         }
     }
