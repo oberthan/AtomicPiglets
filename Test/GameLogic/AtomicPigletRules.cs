@@ -27,6 +27,9 @@
                     // Player can end this turn by drawing from deck.
                     yield return new DrawFromDeckAction(player);
 
+                    if (hand.Contains<SkipCard>())
+                        yield return new SkipAction(player, hand.DrawFirstFromTop<SkipCard>());
+
                 }
             }
             yield break;

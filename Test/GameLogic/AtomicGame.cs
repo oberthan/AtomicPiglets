@@ -8,7 +8,7 @@
             Players = players.ToList();
             GameHelper.Shuffle(Players);
             CurrentPlayer = players[0];
-            PlayerRounds = 1;
+            PlayerTurns = 1;
         }
 
         public CardDeck Deck { get; }
@@ -17,7 +17,7 @@
 
         public Player CurrentPlayer { get; private set; }
 
-        public int PlayerRounds;
+        public int PlayerTurns;
 
         /// <summary>
         /// Selects next player as current player cyclic.
@@ -30,6 +30,11 @@
             currentPlayerIndex = (currentPlayerIndex + 1) % playerCount;
             CurrentPlayer = Players[currentPlayerIndex];
             
+        }
+
+        public void EndTurn()
+        {
+            throw new NotImplementedException();
         }
     }
 

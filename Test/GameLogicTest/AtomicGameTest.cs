@@ -54,7 +54,7 @@ namespace GameLogicTest
         {
             var game = GameFactory.CreateExplodingKittensLikeGame(5);
             Assert.That(game.CurrentPlayer, Is.Not.Null);
-            Assert.That(game.PlayerRounds, Is.EqualTo(1));
+            Assert.That(game.PlayerTurns, Is.EqualTo(1));
         }
 
         [Test]
@@ -75,6 +75,37 @@ namespace GameLogicTest
                 currentPlayerIndex = nextPlayerIndex;
             }
         }
+
+        [Test]
+        public void EndTurnDecrementsPlayerTurns()
+        {
+            var game = GameFactory.CreateExplodingKittensLikeGame(2);
+            var startPlayer = game.CurrentPlayer;
+            game.PlayerTurns = 3;
+            game.EndTurn();
+
+            // Current player is the same.
+            Assert.That(startPlayer, Is.EqualTo(game.CurrentPlayer));
+
+            // Turns is decremented
+            Assert.That(game.PlayerTurns, Is.EqualTo(2));
+        }
+
+        [Test]
+        public void EndTurnPassesToNextPlayerWhenTurnsIsOne()
+        {
+            var game = GameFactory.CreateExplodingKittensLikeGame(2);
+            var startPlayer = game.CurrentPlayer;
+            game.PlayerTurns = 1;
+            game.EndTurn();
+
+            // Current player is not the same
+            Assert.That(startPlayer, Is.Not.EqualTo(game.CurrentPlayer));
+
+            // Turns are reset for new player.
+            Assert.That(game.PlayerTurns, Is.EqualTo(1));
+        }
+
 
 
         [Test]

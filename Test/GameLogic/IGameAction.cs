@@ -17,7 +17,7 @@
         {
             var card = game.Deck.DrawTop();
             player.AddCard(card);
-            game.PlayerRounds--;
+            game.PlayerTurns--;
         }
     }
 
@@ -34,6 +34,23 @@
 
         public void Execute(AtomicGame game)
         {
+            throw new NotImplementedException();
+        }
+    }
+    public class SkipAction : IGameAction
+    {
+        private readonly Player player;
+        private readonly SkipCard skipCard;
+
+        public SkipAction(Player player, SkipCard skipCard)
+        {
+            this.player = player;
+            this.skipCard = skipCard;
+        }
+
+        public void Execute(AtomicGame game)
+        {
+            game.EndTurn();
             throw new NotImplementedException();
         }
     }
@@ -63,5 +80,4 @@
             throw new NotImplementedException();
         }
     }
-
 }
