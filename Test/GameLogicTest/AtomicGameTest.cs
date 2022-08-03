@@ -123,5 +123,16 @@ namespace GameLogicTest
             Console.WriteLine($"");
 
         }
+
+        [Test]
+        public void ExecutePlayedCardsMoveCardsToDiscardPile()
+        {
+            var game = GameFactory.CreateExplodingKittensLikeGame(5);
+
+            // play some cards
+            // Execute played cards
+            // Assert that played cards end on top of discard pile
+
+        }
     }
 }

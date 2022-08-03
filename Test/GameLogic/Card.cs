@@ -57,23 +57,23 @@ namespace GameLogic
 
     }
 
-    public class TacoCard : Card
+    public class TacoCard : CollectionCard
     {
 
     }
-    public class RainbowCard : Card
+    public class RainbowCard : CollectionCard
     {
 
     }
-    public class PotatoCard : Card
+    public class PotatoCard : CollectionCard
     {
 
     }
-    public class BeirdCard : Card
+    public class BeirdCard : CollectionCard
     {
 
     }
-    public class WatermelonCard : Card
+    public class WatermelonCard : CollectionCard
     {
 
     }

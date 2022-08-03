@@ -27,8 +27,10 @@
                     // Player can end this turn by drawing from deck.
                     yield return new DrawFromDeckAction(player);
 
-                    if (hand.Contains<SkipCard>())
-                        yield return new SkipAction(player, hand.PeekFromTop<SkipCard>());
+                    if (hand.Contains<SkipCard>()) yield return new SkipAction(player, hand.PeekFromTop<SkipCard>());
+                    if (hand.Contains<AttackCard>()) yield return new AttackAction(player, hand.PeekFromTop<AttackCard>());
+                    if (hand.Contains<ShuffleCard>()) yield return new ShuffleAction(player, hand.PeekFromTop<ShuffleCard>());
+                    if (hand.Contains<SeeTheFutureCard>()) yield return new SeeTheFutureAction(player, hand.PeekFromTop<SeeTheFutureCard>());
 
                 }
             }

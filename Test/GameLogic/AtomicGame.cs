@@ -2,7 +2,7 @@
 {
     public class AtomicGame
     {
-        public AtomicGame(CardDeck deck, List<Player> players)
+        public AtomicGame(CardCollection deck, List<Player> players)
         {
             Deck = deck;
             Players = players.ToList();
@@ -11,7 +11,18 @@
             PlayerTurns = 1;
         }
 
-        public CardDeck Deck { get; }
+        public CardCollection Deck { get; }
+
+        /// <summary>
+        /// Cards played, but not yet executed.
+        /// </summary>
+        public List<ICardAction> PlayPile { get; } = new List<ICardAction>();
+
+        /// <summary>
+        /// Cards played and executed.
+        /// </summary>
+        public CardCollection DiscardPile { get; } = new CardCollection();
+
 
         public List<Player> Players { get; }
 
@@ -39,6 +50,22 @@
             {
                 NextPlayer();
                 PlayerTurns++;
+            }
+        }
+
+        public void PlayCard(ICardAction cardAction)
+        {
+            PlayPile.Add(cardAction);
+            // TODO: Reset execute timer
+        }
+
+        public void ExecutePlayedCards()
+        {
+            // Execute bottom played cards
+            while (PlayPile.Any())
+            {
+                PlayPile.Last().Execute(this);
+                PlayPile.RemoveAt(PlayPile.Count - 1);
             }
         }
     }

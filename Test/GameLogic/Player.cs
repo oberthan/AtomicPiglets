@@ -24,6 +24,11 @@
         {
             return Hand.ToString();
         }
+
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 
 }

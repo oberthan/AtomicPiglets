@@ -57,6 +57,13 @@
             cards.RemoveRange(cards.Count - maxTake, maxTake);
             return new CardCollection(top);
         }
+        public CardCollection PeekFromTop(int count)
+        {
+            var maxTake = Math.Min(count, cards.Count);
+            var top = cards.TakeLast(maxTake).Reverse().ToList();
+            return new CardCollection(top);
+        }
+
         public T DrawFromTop<T>() where T : Card
         {
             for (int i = cards.Count-1; i >= 0; --i)

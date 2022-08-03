@@ -52,15 +52,15 @@
     public class SkipAction : ICardAction
     {
         private readonly Player player;
-        private readonly SkipCard skipCard;
+        private readonly SkipCard card;
 
-        public SkipAction(Player player, SkipCard skipCard)
+        public SkipAction(Player player, SkipCard card)
         {
             this.player = player;
-            this.skipCard = skipCard;
+            this.card = card;
         }
 
-        public IEnumerable<Card> Cards => new[] { skipCard };
+        public IEnumerable<Card> Cards => new[] { card };
 
         public void Execute(AtomicGame game)
         {
@@ -92,6 +92,66 @@
                 game.PlayerTurns += 2;
             }
 
+        }
+    }
+
+    public class ShuffleAction : ICardAction
+    {
+        private readonly Player player;
+        private readonly ShuffleCard card;
+
+        public ShuffleAction(Player player, ShuffleCard card)
+        {
+            this.player = player;
+            this.card = card;
+        }
+
+        public IEnumerable<Card> Cards => new[] { card };
+
+        public void Execute(AtomicGame game)
+        {
+            game.Deck.Shuffle();
+        }
+    }
+
+    public class SeeTheFutureAction : ICardAction
+    {
+        private readonly Player player;
+        private readonly SeeTheFutureCard card;
+
+        public SeeTheFutureAction(Player player, SeeTheFutureCard card)
+        {
+            this.player = player;
+            this.card = card;
+        }
+
+        public IEnumerable<Card> Cards => new[] { card };
+
+        public CardCollection FutureCards { get; private set; }
+
+        public void Execute(AtomicGame game)
+        {
+            FutureCards = game.Deck.PeekFromTop(3);
+        }
+    }
+
+    public class NopeAction : ICardAction
+    {
+        private readonly Player player;
+        private readonly NopeCard card;
+
+        public NopeAction(Player player, NopeCard card)
+        {
+            this.player = player;
+            this.card = card;
+        }
+
+        public IEnumerable<Card> Cards => new[] { card };
+
+        public CardCollection FutureCards { get; private set; }
+
+        public void Execute(AtomicGame game)
+        {
         }
     }
 
