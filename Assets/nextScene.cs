@@ -6,8 +6,7 @@ using System;
 
 public class nextScene : MonoBehaviour
 {
-    private bool gameScene = false;
-
+   
     // Start is called before the first frame update
     void Start()
     {
@@ -18,15 +17,13 @@ public class nextScene : MonoBehaviour
     public void nextSceneFunction()
     {
         SceneManager.LoadScene("Game");
-        gameScene = true;
-        return;
+       
     }
 
     public void MainMenu()
     {
         SceneManager.LoadScene("Menu");
-        gameScene = false;
-        return;
+
     }
 
     public GameObject escapeMenu;
@@ -41,4 +38,3 @@ public class nextScene : MonoBehaviour
     }
 
 }
-//((gameScene == true) && 
