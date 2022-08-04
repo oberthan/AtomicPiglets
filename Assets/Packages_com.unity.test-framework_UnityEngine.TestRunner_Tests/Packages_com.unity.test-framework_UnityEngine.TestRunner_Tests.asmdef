@@ -1,0 +1,9 @@
+{
+    "name": "Packages_com.unity.test-framework_UnityEngine.TestRunner_Tests",
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ]
+}

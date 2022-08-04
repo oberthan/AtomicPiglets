@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-
+using System.Linq;
 
 public class StartGame : MonoBehaviour
 {
@@ -24,6 +24,7 @@ public class StartGame : MonoBehaviour
 
     public void Hej()
     {
-        _title.text = "Hejsa";
+        var game = GameLogic.GameFactory.CreateExplodingKittensLikeGame(2);
+        _title.text = game.CurrentPlayer.Hand.All.First().ToString();
     }
 }

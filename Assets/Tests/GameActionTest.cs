@@ -1,4 +1,6 @@
 ﻿using NUnit.Framework;
+using GameLogic;
+using System.Linq;
 
 namespace GameLogicTest
 {

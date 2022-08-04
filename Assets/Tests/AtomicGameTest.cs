@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
+using GameLogic;
+
 
 namespace GameLogicTest
 {
@@ -116,14 +118,14 @@ namespace GameLogicTest
         {
             var game = GameFactory.CreateExplodingKittensLikeGame(5);
 
-            Console.WriteLine("-- Players --");
+            TestContext.Out.WriteLine("-- Players --");
             foreach (var player in game.Players)
             {
-                Console.WriteLine($"{player.Name}: "+player.FormatHand());
+                TestContext.Out.WriteLine($"{player.Name}: "+player.FormatHand());
             }
-            Console.WriteLine();
-            Console.WriteLine("-- Deck --");
-            Console.WriteLine($"");
+            TestContext.Out.WriteLine();
+            TestContext.Out.WriteLine("-- Deck --");
+            TestContext.Out.WriteLine($"");
 
         }
 

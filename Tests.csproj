@@ -57,11 +57,12 @@
     <Analyzer Include="C:\Projects\Unity\AtomicPiglets\Assets\FishNet\Plugins\CodeAnalysis\FishNet.CodeAnalysis.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Tests\NewTestScript.cs" />
     <Compile Include="Assets\Tests\GameActionTest.cs" />
-    <Compile Include="Assets\Tests\CardCollectionTest.cs" />
-    <Compile Include="Assets\Tests\AtomicGameTest.cs" />
+    <Compile Include="Assets\Tests\NewTestScript.cs" />
+    <Compile Include="Assets\Tests\NewTestScript1.cs" />
     <Compile Include="Assets\Tests\CardTest.cs" />
+    <Compile Include="Assets\Tests\AtomicGameTest.cs" />
+    <Compile Include="Assets\Tests\CardCollectionTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Tests\Tests.asmdef" />
@@ -714,6 +715,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="GameLogicAssemblyDefinition.csproj">
+      <Project>{11F023D2-24F9-A6D7-0F26-758759078056}</Project>
+      <Name>GameLogicAssemblyDefinition</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />
