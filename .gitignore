@@ -77,3 +77,8 @@ crashlytics-build.properties
 /Test/Build/bin/
 /Test/GameLogic/obj/
 /Assembly-CSharp.csproj
+/FishNet.Codegen.Cecil.csproj
+/FishNet.Example.csproj
+/FishNet.Generated.csproj
+/FishNet.Runtime.csproj
+/Unity.FishNet.Codegen.csproj
