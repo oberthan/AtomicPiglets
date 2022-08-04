@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Linq;
+using GameLogic;
 
 public class StartGame : MonoBehaviour
 {
@@ -19,12 +20,23 @@ public class StartGame : MonoBehaviour
         
     }
 
-    [SerializeField]
-    private TMP_Text _title;
+//    [SerializeField]
+    public TMP_Text AvailableActionsText;
+
+    public TMP_Text CurrentPlayerName;
+
+    public TMP_Text CurrentPlayerCards;
 
     public void Hej()
     {
-        var game = GameLogic.GameFactory.CreateExplodingKittensLikeGame(2);
-        _title.text = game.CurrentPlayer.Hand.All.First().ToString();
+        var game = GameFactory.CreateExplodingKittensLikeGame(2);
+
+        CurrentPlayerName.text = game.CurrentPlayer.Name;
+        CurrentPlayerCards.text = string.Join("\n", game.CurrentPlayer.Hand.All);
+
+        var gameLogic = new AtomicPigletRules(game);
+        var actions = gameLogic.GetLegalActionsForPlayer(game.CurrentPlayer).ToList();
+
+        AvailableActionsText.text = string.Join("\n", actions.Select(x => x.GetType().Name));
     }
 }
