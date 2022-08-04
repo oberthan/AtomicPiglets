@@ -1,4 +1,7 @@
-﻿namespace GameLogic
+﻿using System;
+using System.Collections.Generic;
+
+namespace GameLogic
 {
     public interface IGameAction
     {

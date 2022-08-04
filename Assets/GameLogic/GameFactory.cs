@@ -1,4 +1,7 @@
-﻿namespace GameLogic
+﻿using System.Collections.Generic;
+using System.Linq;
+
+namespace GameLogic
 {
     public static class GameFactory
     {

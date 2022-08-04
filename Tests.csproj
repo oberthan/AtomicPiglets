@@ -57,6 +57,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Tests\NewTestScript.cs" />
+    <Compile Include="Assets\Tests\GameActionTest.cs" />
+    <Compile Include="Assets\Tests\CardCollectionTest.cs" />
+    <Compile Include="Assets\Tests\AtomicGameTest.cs" />
+    <Compile Include="Assets\Tests\CardTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Tests\Tests.asmdef" />

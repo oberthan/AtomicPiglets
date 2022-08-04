@@ -1,4 +1,7 @@
-﻿namespace GameLogic
+﻿using System;
+using System.Collections.Generic;
+
+namespace GameLogic
 {
     public static class GameHelper
     {

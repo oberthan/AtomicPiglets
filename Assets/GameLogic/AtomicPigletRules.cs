@@ -1,4 +1,6 @@
-﻿namespace GameLogic
+﻿using System.Collections.Generic;
+
+namespace GameLogic
 {
     public class AtomicPigletRules
     {
