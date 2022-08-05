@@ -178,6 +178,12 @@ namespace FishNet.Object
                 InternalClearReplicateCache(false);
         }
 
+    // Update is called once per frame
+  //  public override void OnStartClient()
+   // {
+        
+   // }
+
     }
 
 
