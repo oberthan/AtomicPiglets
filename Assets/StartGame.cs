@@ -12,16 +12,19 @@ public class StartGame : NetworkBehaviour
 {
 
 
- 
+
 
     //    [SerializeField]
     public TMP_Text AvailableActionsText;
+    
 
     public TMP_Text CurrentPlayerName;
 
     public TMP_Text CurrentPlayerCards;
 
 
+    //public GameObject ButtonPrefab;
+   // public GameObject ButtonCanvas;
 
     // Disables the scribts you're not the owner of
     public override void OnStartClient()
@@ -38,7 +41,7 @@ public class StartGame : NetworkBehaviour
         }
     }
 
-    
+
     // Detects if the button is pressed
     public Button yourButton;
     void Start()
@@ -47,8 +50,8 @@ public class StartGame : NetworkBehaviour
         btn.onClick.AddListener(Pressed);
     }
 
-    
-    
+
+
     // Asks the server to start the game
     public void Pressed()
     {
@@ -61,18 +64,18 @@ public class StartGame : NetworkBehaviour
         //   var actions = gameLogic.GetLegalActionsForPlayer(game.CurrentPlayer).ToList();
 
         //   AvailableActionsText.text = string.Join("\n", actions.Select(x => x.GetType().Name));
-        
-        
-            startGame(gameObject);
+
+
+        startGame(gameObject);
         print("trykket på hej");
-        
-        
+
+
 
     }
 
-    
-    
-    
+
+
+
     // starts the game and sends data to the observer
     [ServerRpc]
     public void startGame(GameObject gameLogicObject)
@@ -85,27 +88,35 @@ public class StartGame : NetworkBehaviour
         var gameLogic = new AtomicPigletRules(game);
         var actions = gameLogic.GetLegalActionsForPlayer(game.CurrentPlayer).ToList();
 
-        sendTo(game.CurrentPlayer.Name, string.Join("\n", 
-            game.CurrentPlayer.Hand.All), 
-            string.Join("\n", actions.Select(x => x.GetType().Name)), gameLogicObject);
+        var Playername = game.CurrentPlayer.Name;
+        var PlayerCards = string.Join("\n", game.CurrentPlayer.Hand.All);
+        var AvaibleActions = string.Join("\n", actions.Select(x => x.GetType().Name));
+
+
+
+
+        sendTo(Playername, PlayerCards, AvaibleActions, gameLogicObject);
     }
 
-    
-    
+
+
     // finds the textfield and prints the text recieved from the server
     [ObserversRpc]
     public void sendTo(string PlayerName, string playercards, string AvaibleActions, GameObject gamelogicObject)
     {
         Debug.Log("sendt tilbage");
 
-        print("prøver at skrive "+ PlayerName+", "+playercards+", "+AvaibleActions);
-        CurrentPlayerName.text = PlayerName;
+        //print("prøver at skrive "+ PlayerName+", "+playercards+", "+AvaibleActions);
+        //CurrentPlayerName.text = PlayerName;
         //   CurrentPlayerCards.text = playercards;
 
         gamelogicObject.GetComponent<StartGame>().CurrentPlayerName.text = PlayerName;
         gamelogicObject.GetComponent<StartGame>().CurrentPlayerCards.text = playercards;
         gamelogicObject.GetComponent<StartGame>().AvailableActionsText.text = AvaibleActions;
 
-     //   AvailableActionsText.text = AvaibleActions;
+        //foreach (char currentAction in AvaibleActions)
+        //{
+        //    new 
+       // }
     }
 }
