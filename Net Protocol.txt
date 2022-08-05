@@ -1,0 +1,76 @@
+Atomic Piglets
+2022-08-05
+
+Player List
+-----------
+*Player
+ Id
+ Name
+ IsReady
+
+
+Lobby protokol
+--------------
+
+Client               Server
+|                          |
+|----Connect(id,name)--->  | Stop timer
+|                          |
+|<---Player list-------    |
+
+
+
+|
+|---Disconnect(id)---->    |   Remove player, stop timer
+|                          |
+|<---Player list-------    |
+                                                                     
+																	 
+|
+|---Ready(id)----->        | Start timer, if all players are ready
+|                          |
+|<---Player list-------    |
+																 
+
+|
+|---UnReady(id)----->      | Stop timer
+|                          |
+|<---Player list-------    |
+
+
+
+While timer is running:
+|                          |
+|<---Time to start-------  |
+
+
+
+Timer reaches 0: Server starts game
+Server creates game and deals cards.
+
+For each client:
+|                    |
+|<----player cards---| 
+|                    |
+
+To all:
+|                   |
+|<---game status----|
+|                   |
+
+Game status
+-----------
+Current player
+PlayerTurns
+Cards left in deck
+Played cards
+...
+
+
+Current player selects action:
+|
+|---Action(playerid)---->  | Server executes action
+|                          |
+|<---game status-------    |
+| To each client:
+|<---player cards
