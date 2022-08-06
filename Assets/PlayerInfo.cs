@@ -6,7 +6,7 @@ using TMPro;
 
 public class PlayerInfo : MonoBehaviour
 {
-    private string PlayerName;
+    public string PlayerName;
 
     public TMP_Text WriteName;
 

@@ -137,6 +137,25 @@ namespace GameLogic
             FutureCards = game.Deck.PeekFromTop(3);
         }
     }
+    public class FavorAction : ICardAction
+    {
+        private readonly Player player;
+        private readonly FavorCard card;
+
+        public FavorAction(Player player, FavorCard card)
+        {
+            this.player = player;
+            this.card = card;
+        }
+
+        public IEnumerable<Card> Cards => new[] { card };
+
+
+        public void Execute(AtomicGame game)
+        {
+            throw new NotImplementedException();
+        }
+    }
 
     public class NopeAction : ICardAction
     {

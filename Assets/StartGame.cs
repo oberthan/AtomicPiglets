@@ -7,6 +7,7 @@ using System.Linq;
 using GameLogic;
 using FishNet.Object;
 using FishNet.Connection;
+using Assets.Network;
 
 public class StartGame : NetworkBehaviour
 {
@@ -66,7 +67,7 @@ public class StartGame : NetworkBehaviour
         //   AvailableActionsText.text = string.Join("\n", actions.Select(x => x.GetType().Name));
 
 
-        startGame(gameObject);
+        startGame();
         print("trykket på hej");
 
 
@@ -78,7 +79,7 @@ public class StartGame : NetworkBehaviour
 
     // starts the game and sends data to the observer
     [ServerRpc]
-    public void startGame(GameObject gameLogicObject)
+    public void startGame()
     {
         Debug.Log("sendt til server");
 
@@ -92,12 +93,41 @@ public class StartGame : NetworkBehaviour
         var PlayerCards = string.Join("\n", game.CurrentPlayer.Hand.All);
         var AvaibleActions = string.Join("\n", actions.Select(x => x.GetType().Name));
 
+        var playerInfo = new PlayerInfo { PlayerName = "Soren" };
 
+        //var lobbyServer = 
 
+        var netObject = new MitNetObject { PlayerName = "Søren", TurnsLeft = 5 };
+        //sendNetObjectTo(netObject, gameLogicObject);
+        sendNetObjectTo(netObject);
 
-        sendTo(Playername, PlayerCards, AvaibleActions, gameLogicObject);
+        //        sendTo(Playername, PlayerCards, AvaibleActions, gameLogicObject);
     }
 
+
+    public class MitNetObject
+    {
+        public string PlayerName;
+        public int TurnsLeft;
+    }
+
+
+    //[ObserversRpc]
+    //public void sendNetObjectTo(MitNetObject mitNetObject, GameObject gamelogicObject)
+    //{
+    //    var startGame = gamelogicObject.GetComponent<StartGame>();
+    //    startGame.CurrentPlayerName.text = mitNetObject.PlayerName;
+    //    startGame.CurrentPlayerCards.text = mitNetObject.TurnsLeft.ToString();
+
+    //}
+    [ObserversRpc]
+    public void sendNetObjectTo(MitNetObject mitNetObject)
+    {
+        var startGame = gameObject.GetComponent<StartGame>();
+        startGame.CurrentPlayerName.text = mitNetObject.PlayerName;
+        startGame.CurrentPlayerCards.text = mitNetObject.TurnsLeft.ToString();
+
+    }
 
 
     // finds the textfield and prints the text recieved from the server
