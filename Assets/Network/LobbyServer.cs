@@ -36,6 +36,7 @@ namespace Assets.Network
 
         private void Awake()
         {
+            Debug.Log("Lobby server awake");
             _instance = this;
             _playerInfos.OnChange += _playerInfos_OnChange;
         }
@@ -43,12 +44,14 @@ namespace Assets.Network
         public override void OnStartServer()
         {
             base.OnStartServer();
+            Debug.Log("Lobby server started");
             NetworkManager.ServerManager.OnRemoteConnectionState += ServerManager_OnRemoteConnectionState;
         }
 
         public override void OnStopServer()
         {
             base.OnStopServer();
+            Debug.Log("Lobby server stopped");
             base.NetworkManager.ServerManager.OnRemoteConnectionState -= ServerManager_OnRemoteConnectionState;
         }
 
@@ -101,8 +104,8 @@ namespace Assets.Network
         /// </summary>
         private void _playerInfos_OnChange(SyncDictionaryOperation op, NetworkConnection key, PlayerInfo value, bool asServer)
         {
-            if (op == SyncDictionaryOperation.Add || op == SyncDictionaryOperation.Set)
-                OnPlayerInfoChange?.Invoke(key, value);
+//            if (op == SyncDictionaryOperation.Add || op == SyncDictionaryOperation.Set)
+            OnPlayerInfoChange?.Invoke(key, value);
         }
 
         /// <summary> 
@@ -124,6 +127,12 @@ namespace Assets.Network
         public static void UpdatePlayerInfo(PlayerInfo playerInfo)
         {
             _instance.ServerUpdatePlayerInfo(playerInfo);
+        }
+
+        [Client]
+        public static PlayerInfo[] GetPlayerInfos()
+        {
+            return _instance._playerInfos.Values.ToArray();
         }
 
         /// <summary>
