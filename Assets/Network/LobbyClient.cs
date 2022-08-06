@@ -13,8 +13,9 @@ namespace Assets.Network
 {
     public class LobbyClient : NetworkBehaviour
     {
-        public PlayerInfo Player = new PlayerInfo { PlayerName = "Player" };
-
+        public TMP_Text NameInput;
+        public PlayerInfo Player = new PlayerInfo { PlayerName = "player" };       
+        //public  Player = PlayerInfoScript.PlayerName;
         public Toggle IsReady;
         public TMP_Text AllPlayers;
 

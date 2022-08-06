@@ -4,17 +4,18 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class PlayerInfo : MonoBehaviour
+public class PlayerNameInfo : MonoBehaviour
 {
-    public string PlayerName;
 
-    public TMP_Text WriteName;
+    
+    public string PlayerName;      
 
-    public GameObject mainMenu;
+    
 
-    public GameObject PlayerNameTextField;
     public TMP_Text PlayerNameText;
     public TMP_Text PlayerNameTextPreview;
+
+    public Button StartButton;
 
     //public Button saveName;
     //public GameObject showButton;
@@ -51,7 +52,7 @@ public class PlayerInfo : MonoBehaviour
         
         //showButton.SetActive(false);
 
-        WriteName.text = PlayerName;
+        
     }
 
     private void loadName()
@@ -59,18 +60,29 @@ public class PlayerInfo : MonoBehaviour
         PlayerName = PlayerPrefs.GetString("name");
         print(PlayerName);
 
-        WriteName.text = PlayerName;
+
+
         PlayerNameTextPreview.text = PlayerName;
     }
 
-    private string PlayernameReset;
+    
     
     private void Update()
     {
         if (PlayerName == "")
         {
-            PlayerName = PlayernameReset;
+            PlayerName = null;
         }
        // PlayerNameTextField.GetComponent<InputField>().text = PlayerName;
+
+      
+        if (PlayerName == "")
+        {
+            StartButton.interactable = false;
+        }
+        else
+        {
+            StartButton.interactable = true;
+        }
     }
 }
