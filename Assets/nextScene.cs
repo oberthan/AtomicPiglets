@@ -27,10 +27,11 @@ public class nextScene : MonoBehaviour
     }
 
     public GameObject escapeMenu;
+    public GameObject Game;
     
     void Update()
     {
-        if (SceneManager.GetActiveScene() == SceneManager.GetSceneByName("Game") && (Input.GetKeyDown(KeyCode.Escape)))
+        if ((Game.activeInHierarchy == true) && (Input.GetKeyDown(KeyCode.Escape)))
         {
             print("escape trykket");
             escapeMenu.SetActive(true);
