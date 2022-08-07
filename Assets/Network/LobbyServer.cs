@@ -5,6 +5,7 @@ using FishNet.Transporting;
 using System;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Assets.Network
 {
@@ -106,16 +107,23 @@ namespace Assets.Network
         private void StartServerGame()
         {
             isGameRunning = true;
+            
+            SceneManager.LoadGlobalScenes(new FishNet.Managing.Scened.SceneLoadData("GameScene"));
+            SceneManager.UnloadGlobalScenes(new FishNet.Managing.Scened.SceneUnloadData("MenuScene"));
             StartClientGame();
         }
 
+        
+        
         [ObserversRpc]
         public void StartClientGame()
         {
-            var game = Resources.FindObjectsOfTypeAll<GameObject>().Single(x => x.name == "Game");
-            game.SetActive(true);
-            var menu = Resources.FindObjectsOfTypeAll<GameObject>().Single(x => x.name == "Menu");
-            menu.SetActive(false);
+
+            
+            //var game = Resources.FindObjectsOfTypeAll<GameObject>().Single(x => x.name == "Game");
+            //game.SetActive(true);
+            //var menu = Resources.FindObjectsOfTypeAll<GameObject>().Single(x => x.name == "Menu");
+            //menu.SetActive(false);
         }
 
         /// <summary>

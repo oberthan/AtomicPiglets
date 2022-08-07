@@ -76,7 +76,7 @@ public class PlayerNameInfo : MonoBehaviour
        // PlayerNameTextField.GetComponent<InputField>().text = PlayerName;
 
       
-        if (PlayerName == "")
+        if (PlayerName == null)
         {
             StartButton.interactable = false;
         }
