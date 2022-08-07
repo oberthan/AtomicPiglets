@@ -1,9 +1,13 @@
-﻿using FishNet.Connection;
+﻿using FishNet;
+using FishNet.Connection;
+using FishNet.Managing.Scened;
 using FishNet.Object;
 using FishNet.Object.Synchronizing;
 using FishNet.Transporting;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -22,12 +26,12 @@ namespace Assets.Network
         [SyncObject]
         private readonly SyncDictionary<NetworkConnection, PlayerInfo> _playerInfos = new SyncDictionary<NetworkConnection, PlayerInfo>();
 
-        public const int GameStartCountdownSeconds = 5;
+        public const int GameStartCountdownSeconds = 2;
 
         private const int MinimumNumberOfPlayers = 1;
 
-        [SyncVar(SendRate = 1)]
-        public int GameStartTimer = GameStartCountdownSeconds;
+        [SyncVar(SendRate = 0.1f)]
+        public float GameStartTimer = GameStartCountdownSeconds;
 
         private bool gameStartTimerIsRunning;
         private float gameStartTimerStarted;
@@ -59,7 +63,7 @@ namespace Assets.Network
             base.NetworkManager.ServerManager.OnRemoteConnectionState -= ServerManager_OnRemoteConnectionState;
         }
 
-        internal static int GetStartTimer()
+        internal static float GetStartTimer()
         {
             return _instance.GameStartTimer;
         }
@@ -93,7 +97,7 @@ namespace Assets.Network
             if (gameStartTimerIsRunning && !isGameRunning)
             {
                 var deltaTime = Time.time - gameStartTimerStarted;
-                var startTimer = GameStartCountdownSeconds - (int)deltaTime;
+                var startTimer = GameStartCountdownSeconds - deltaTime;
                 if (startTimer < 0) startTimer = 0;
                 GameStartTimer = startTimer;
                 if (startTimer == 0)
@@ -106,15 +110,82 @@ namespace Assets.Network
 
         private void StartServerGame()
         {
+            if (!InstanceFinder.NetworkManager.IsServer) return;
+
             isGameRunning = true;
+            Debug.Log("Loading game scene");
+            var gameScene = new SceneLoadData("GameScene");
+            gameScene.ReplaceScenes = ReplaceOption.All;
+
+            foreach (var playerInfo in _playerInfos)
+            {
+                var networkObjectsText = new StringBuilder();
+                var connection = playerInfo.Key;
+                networkObjectsText.AppendLine($"Player {playerInfo.Value.PlayerName} objects:");
+                foreach (var obj in connection.Objects)
+                {
+                    networkObjectsText.AppendLine(obj.name);
+                }
+                Debug.Log(networkObjectsText.ToString());
+            }
+
+            gameScene.MovedNetworkObjects = _playerInfos.Select(x => x.Key).SelectMany(x => x.Objects).ToArray();
+            //foreach (NetworkConnection item in InstanceFinder.ServerManager.Clients.Values)
+            //{
+            //    foreach (NetworkObject nob in item.Objects)
+            //    {
+            //        movedObjects.Add(nob);
+            //    }
+            //}
+
             
-            SceneManager.LoadGlobalScenes(new FishNet.Managing.Scened.SceneLoadData("GameScene"));
-            SceneManager.UnloadGlobalScenes(new FishNet.Managing.Scened.SceneUnloadData("MenuScene"));
+
+//            gameScene.MovedNetworkObjects = movedObjects;
+
+            SceneManager.LoadGlobalScenes(gameScene);
+            SceneManager.OnActiveSceneSet += SceneManager_OnActiveSceneSet;
+
+
+            //Debug.Log("Unloading menu scene");
+            //var menuScene = new FishNet.Managing.Scened.SceneUnloadData("MenuScene");
+            //SceneManager.UnloadGlobalScenes(menuScene);
+
+
+            //var gs1 = SceneManager.GetComponent<GameServer>();
+            //if (gs1 == null) Debug.Log("Did NOT found GameServer with scene manager");
+
+            //Debug.Log("Start client game");
+            //var gameNetworking = GameObject.Find("GameNetworking");
+            //if (gameNetworking == null)
+            //{
+            //    Debug.Log("Did not find game server");
+            //}
+            //else
+            //{
+            //    Debug.Log("Found game server");
+            //    var gameServer = gameNetworking.GetComponent<GameServer>();
+            //    gameServer.StartGame(_playerInfos);
+            //}
+
+
             StartClientGame();
         }
 
-        
-        
+        private void SceneManager_OnActiveSceneSet()
+        {
+            var gameNetworking = GameObject.Find("GameNetworking");
+            if (gameNetworking == null)
+            {
+                Debug.Log("Did not find game server in OnActiveSceneSet");
+            }
+            else
+            {
+                Debug.Log("Did find game server in OnActiveSceneSet");
+                var gameServer = gameNetworking.GetComponent<GameServer>();
+                gameServer.StartGame(_playerInfos);
+            }
+        }
+
         [ObserversRpc]
         public void StartClientGame()
         {
@@ -177,7 +248,11 @@ namespace Assets.Network
 
     public class PlayerInfo
     {
+        public Guid Id;
         public string PlayerName;
         public bool IsReady;
+        
+        // In game only
+        public int CardsLeft;
     }
 }

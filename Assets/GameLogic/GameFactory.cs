@@ -7,18 +7,22 @@ namespace GameLogic
     {
         public static AtomicGame CreateExplodingKittensLikeGame(int playerCount)
         {
-            var defusers = new CardCollection();
-            defusers.AddNew(6, () => new DefuseCard());
-
-
-
             var players = new List<Player>();
             for (int i = 0; i < playerCount; i++)
                 players.Add(new Player($"Player {i}"));
+            return CreateExplodingKittensLikeGame(players);
+        }
+
+        public static AtomicGame CreateExplodingKittensLikeGame(IEnumerable<Player> players)
+        {
+            var playerList = players.ToList();
+            var defusers = new CardCollection();
+            defusers.AddNew(6, () => new DefuseCard());
 
             var dealPile = new CardCollection();
 
             // Add defusers to deck
+            var playerCount = playerList.Count;
             var dealPileDifuserCount = 2;
             if (playerCount == 5) dealPileDifuserCount--;
             dealPile.AddMany(defusers.DrawTop(dealPileDifuserCount));
@@ -47,7 +51,7 @@ namespace GameLogic
             dealPile.Shuffle();
 
             // Deal cards and add 1 defuser to each player hand
-            foreach (var player in players)
+            foreach (var player in playerList)
             {
                 player.Deal(dealPile.DrawTop(7));
                 player.Hand.AddMany(defusers.DrawTop(1));
@@ -63,7 +67,7 @@ namespace GameLogic
             deck.Shuffle();
 
 
-            return new AtomicGame(deck, players);
+            return new AtomicGame(deck, playerList);
         }
     }
 }

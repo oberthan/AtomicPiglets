@@ -137,7 +137,7 @@ namespace GameLogicTest
             game.PlayCard(attackAction);
             game.EndTurn();
 
-            Assume.That(game.PlayPile.Last(), Is.EqualTo(attackAction));
+            Assume.That(game.PlayPileActions.Last(), Is.EqualTo(attackAction));
 
             var player = game.CurrentPlayer;
 
@@ -146,12 +146,12 @@ namespace GameLogicTest
             var nopeAction = new NopeAction(player, card);
             
             game.PlayCard(nopeAction);
-            Assert.That(game.PlayPile.Last(), Is.EqualTo(nopeAction));
+            Assert.That(game.PlayPileActions.Last(), Is.EqualTo(nopeAction));
 
             // Time is up, nope removes attack
             game.ExecutePlayedCards();
 
-            Assert.That(game.PlayPile, Is.Empty);
+            Assert.That(game.PlayPileActions, Is.Empty);
         }
 
         [Test]

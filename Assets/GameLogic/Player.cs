@@ -1,14 +1,22 @@
-﻿namespace GameLogic
+﻿using System;
+
+namespace GameLogic
 {
     public class Player
     {
-        public Player(string name)
+        public Player(string name) : this(name, Guid.NewGuid())
+        {
+        }
+        public Player(string name, Guid id)
         {
             Name = name;
+            Id = id;
         }
 
-        public CardCollection Hand { get; private set; } = new CardCollection();
+        public Guid Id;
         public string Name { get; set; }
+
+        public CardCollection Hand { get; private set; } = new CardCollection();
 
         public void Deal(CardCollection hand)
         {
