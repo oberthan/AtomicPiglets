@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace Assets.Network
 {
@@ -64,10 +65,13 @@ namespace Assets.Network
             var publicState = PublicGameState.FromAtomicGame(game);
             foreach (var player in game.Players)
             {
-                Debug.Log($"{player.Name}: " + player.FormatHand());
+                Debug.Log($"{player.Name} hand: " + player.FormatHand());
 
                 var connection = playerConnectionMap[player.Id];
                 PlayerGameState playerState = PlayerGameState.FromAtomicGame(player, rules);
+
+                Debug.Log($"Server {playerState.PlayerInfo.PlayerName} game state hand: " + playerState.Hand.ToString());
+
                 ClientUpdateGameState(connection, playerState, publicState);
             }
         }
@@ -75,16 +79,23 @@ namespace Assets.Network
         private PlayerGameState myPlayerGameState;
         private PublicGameState publicGameState;
 
-        public TMP_Text LegalActionsText;
+  //      public TMP_Text LegalActionsText;
         public TMP_Text PlayerHandText;
+
+        public TMP_Dropdown LegalActionsDropdown;
 
         [TargetRpc]
         public void ClientUpdateGameState(NetworkConnection conn, PlayerGameState playerState, PublicGameState publicState)
         {
+            Debug.Log($"Client {playerState.PlayerInfo.PlayerName} game state hand: " + playerState.Hand.ToString());
             myPlayerGameState = playerState;
             publicGameState = publicState;
-            LegalActionsText.text = string.Join("\n", playerState.AvailableActions);
-            PlayerHandText.text =  "Hand:" + string.Join("\n", playerState.Hand.All);
+//            LegalActionsText.text = string.Join("\n", playerState.AvailableActions);
+            PlayerHandText.text =  string.Join("\n", playerState.Hand);
+
+            LegalActionsDropdown.ClearOptions();
+            LegalActionsDropdown.AddOptions(playerState.AvailableActions.ToList());
+
         }
     }
 
@@ -92,7 +103,7 @@ namespace Assets.Network
     {
         // Player info and hidden hand
         public PlayerInfo PlayerInfo;
-        public CardCollection Hand;
+        public string[] Hand;
         public string[] AvailableActions;
 
         internal static PlayerGameState FromAtomicGame(Player player, AtomicPigletRules rules)
@@ -100,7 +111,7 @@ namespace Assets.Network
             return new PlayerGameState
             {
                 PlayerInfo = PlayerInfoFromPlayer(player),
-                Hand = player.Hand,
+                Hand =  SerializeCardCollection(player.Hand),
                 AvailableActions = GetLegalActions(player, rules)
             };
         }
@@ -116,14 +127,19 @@ namespace Assets.Network
             return new PlayerInfo { Id = player.Id, PlayerName = player.Name, IsReady = true, CardsLeft = player.Hand.Count };
         }
 
+        public static string[] SerializeCardCollection(CardCollection cards)
+        {
+            return cards.All.Select(x => x.Name).ToArray();
+        }
+
     }
 
     public class PublicGameState
     {
         public PlayerInfo CurrentPlayer;
         public PlayerInfo[] AllPlayers;
-        public CardCollection PlayPile;
-        public CardCollection DiscardPile;
+        public string[] PlayPile;
+        public string[] DiscardPile;
         public int DeckCardsLeft;
         public int TurnsLeft;
 
@@ -133,8 +149,8 @@ namespace Assets.Network
             {
                 CurrentPlayer = PlayerGameState.PlayerInfoFromPlayer(game.CurrentPlayer),
                 AllPlayers = game.Players.Select(PlayerGameState.PlayerInfoFromPlayer).ToArray(),
-                PlayPile = game.PlayPile,
-                DiscardPile = game.DiscardPile,
+                PlayPile = PlayerGameState.SerializeCardCollection(game.PlayPile),
+                DiscardPile = PlayerGameState.SerializeCardCollection(game.DiscardPile),
                 DeckCardsLeft = game.Deck.Count,
                 TurnsLeft = game.PlayerTurns
             };

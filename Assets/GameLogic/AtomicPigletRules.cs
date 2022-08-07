@@ -40,12 +40,16 @@ namespace GameLogic
                                                group card by card.Name into collectionGroups
                                                where collectionGroups.Count() >= 2
                                                select collectionGroups.Take(2).ToList();
+                    if (twoEqualCardGroups.Any()) yield return new DrawFromPlayerAction(player, twoEqualCardGroups.SelectMany(x => x).ToArray());
 
                     var threeEqualCardGroups = from card in hand.All
                                              group card by card.Name into collectionGroups
                                              where collectionGroups.Count() >= 3
                                              select collectionGroups.Take(3).ToList();
+                    if (threeEqualCardGroups.Any()) yield return new DemandCardFromPlayerAction(player, threeEqualCardGroups.SelectMany(x => x).ToArray());
+
                     var distinctCards = hand.All.Distinct(new GenericEqualityComparer<Card, string>(x => x.Name)).ToList();
+                    if (distinctCards.Count >= 5) yield return new DrawFromDiscardPileAction(player, distinctCards.ToArray());
                 }
             }
             yield break;

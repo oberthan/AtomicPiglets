@@ -224,6 +224,76 @@ namespace GameLogic
 
     }
 
+    public class DrawFromPlayerAction : ICardAction
+    {
+        private readonly Player player;
+        private readonly Card[] cards;
+
+        public DrawFromPlayerAction(Player player, Card[] cards)
+        {
+            this.player = player;
+            this.cards = cards;
+        }
+
+        public IEnumerable<Card> Cards => cards;
+
+        public void Execute(AtomicGame game)
+        {
+        }
+
+        public string FormatShort()
+        {
+            return "Draw from player";
+        }
+    }
+
+    public class DemandCardFromPlayerAction : ICardAction
+    {
+        private readonly Player player;
+        private readonly Card[] cards;
+
+        public DemandCardFromPlayerAction(Player player, Card[] cards)
+        {
+            this.player = player;
+            this.cards = cards;
+        }
+
+        public IEnumerable<Card> Cards => cards;
+
+        public void Execute(AtomicGame game)
+        {
+        }
+
+        public string FormatShort()
+        {
+            return "Demand card";
+        }
+    }
+
+    public class DrawFromDiscardPileAction : ICardAction
+    {
+        private readonly Player player;
+        private readonly Card[] cards;
+
+        public DrawFromDiscardPileAction(Player player, Card[] cards)
+        {
+            this.player = player;
+            this.cards = cards;
+        }
+
+        public IEnumerable<Card> Cards => cards;
+
+        public void Execute(AtomicGame game)
+        {
+        }
+
+        public string FormatShort()
+        {
+            return "Draw from discards";
+        }
+    }
+
+
     public class NextPlayerAction : IGameAction
     {
         public NextPlayerAction()
