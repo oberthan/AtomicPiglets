@@ -51,7 +51,7 @@ namespace GameLogic
             dealPile.Shuffle();
 
             // Deal cards and add 1 defuser to each player hand
-            foreach (var player in players)
+            foreach (var player in playerList)
             {
                 player.Deal(dealPile.DrawTop(7));
                 player.Hand.AddMany(defusers.DrawTop(1));

@@ -14,7 +14,7 @@ namespace Assets.Network
     public class LobbyClient : NetworkBehaviour
     {
         public TMP_Text NameInput;
-        public PlayerInfo Player = new PlayerInfo { PlayerName = "player" };       
+        public PlayerInfo Player = new PlayerInfo { PlayerName = "player", Id = Guid.NewGuid() };       
         //public  Player = PlayerInfoScript.PlayerName;
         public Toggle IsReady;
         public TMP_Text AllPlayers;

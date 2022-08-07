@@ -17,6 +17,7 @@ namespace GameLogicTest
         [TestCase(4, 55)] // -1 nuke
         [TestCase(3, 53)] // - 2 nuke, -1 defuser
         [TestCase(2, 51)] // - 3 nuke, -2 defuser
+        [TestCase(1, 49)] // -4 nuke, -3 defuser
         [TestCase(6, 2*46 + 5 + 8)] // 2*46 + nukes + defusers
         public void TotalCardsDependsOnPlayers(int playerCount, int expectedTotal)
         {
@@ -25,6 +26,11 @@ namespace GameLogicTest
             var playerHandsCount = game.Players.Sum(x => x.Hand.Count);
 
             Assert.That(deckCount + playerHandsCount, Is.EqualTo(expectedTotal));
+            foreach (var player in game.Players)
+            {
+                Assert.That(player.Hand.Count, Is.EqualTo(8));
+            }
+
         }
 
         [Test]

@@ -47,8 +47,8 @@ public class StartGame : NetworkBehaviour
     public Button yourButton;
     void Start()
     {
-        Button btn = yourButton.GetComponent<Button>();
-        btn.onClick.AddListener(Pressed);
+//        Button btn = yourButton.GetComponent<Button>();
+//        btn.onClick.AddListener(Pressed);
     }
 
 
