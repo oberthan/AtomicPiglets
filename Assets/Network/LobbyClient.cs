@@ -18,6 +18,8 @@ namespace Assets.Network
         //public  Player = PlayerInfoScript.PlayerName;
         public Toggle IsReady;
         public TMP_Text AllPlayers;
+        public Slider GameStartCountdownSlider;
+        // public TMP_Text GameStartCountDown;
 
         private void Awake()
         {
@@ -26,6 +28,9 @@ namespace Assets.Network
                 Player.IsReady = isReady;
                 LobbyServer.UpdatePlayerInfo(Player);
             });
+
+            GameStartCountdownSlider.minValue = 0;
+            GameStartCountdownSlider.maxValue = LobbyServer.GameStartCountdownSeconds;
        }
 
         public override void OnStartClient()
@@ -52,6 +57,10 @@ namespace Assets.Network
             UpdatePlayerList();
         }
 
+        public void Update()
+        {
+            GameStartCountdownSlider.value = LobbyServer.GetStartTimer();
+        }
 
         private void LobbyServer_OnPlayerInfoChange(NetworkConnection conn, PlayerInfo arg2)
         {
@@ -64,7 +73,11 @@ namespace Assets.Network
             if (Owner.IsValid)
             {
                 var playerInfos = LobbyServer.GetPlayerInfos();
-                if (!playerInfos.Any())
+                if (playerInfos == null)
+                {
+                    text = "Not connected";
+                }
+                else if (!playerInfos.Any())
                 {
                     text = "No players";
                 }

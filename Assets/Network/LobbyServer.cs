@@ -21,13 +21,16 @@ namespace Assets.Network
         [SyncObject]
         private readonly SyncDictionary<NetworkConnection, PlayerInfo> _playerInfos = new SyncDictionary<NetworkConnection, PlayerInfo>();
 
-        public const int GameStartCountdownSeconds = 10;
+        public const int GameStartCountdownSeconds = 5;
+
+        private const int MinimumNumberOfPlayers = 1;
 
         [SyncVar(SendRate = 1)]
         public int GameStartTimer = GameStartCountdownSeconds;
 
         private bool gameStartTimerIsRunning;
         private float gameStartTimerStarted;
+        private bool isGameRunning;
 
         /// <summary>
         /// Singleton instance of this object.
@@ -53,6 +56,11 @@ namespace Assets.Network
             base.OnStopServer();
             Debug.Log("Lobby server stopped");
             base.NetworkManager.ServerManager.OnRemoteConnectionState -= ServerManager_OnRemoteConnectionState;
+        }
+
+        internal static int GetStartTimer()
+        {
+            return _instance.GameStartTimer;
         }
 
         /// <summary>
@@ -81,7 +89,7 @@ namespace Assets.Network
 
         void Update()
         {
-            if (gameStartTimerIsRunning)
+            if (gameStartTimerIsRunning && !isGameRunning)
             {
                 var deltaTime = Time.time - gameStartTimerStarted;
                 var startTimer = GameStartCountdownSeconds - (int)deltaTime;
@@ -89,14 +97,25 @@ namespace Assets.Network
                 GameStartTimer = startTimer;
                 if (startTimer == 0)
                 {
-                    StartGame();
+                    gameStartTimerIsRunning = false;
+                    StartServerGame();
                 }
             }
         }
 
-        private void StartGame()
+        private void StartServerGame()
         {
-            //throw new NotImplementedException();
+            isGameRunning = true;
+            StartClientGame();
+        }
+
+        [ObserversRpc]
+        public void StartClientGame()
+        {
+            var game = Resources.FindObjectsOfTypeAll<GameObject>().Single(x => x.name == "Game");
+            game.SetActive(true);
+            var menu = Resources.FindObjectsOfTypeAll<GameObject>().Single(x => x.name == "Menu");
+            menu.SetActive(false);
         }
 
         /// <summary>
@@ -106,6 +125,7 @@ namespace Assets.Network
         {
 //            if (op == SyncDictionaryOperation.Add || op == SyncDictionaryOperation.Set)
             OnPlayerInfoChange?.Invoke(key, value);
+            RestartGameStartTimer();
         }
 
         /// <summary> 
