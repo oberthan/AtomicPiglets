@@ -169,7 +169,11 @@ namespace Assets.Network
 
     public class PlayerInfo
     {
+        public Guid Id;
         public string PlayerName;
         public bool IsReady;
+        
+        // In game only
+        public int CardsLeft;
     }
 }

@@ -6,6 +6,8 @@ namespace GameLogic
     public interface IGameAction
     {
         void Execute(AtomicGame game);
+
+        string FormatShort();
     }
     public class DrawFromDeckAction : IGameAction
     {
@@ -21,6 +23,11 @@ namespace GameLogic
             var card = game.Deck.DrawTop();
             player.AddCard(card);
             game.PlayerTurns--;
+        }
+
+        public string FormatShort()
+        {
+            return "Draw from deck";
         }
     }
 
@@ -51,6 +58,11 @@ namespace GameLogic
             game.EndTurn();
             game.Deck.InsertFromTop(atomicPigletCard, AtomicPositionFromTop);
         }
+
+        public string FormatShort()
+        {
+            return "Defuse";
+        }
     }
     public class SkipAction : ICardAction
     {
@@ -69,7 +81,13 @@ namespace GameLogic
         {
             game.EndTurn();
         }
+
+        public string FormatShort()
+        {
+            return "Skip";
+        }
     }
+
     public class AttackAction : ICardAction
     {
         private readonly Player player;
@@ -94,8 +112,13 @@ namespace GameLogic
             {
                 game.PlayerTurns += 2;
             }
-
         }
+
+        public string FormatShort()
+        {
+            return "Attack!";
+        }
+
     }
 
     public class ShuffleAction : ICardAction
@@ -115,6 +138,12 @@ namespace GameLogic
         {
             game.Deck.Shuffle();
         }
+
+        public string FormatShort()
+        {
+            return "Shuffle";
+        }
+
     }
 
     public class SeeTheFutureAction : ICardAction
@@ -136,6 +165,12 @@ namespace GameLogic
         {
             FutureCards = game.Deck.PeekFromTop(3);
         }
+
+        public string FormatShort()
+        {
+            return "See the future";
+        }
+
     }
     public class FavorAction : ICardAction
     {
@@ -155,6 +190,12 @@ namespace GameLogic
         {
             throw new NotImplementedException();
         }
+
+        public string FormatShort()
+        {
+            return "Favor";
+        }
+
     }
 
     public class NopeAction : ICardAction
@@ -175,6 +216,12 @@ namespace GameLogic
         public void Execute(AtomicGame game)
         {
         }
+
+        public string FormatShort()
+        {
+            return "Nope";
+        }
+
     }
 
     public class NextPlayerAction : IGameAction
@@ -187,6 +234,11 @@ namespace GameLogic
         {
             game.NextPlayer();
         }
+        public string FormatShort()
+        {
+            return "Next";
+        }
+
     }
     public class GameOverAction : IGameAction
     {
@@ -201,5 +253,10 @@ namespace GameLogic
         {
             throw new NotImplementedException();
         }
+        public string FormatShort()
+        {
+            return "Game over";
+        }
+
     }
 }

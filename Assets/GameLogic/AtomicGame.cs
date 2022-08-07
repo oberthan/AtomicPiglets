@@ -19,7 +19,9 @@ namespace GameLogic
         /// <summary>
         /// Cards played, but not yet executed.
         /// </summary>
-        public List<ICardAction> PlayPile { get; } = new List<ICardAction>();
+        public List<ICardAction> PlayPileActions { get; } = new List<ICardAction>();
+
+        public CardCollection PlayPile => new CardCollection(PlayPileActions.SelectMany(x => x.Cards));
 
         /// <summary>
         /// Cards played and executed.
@@ -58,17 +60,17 @@ namespace GameLogic
 
         public void PlayCard(ICardAction cardAction)
         {
-            PlayPile.Add(cardAction);
+            PlayPileActions.Add(cardAction);
             // TODO: Reset execute timer
         }
 
         public void ExecutePlayedCards()
         {
             // Execute bottom played cards
-            while (PlayPile.Any())
+            while (PlayPileActions.Any())
             {
-                PlayPile.Last().Execute(this);
-                PlayPile.RemoveAt(PlayPile.Count - 1);
+                PlayPileActions.Last().Execute(this);
+                PlayPileActions.RemoveAt(PlayPileActions.Count - 1);
             }
         }
     }
