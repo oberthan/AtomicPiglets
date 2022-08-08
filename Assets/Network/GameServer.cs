@@ -111,9 +111,18 @@ namespace Assets.Network
                 textComponent.text = action.ToString();
                 Debug.Log($"Creating a button for the action: {TheAction}");
 
-
-                button.transform.SetParent(LegalActionsList);
+                button.transform.SetParent(LegalActionsList.transform, false);
+                button.transform.rotation = new Quaternion(0, 0, 0, 0);
+                button.GetComponent<Button>().onClick.AddListener(
+                    () => { ActionPressed(TheAction); }
+                    );
+               
             }
+        }
+
+        private void ActionPressed(string TheAction)
+        {
+            Debug.Log(TheAction + "was chosen.");
         }
     }
 
