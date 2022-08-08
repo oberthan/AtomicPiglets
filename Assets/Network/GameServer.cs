@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Assets.Network
 {
@@ -83,10 +84,27 @@ namespace Assets.Network
         {
             myPlayerGameState = playerState;
             publicGameState = publicState;
+            LegalActionsButtonList(playerState.AvailableActions);
             LegalActionsText.text = string.Join("\n", playerState.AvailableActions);
             PlayerHandText.text =  "Hand:" + string.Join("\n", playerState.Hand.All);
         }
+
+        [SerializeField] Transform LegalActionsList;
+        [SerializeField] GameObject ButtonPrefab;         
+        public void LegalActionsButtonList(string[] availableActions)
+        {
+            foreach(var action in availableActions)
+            {
+                var TheAction = action;
+                GameObject button = (GameObject)Instantiate(ButtonPrefab);
+                button.GetComponentInChildren<Text>().text = TheAction.ToString();
+
+
+                button.transform.SetParent(LegalActionsList);
+            }
+        }
     }
+
 
     public class PlayerGameState
     {
