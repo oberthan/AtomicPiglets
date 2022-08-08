@@ -10,7 +10,7 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.UIElements;
+
 
 namespace Assets.Network
 {
@@ -94,8 +94,8 @@ namespace Assets.Network
             LegalActionsButtonList(playerState.AvailableActions);
             PlayerHandText.text =  string.Join("\n", playerState.Hand);
 
-            LegalActionsDropdown.ClearOptions();
-            LegalActionsDropdown.AddOptions(playerState.AvailableActions.ToList());
+            //LegalActionsDropdown.ClearOptions();
+            //LegalActionsDropdown.AddOptions(playerState.AvailableActions.ToList());
 
         }
 
@@ -107,7 +107,9 @@ namespace Assets.Network
             {
                 var TheAction = action;
                 GameObject button = (GameObject)Instantiate(ButtonPrefab);
-                button.GetComponentInChildren<Text>().text = TheAction.ToString();
+                var textComponent = button.GetComponentInChildren<TMP_Text>();
+                textComponent.text = action.ToString();
+                Debug.Log($"Creating a button for the action: {TheAction}");
 
 
                 button.transform.SetParent(LegalActionsList);
