@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace GameLogic
@@ -16,35 +17,38 @@ namespace GameLogic
         public static AtomicGame CreateExplodingKittensLikeGame(IEnumerable<Player> players)
         {
             var playerList = players.ToList();
+            var playerCount = playerList.Count;
+            var deckCount = 1 + playerCount / 6;
+
             var defusers = new CardCollection();
-            defusers.AddNew(6, () => new DefuseCard());
+            var totalDefusers = deckCount * 6;
+            var defusersInGame = Math.Min(totalDefusers, playerCount + 2);
+            defusers.AddNew(defusersInGame, () => new Card(CardType.DefuseCard));
 
             var dealPile = new CardCollection();
 
             // Add defusers to deck
-            var playerCount = playerList.Count;
-            var dealPileDifuserCount = 2;
-            if (playerCount == 5) dealPileDifuserCount--;
+            var dealPileDifuserCount = defusersInGame - playerCount;
             dealPile.AddMany(defusers.DrawTop(dealPileDifuserCount));
 
 
             // Add cards that will be initially delt to player hands
-            dealPile.AddNew(4, () => new ShuffleCard());
-            dealPile.AddNew(4, () => new SkipCard());
-            dealPile.AddNew(5, () => new NopeCard());
-            dealPile.AddNew(5, () => new SeeTheFutureCard());
-            dealPile.AddNew(4, () => new AttackCard());
-            dealPile.AddNew(4, () => new FavorCard());
-            dealPile.AddNew(4, () => new WatermelonCard());
-            dealPile.AddNew(4, () => new PotatoCard());
-            dealPile.AddNew(4, () => new BeirdCard());
-            dealPile.AddNew(4, () => new RainbowCard());
-            dealPile.AddNew(4, () => new TacoCard());
+            dealPile.AddNew(4, () => new Card(CardType.ShuffleCard));
+            dealPile.AddNew(4, () => new Card(CardType.SkipCard));
+            dealPile.AddNew(5, () => new Card(CardType.NopeCard));
+            dealPile.AddNew(5, () => new Card(CardType.SeeTheFutureCard));
+            dealPile.AddNew(4, () => new Card(CardType.AttackCard));
+            dealPile.AddNew(4, () => new Card(CardType.FavorCard));
+            dealPile.AddNew(4, () => new Card(CardType.WatermelonCard));
+            dealPile.AddNew(4, () => new Card(CardType.PotatoCard));
+            dealPile.AddNew(4, () => new Card(CardType.BeirdCard));
+            dealPile.AddNew(4, () => new Card(CardType.RainbowCard));
+            dealPile.AddNew(4, () => new Card(CardType.TacoCard));
 
             // Duplicate deck for more than 5 players
-            var finalDealPile = new CardCollection(dealPile.All);
+            var finalDealPile = new CardCollection(dealPile);
             for (int i = 0; i < playerCount / 6; i++)
-                finalDealPile = new CardCollection(finalDealPile.All.Concat(dealPile.All));
+                finalDealPile.CloneNew(dealPile);
             dealPile = finalDealPile;
 
             // Shuffle
@@ -60,7 +64,7 @@ namespace GameLogic
             var deck = new CardDeck(dealPile);
 
             // Add nukes to deck
-            deck.AddNew(playerCount - 1, () => new AtomicPigletCard());
+            deck.AddNew(playerCount - 1, () => new Card(CardType.AtomicPigletCard));
 
 
             // Shuffle deck

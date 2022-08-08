@@ -1,11 +1,13 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace GameLogic
 {
-    public class CardCollection
+    public class CardCollection : IEnumerable<Card>
     {
+        private static int nextId = 1;
         public List<Card> cards = new List<Card>();
 
         public CardCollection()
@@ -35,7 +37,9 @@ namespace GameLogic
         {
             for(int i = 0; i < count; i++)
             {
-                cards.Add(createFunc());
+                var card = createFunc();
+                card.Id = nextId++;
+                cards.Add(card);
             }
         }
 
@@ -68,22 +72,31 @@ namespace GameLogic
             return new CardCollection(top);
         }
 
-        public T DrawFromTop<T>() where T : Card
+        public Card DrawFromTop(CardType t)
         {
             for (int i = cards.Count-1; i >= 0; --i)
             {
                 var card = cards[i];
-                if (card is T)
+                if (card.Type == t)
                 {
                     cards.RemoveAt(i);
-                    return (T)card;
+                    return card;
                 }
             }
-            throw new InvalidOperationException($"Could not find a card of type {typeof(T).Name}");
+            throw new InvalidOperationException($"Could not find a card of type {t}");
         }
-        public T PeekFromTop<T>() where T : Card
+
+        public void CloneNew(CardCollection dealPile)
         {
-            return (T) cards.Last(x => x is T);
+            foreach (Card card in dealPile)
+            {
+                AddNew(1, () => new Card(card.Type));
+            }
+        }
+
+        public Card PeekFromTop(CardType t)
+        {
+            return cards.Last(x => x.Type == t);
         }
 
         public override string ToString()
@@ -91,8 +104,17 @@ namespace GameLogic
             return string.Join(", ", cards);
         }
 
-        public bool Contains<T>() => cards.OfType<T>().Any();
+        public bool Contains(CardType t) => cards.Any(x => x.Type == t);
 
+        public IEnumerator<Card> GetEnumerator()
+        {
+            return ((IEnumerable<Card>)cards).GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return ((IEnumerable)cards).GetEnumerator();
+        }
     }
 
 }

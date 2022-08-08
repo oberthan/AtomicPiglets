@@ -13,8 +13,8 @@ namespace GameLogicTest
             var game = GameFactory.CreateExplodingKittensLikeGame(2);
             var player = game.CurrentPlayer;
 
-            var defuseCard = new DefuseCard();
-            var atomicCard = new AtomicPigletCard();
+            var defuseCard = new Card(CardType.DefuseCard);
+            var atomicCard = new Card(CardType.AtomicPigletCard);
             var action = new DefuseAction(player, defuseCard, atomicCard);
             action.AtomicPositionFromTop = 2;
 
@@ -35,8 +35,8 @@ namespace GameLogicTest
             game.PlayerTurns = 2;
             var player = game.CurrentPlayer;
 
-            var defuseCard = new DefuseCard();
-            var atomicCard = new AtomicPigletCard();
+            var defuseCard = new Card(CardType.DefuseCard);
+            var atomicCard = new Card(CardType.AtomicPigletCard);
             var action = new DefuseAction(player, defuseCard, atomicCard);
             action.AtomicPositionFromTop = 2;
 
@@ -57,7 +57,7 @@ namespace GameLogicTest
             var game = GameFactory.CreateExplodingKittensLikeGame(2);
             var player = game.CurrentPlayer;
             game.PlayerTurns = 2;
-            var skipCard = new SkipCard();
+            var skipCard = new Card(CardType.SkipCard);
             var action = new SkipAction(player, skipCard);
             action.Execute(game);
 
@@ -78,7 +78,7 @@ namespace GameLogicTest
             var player = game.CurrentPlayer;
             game.PlayerTurns = turnsLeft;
 
-            var attackCard = new AttackCard();
+            var attackCard = new Card(CardType.AttackCard);
             var action = new AttackAction(player, attackCard);
 
             action.Execute(game);
@@ -96,7 +96,7 @@ namespace GameLogicTest
 
             var startDeck = game.Deck.All.ToList();
 
-            var card = new ShuffleCard();
+            var card = new Card(CardType.ShuffleCard);
             var action = new ShuffleAction(player, card);
 
             action.Execute(game);
@@ -114,7 +114,7 @@ namespace GameLogicTest
 
             var startDeckFromTop = game.Deck.All.Reverse().ToList();
 
-            var card = new SeeTheFutureCard();
+            var card = new Card(CardType.SeeTheFutureCard);
             var action = new SeeTheFutureAction(player, card);
 
             Assert.That(action.FutureCards, Is.Null);
@@ -133,7 +133,7 @@ namespace GameLogicTest
             var opponent = game.CurrentPlayer;
 
             // Other player played attack
-            var attackAction = new AttackAction(opponent, new AttackCard());
+            var attackAction = new AttackAction(opponent, new Card(CardType.AttackCard));
             game.PlayCard(attackAction);
             game.EndTurn();
 
@@ -142,7 +142,7 @@ namespace GameLogicTest
             var player = game.CurrentPlayer;
 
             // Current player nopes the attack
-            var card = new NopeCard();
+            var card = new Card(CardType.NopeCard);
             var nopeAction = new NopeAction(player, card);
             
             game.PlayCard(nopeAction);
@@ -163,15 +163,15 @@ namespace GameLogicTest
             var playerB = game.CurrentPlayer == game.Players.First() ? game.Players.Last() : game.Players.First();
 
             // Player A plays attack
-            var attackAction = new AttackAction(playerA, new AttackCard());
+            var attackAction = new AttackAction(playerA, new Card(CardType.AttackCard));
             game.PlayCard(attackAction);
 
             // Player B nopes
-            var playerBNopeAction = new NopeAction(playerB, new NopeCard());
+            var playerBNopeAction = new NopeAction(playerB, new Card(CardType.NopeCard));
             game.PlayCard(playerBNopeAction);
 
             // Player A nopes the nope
-            var playerANopeAction = new NopeAction(playerA, new NopeCard());
+            var playerANopeAction = new NopeAction(playerA, new Card(CardType.NopeCard));
             game.PlayCard(playerANopeAction);
 
             // Time is up, nope removes attack

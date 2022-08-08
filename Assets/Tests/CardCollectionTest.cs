@@ -16,7 +16,7 @@ namespace GameLogicTest
         public void DrawTopRemovesExpectedNumberOfCards(int cardsRequested, int cardsDrawn, int cardsLeft)
         {
             var cards = new CardCollection();
-            cards.AddNew(5, () => new SkipCard());
+            cards.AddNew(5, () => new Card(CardType.SkipCard));
 
             var drawnCards = cards.DrawTop(cardsRequested);
 
@@ -28,14 +28,14 @@ namespace GameLogicTest
         public void DrawTopDrawsInStackOrder()
         {
             var cards = new CardCollection();
-            cards.Add(new SkipCard());
-            cards.Add(new NopeCard());
-            cards.Add(new FavorCard());
+            cards.Add(new Card(CardType.SkipCard));
+            cards.Add(new Card(CardType.NopeCard));
+            cards.Add(new Card(CardType.FavorCard));
 
             var drawnCards = cards.DrawTop(2);
 
-            Assert.That(drawnCards.All.First(), Is.TypeOf<FavorCard>());
-            Assert.That(drawnCards.All.Last(), Is.TypeOf<NopeCard>());
+            Assert.That(drawnCards.All.First().Type, Is.EqualTo(CardType.FavorCard));
+            Assert.That(drawnCards.All.Last().Type, Is.EqualTo(CardType.NopeCard));
 
         }
     }

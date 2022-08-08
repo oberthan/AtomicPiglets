@@ -4,6 +4,7 @@ using FishNet.Object;
 using FishNet.Object.Synchronizing;
 using FishNet.Transporting;
 using GameLogic;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -91,24 +92,68 @@ namespace Assets.Network
             Debug.Log($"Client {playerState.PlayerInfo.PlayerName} game state hand: " + playerState.Hand.ToString());
             myPlayerGameState = playerState;
             publicGameState = publicState;
-            LegalActionsButtonList(playerState.AvailableActions);
-            PlayerHandText.text =  string.Join("\n", playerState.Hand);
-
+            var actionList = DeserializeActionListJson(playerState.ActionListJson);
+            LegalActionsButtonList(actionList);
+            PlayerHandText.text =  string.Join("\n", playerState.Hand.All.Select(x => x.Type));
+            Debug.Log("Actions: "+string.Join("\n", actionList.Select(x => x.FormatShort())));
+//            Debug.Log("Actions json: " + playerState.ActionListJson);
             //LegalActionsDropdown.ClearOptions();
             //LegalActionsDropdown.AddOptions(playerState.AvailableActions.ToList());
 
         }
 
+        public void PlayAction(IGameAction action)
+        {
+            var actionJson = SerializeGameActionJson(action);
+            ServerPlayAction(actionJson);
+        }
+
+        [ServerRpc]
+        public void ServerPlayAction(string actionJson)
+        {
+            var action = DeserializeGameActionJson(actionJson);
+            game.PlayAction(action);
+        }
+
+        public static List<IGameAction> DeserializeActionListJson(string actionListJson)
+        {
+            return JsonConvert.DeserializeObject<List<IGameAction>>(actionListJson, new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.Objects,
+            });
+        }
+        public static string SerializeActionListJson(List<IGameAction> actionList)
+        {
+            return JsonConvert.SerializeObject(actionList, Formatting.Indented, new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.Objects,
+            });
+        }
+        public static IGameAction DeserializeGameActionJson(string actionJson)
+        {
+            return JsonConvert.DeserializeObject<IGameAction>(actionJson, new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.Objects,
+            });
+        }
+        public static string SerializeGameActionJson(IGameAction gameAction)
+        {
+            return JsonConvert.SerializeObject(gameAction, Formatting.Indented, new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.Objects,
+            });
+        }
+
         [SerializeField] Transform LegalActionsList;
         [SerializeField] GameObject ButtonPrefab;         
-        public void LegalActionsButtonList(string[] availableActions)
+        public void LegalActionsButtonList(List<IGameAction> availableActions)
         {
             foreach(var action in availableActions)
             {
                 var TheAction = action;
-                GameObject button = (GameObject)Instantiate(ButtonPrefab);
+                GameObject button = Instantiate(ButtonPrefab);
                 var textComponent = button.GetComponentInChildren<TMP_Text>();
-                textComponent.text = action.ToString();
+                textComponent.text = action.FormatShort();
                 Debug.Log($"Creating a button for the action: {TheAction}");
 
                 button.transform.SetParent(LegalActionsList.transform, false);
@@ -125,22 +170,22 @@ namespace Assets.Network
             Debug.Log(TheAction + "was chosen.");
         }
     }
-
-
     public class PlayerGameState
     {
         // Player info and hidden hand
         public PlayerInfo PlayerInfo;
-        public string[] Hand;
-        public string[] AvailableActions;
+        public CardCollection Hand;
+        public string ActionListJson;
 
         internal static PlayerGameState FromAtomicGame(Player player, AtomicPigletRules rules)
         {
+            var actionList = rules.GetLegalActionsForPlayer(player).ToList();
+
             return new PlayerGameState
             {
                 PlayerInfo = PlayerInfoFromPlayer(player),
-                Hand =  SerializeCardCollection(player.Hand),
-                AvailableActions = GetLegalActions(player, rules)
+                Hand = player.Hand,
+                ActionListJson = GameServer.SerializeActionListJson(actionList)
             };
         }
 
@@ -157,7 +202,7 @@ namespace Assets.Network
 
         public static string[] SerializeCardCollection(CardCollection cards)
         {
-            return cards.All.Select(x => x.Name).ToArray();
+            return cards.All.Select(x => x.GetType().Name).ToArray();
         }
 
     }
@@ -166,8 +211,8 @@ namespace Assets.Network
     {
         public PlayerInfo CurrentPlayer;
         public PlayerInfo[] AllPlayers;
-        public string[] PlayPile;
-        public string[] DiscardPile;
+        public CardCollection PlayPile;
+        public CardCollection DiscardPile;
         public int DeckCardsLeft;
         public int TurnsLeft;
 
@@ -177,8 +222,8 @@ namespace Assets.Network
             {
                 CurrentPlayer = PlayerGameState.PlayerInfoFromPlayer(game.CurrentPlayer),
                 AllPlayers = game.Players.Select(PlayerGameState.PlayerInfoFromPlayer).ToArray(),
-                PlayPile = PlayerGameState.SerializeCardCollection(game.PlayPile),
-                DiscardPile = PlayerGameState.SerializeCardCollection(game.DiscardPile),
+                PlayPile = game.PlayPile,
+                DiscardPile = game.DiscardPile,
                 DeckCardsLeft = game.Deck.Count,
                 TurnsLeft = game.PlayerTurns
             };

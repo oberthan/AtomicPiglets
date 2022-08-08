@@ -19,10 +19,10 @@ namespace GameLogic
                 var hand = player.Hand;
 
                 // Players has drawn atomic piglet and must deal with it.
-                if (hand.Contains<AtomicPigletCard>())
+                if (hand.Contains(CardType.AtomicPigletCard))
                 {
-                    if (hand.Contains<DefuseCard>())
-                        yield return new DefuseAction(player, hand.PeekFromTop<DefuseCard>(), hand.DrawFromTop<AtomicPigletCard>());
+                    if (hand.Contains(CardType.DefuseCard))
+                        yield return new DefuseAction(player, hand.PeekFromTop(CardType.DefuseCard), hand.DrawFromTop(CardType.AtomicPigletCard));
                     else
                         yield return new GameOverAction(player);
                 }
@@ -30,25 +30,24 @@ namespace GameLogic
                 {
                     // Player can end this turn by drawing from deck.
                     yield return new DrawFromDeckAction(player);
-
-                    if (hand.Contains<SkipCard>()) yield return new SkipAction(player, hand.PeekFromTop<SkipCard>());
-                    if (hand.Contains<AttackCard>()) yield return new AttackAction(player, hand.PeekFromTop<AttackCard>());
-                    if (hand.Contains<ShuffleCard>()) yield return new ShuffleAction(player, hand.PeekFromTop<ShuffleCard>());
-                    if (hand.Contains<SeeTheFutureCard>()) yield return new SeeTheFutureAction(player, hand.PeekFromTop<SeeTheFutureCard>());
-                    if (hand.Contains<FavorCard>()) yield return new FavorAction(player, hand.PeekFromTop<FavorCard>());
+                    if (hand.Contains(CardType.SkipCard)) yield return new SkipAction(player, hand.PeekFromTop(CardType.SkipCard));
+                    if (hand.Contains(CardType.AttackCard)) yield return new AttackAction(player, hand.PeekFromTop(CardType.AttackCard));
+                    if (hand.Contains(CardType.ShuffleCard)) yield return new ShuffleAction(player, hand.PeekFromTop(CardType.ShuffleCard));
+                    if (hand.Contains(CardType.SeeTheFutureCard)) yield return new SeeTheFutureAction(player, hand.PeekFromTop(CardType.SeeTheFutureCard));
+                    if (hand.Contains(CardType.FavorCard)) yield return new FavorAction(player, hand.PeekFromTop(CardType.FavorCard));
                     var twoEqualCardGroups = from card in hand.All
-                                               group card by card.Name into collectionGroups
+                                               group card by card.GetType() into collectionGroups
                                                where collectionGroups.Count() >= 2
                                                select collectionGroups.Take(2).ToList();
                     if (twoEqualCardGroups.Any()) yield return new DrawFromPlayerAction(player, twoEqualCardGroups.SelectMany(x => x).ToArray());
 
                     var threeEqualCardGroups = from card in hand.All
-                                             group card by card.Name into collectionGroups
+                                             group card by card.GetType() into collectionGroups
                                              where collectionGroups.Count() >= 3
                                              select collectionGroups.Take(3).ToList();
                     if (threeEqualCardGroups.Any()) yield return new DemandCardFromPlayerAction(player, threeEqualCardGroups.SelectMany(x => x).ToArray());
 
-                    var distinctCards = hand.All.Distinct(new GenericEqualityComparer<Card, string>(x => x.Name)).ToList();
+                    var distinctCards = hand.All.Distinct(new GenericEqualityComparer<Card, Type>(x => x.GetType())).ToList();
                     if (distinctCards.Count >= 5) yield return new DrawFromDiscardPileAction(player, distinctCards.ToArray());
                 }
             }
