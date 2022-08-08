@@ -127,6 +127,7 @@ namespace Assets.Network
             return JsonConvert.DeserializeObject<List<IGameAction>>(actionListJson, new JsonSerializerSettings
             {
                 TypeNameHandling = TypeNameHandling.Objects,
+                ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor
             });
         }
         public static string SerializeActionListJson(List<IGameAction> actionList)
@@ -141,6 +142,7 @@ namespace Assets.Network
             return JsonConvert.DeserializeObject<IGameAction>(actionJson, new JsonSerializerSettings
             {
                 TypeNameHandling = TypeNameHandling.Objects,
+                ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor
             });
         }
         public static string SerializeGameActionJson(IGameAction gameAction)

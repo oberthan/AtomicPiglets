@@ -11,16 +11,21 @@ namespace GameLogic
     }
     public class DrawFromDeckAction : IGameAction
     {
-        public Guid playerId;
+        public Guid PlayerId;
 
-        public DrawFromDeckAction()
+        /// <summary>
+        /// Deserialize constructor.
+        /// </summary>
+        private DrawFromDeckAction() { }
+        public DrawFromDeckAction(Player player)
         {
+            PlayerId = player.Id;
         }
 
         public void Execute(AtomicGame game)
         {
             var card = game.Deck.DrawTop();
-            var player = game.GetPlayer(playerId);
+            var player = game.GetPlayer(PlayerId);
             player.AddCard(card);
             game.PlayerTurns--;
         }
@@ -33,18 +38,24 @@ namespace GameLogic
 
     public interface ICardAction : IGameAction
     {
+        Guid PlayerId { get; }
         IEnumerable<Card> Cards { get; }
     }
 
     public class DefuseAction : ICardAction
     {
-        private readonly Player player;
-        private readonly Card defuseCard;
-        private readonly Card atomicPigletCard;
+        public Guid PlayerId { get; private set; }
+        private Card defuseCard;
+        private Card atomicPigletCard;
+
+        /// <summary>
+        /// Deserialize constructor.
+        /// </summary>
+        private DefuseAction() { }
 
         public DefuseAction(Player player, Card defuseCard, Card atomicPigletCard)
         {
-            this.player = player;
+            PlayerId = player.Id;
             this.defuseCard = defuseCard;
             this.atomicPigletCard = atomicPigletCard;
         }
@@ -66,12 +77,17 @@ namespace GameLogic
     }
     public class SkipAction : ICardAction
     {
-        private readonly Player player;
-        private readonly Card card;
+        public Guid PlayerId { get; private set; }
+        private Card card;
+
+        /// <summary>
+        /// Deserialize constructor.
+        /// </summary>
+        private SkipAction() { }
 
         public SkipAction(Player player, Card card)
         {
-            this.player = player;
+            PlayerId = player.Id;
             this.card = card;
         }
 
@@ -90,12 +106,12 @@ namespace GameLogic
 
     public class AttackAction : ICardAction
     {
-        private readonly Player player;
-        private readonly Card card;
-
+        public Guid PlayerId { get; private set; }
+        private Card card;
+        private AttackAction() { }
         public AttackAction(Player player, Card card)
         {
-            this.player = player;
+            PlayerId = player.Id;
             this.card = card;
         }
 
@@ -123,12 +139,12 @@ namespace GameLogic
 
     public class ShuffleAction : ICardAction
     {
-        private readonly Player player;
-        private readonly Card card;
-
+        public Guid PlayerId { get; private set; }
+        private Card card;
+        private ShuffleAction() { }
         public ShuffleAction(Player player, Card card)
         {
-            this.player = player;
+            PlayerId = player.Id;
             this.card = card;
         }
 
@@ -148,12 +164,12 @@ namespace GameLogic
 
     public class SeeTheFutureAction : ICardAction
     {
-        private readonly Player player;
-        private readonly Card card;
-
+        public Guid PlayerId { get; private set; }
+        private Card card;
+        private SeeTheFutureAction() { }
         public SeeTheFutureAction(Player player, Card card)
         {
-            this.player = player;
+            PlayerId = player.Id;
             this.card = card;
         }
 
@@ -174,12 +190,12 @@ namespace GameLogic
     }
     public class FavorAction : ICardAction
     {
-        private readonly Player player;
-        private readonly Card card;
-
+        public Guid PlayerId { get; private set; }
+        private Card card;
+        private FavorAction() { }
         public FavorAction(Player player, Card card)
         {
-            this.player = player;
+            PlayerId = player.Id;
             this.card = card;
         }
 
@@ -200,12 +216,12 @@ namespace GameLogic
 
     public class NopeAction : ICardAction
     {
-        private readonly Player player;
-        private readonly Card card;
-
+        public Guid PlayerId { get; private set; }
+        private Card card;
+        private NopeAction() { }
         public NopeAction(Player player, Card card)
         {
-            this.player = player;
+            PlayerId = player.Id;
             this.card = card;
         }
 
@@ -226,12 +242,12 @@ namespace GameLogic
 
     public class DrawFromPlayerAction : ICardAction
     {
-        private readonly Player player;
-        private readonly Card[] cards;
-
+        public Guid PlayerId { get; private set; }
+        private Card[] cards;
+        private DrawFromPlayerAction() { }
         public DrawFromPlayerAction(Player player, Card[] cards)
         {
-            this.player = player;
+            PlayerId = player.Id;
             this.cards = cards;
         }
 
@@ -249,12 +265,12 @@ namespace GameLogic
 
     public class DemandCardFromPlayerAction : ICardAction
     {
-        private readonly Player player;
-        private readonly Card[] cards;
-
+        public Guid PlayerId { get; private set; }
+        private Card[] cards;
+        private DemandCardFromPlayerAction() { }
         public DemandCardFromPlayerAction(Player player, Card[] cards)
         {
-            this.player = player;
+            PlayerId = player.Id;
             this.cards = cards;
         }
 
@@ -272,12 +288,12 @@ namespace GameLogic
 
     public class DrawFromDiscardPileAction : ICardAction
     {
-        private readonly Player player;
-        private readonly Card[] cards;
-
+        public Guid PlayerId { get; private set; }
+        private Card[] cards;
+        private DrawFromDiscardPileAction() { }
         public DrawFromDiscardPileAction(Player player, Card[] cards)
         {
-            this.player = player;
+            PlayerId = player.Id;
             this.cards = cards;
         }
 

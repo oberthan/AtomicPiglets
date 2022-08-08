@@ -66,7 +66,10 @@ namespace GameLogic
 
         public void PlayCard(ICardAction cardAction)
         {
+            var player = GetPlayer(cardAction.PlayerId);
+            player.Hand.RemoveAll(cardAction.Cards);
             PlayPileActions.Add(cardAction);
+            ExecutePlayedCards();
             // TODO: Reset execute timer
         }
 

@@ -86,6 +86,11 @@ namespace GameLogic
             throw new InvalidOperationException($"Could not find a card of type {t}");
         }
 
+        internal void RemoveAll(IEnumerable<Card> cardsToRemove)
+        {
+            foreach (var card in cardsToRemove) cards.Remove(card);
+        }
+
         public void CloneNew(CardCollection dealPile)
         {
             foreach (Card card in dealPile)

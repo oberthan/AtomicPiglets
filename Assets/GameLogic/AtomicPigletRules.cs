@@ -29,7 +29,7 @@ namespace GameLogic
                 else // Player has NOT just drawn atomic piglet
                 {
                     // Player can end this turn by drawing from deck.
-                    yield return new DrawFromDeckAction() { playerId = player.Id};
+                    yield return new DrawFromDeckAction(player);
                     if (hand.Contains(CardType.SkipCard)) yield return new SkipAction(player, hand.PeekFromTop(CardType.SkipCard));
                     if (hand.Contains(CardType.AttackCard)) yield return new AttackAction(player, hand.PeekFromTop(CardType.AttackCard));
                     if (hand.Contains(CardType.ShuffleCard)) yield return new ShuffleAction(player, hand.PeekFromTop(CardType.ShuffleCard));
