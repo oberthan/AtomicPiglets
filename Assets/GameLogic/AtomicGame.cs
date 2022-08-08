@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace GameLogic
@@ -71,6 +72,18 @@ namespace GameLogic
             {
                 PlayPileActions.Last().Execute(this);
                 PlayPileActions.RemoveAt(PlayPileActions.Count - 1);
+            }
+        }
+
+        public void PlayAction(IGameAction action)
+        {
+            if (action is ICardAction cardAction)
+            {
+                PlayCard(cardAction);
+            }
+            else
+            {
+                action.Execute(this);
             }
         }
     }

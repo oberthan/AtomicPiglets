@@ -39,10 +39,10 @@ namespace GameLogic
     public class DefuseAction : ICardAction
     {
         private readonly Player player;
-        private readonly DefuseCard defuseCard;
-        private readonly AtomicPigletCard atomicPigletCard;
+        private readonly Card defuseCard;
+        private readonly Card atomicPigletCard;
 
-        public DefuseAction(Player player, DefuseCard defuseCard, AtomicPigletCard atomicPigletCard)
+        public DefuseAction(Player player, Card defuseCard, Card atomicPigletCard)
         {
             this.player = player;
             this.defuseCard = defuseCard;
@@ -67,9 +67,9 @@ namespace GameLogic
     public class SkipAction : ICardAction
     {
         private readonly Player player;
-        private readonly SkipCard card;
+        private readonly Card card;
 
-        public SkipAction(Player player, SkipCard card)
+        public SkipAction(Player player, Card card)
         {
             this.player = player;
             this.card = card;
@@ -91,9 +91,9 @@ namespace GameLogic
     public class AttackAction : ICardAction
     {
         private readonly Player player;
-        private readonly AttackCard card;
+        private readonly Card card;
 
-        public AttackAction(Player player, AttackCard card)
+        public AttackAction(Player player, Card card)
         {
             this.player = player;
             this.card = card;
@@ -124,9 +124,9 @@ namespace GameLogic
     public class ShuffleAction : ICardAction
     {
         private readonly Player player;
-        private readonly ShuffleCard card;
+        private readonly Card card;
 
-        public ShuffleAction(Player player, ShuffleCard card)
+        public ShuffleAction(Player player, Card card)
         {
             this.player = player;
             this.card = card;
@@ -149,9 +149,9 @@ namespace GameLogic
     public class SeeTheFutureAction : ICardAction
     {
         private readonly Player player;
-        private readonly SeeTheFutureCard card;
+        private readonly Card card;
 
-        public SeeTheFutureAction(Player player, SeeTheFutureCard card)
+        public SeeTheFutureAction(Player player, Card card)
         {
             this.player = player;
             this.card = card;
@@ -175,9 +175,9 @@ namespace GameLogic
     public class FavorAction : ICardAction
     {
         private readonly Player player;
-        private readonly FavorCard card;
+        private readonly Card card;
 
-        public FavorAction(Player player, FavorCard card)
+        public FavorAction(Player player, Card card)
         {
             this.player = player;
             this.card = card;
@@ -201,9 +201,9 @@ namespace GameLogic
     public class NopeAction : ICardAction
     {
         private readonly Player player;
-        private readonly NopeCard card;
+        private readonly Card card;
 
-        public NopeAction(Player player, NopeCard card)
+        public NopeAction(Player player, Card card)
         {
             this.player = player;
             this.card = card;

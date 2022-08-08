@@ -13,12 +13,12 @@ namespace GameLogicTest
     public class AtomicGameTest
     {
         [Test]
-        [TestCase(5, 56)] // 46 non-nuke/defuser
+        [TestCase(5, 56)] // 47 non-nuke/defuser
         [TestCase(4, 55)] // -1 nuke
         [TestCase(3, 53)] // - 2 nuke, -1 defuser
         [TestCase(2, 51)] // - 3 nuke, -2 defuser
         [TestCase(1, 49)] // -4 nuke, -3 defuser
-        [TestCase(6, 2*46 + 5 + 8)] // 2*46 + nukes + defusers
+        [TestCase(6, 2*47 + 5 + 8)] // 2*46 + nukes + defusers
         public void TotalCardsDependsOnPlayers(int playerCount, int expectedTotal)
         {
             var game = GameFactory.CreateExplodingKittensLikeGame(playerCount);
@@ -30,7 +30,19 @@ namespace GameLogicTest
             {
                 Assert.That(player.Hand.Count, Is.EqualTo(8));
             }
+        }
 
+        [Test]
+        [TestCase(1)]
+        [TestCase(5)]
+        [TestCase(6)]
+        [TestCase(10)]
+        public void CardsHaveUniqueIds(int playerCount)
+        {
+            var game = GameFactory.CreateExplodingKittensLikeGame(playerCount);
+            var allCards = game.Deck.Concat(game.Players.SelectMany(x => x.Hand)).ToList();
+            var uniqueIds = allCards.Select(x => x.Id).Distinct().Count();
+            Assert.That(uniqueIds, Is.EqualTo(allCards.Count));
         }
 
         [Test]
@@ -39,7 +51,7 @@ namespace GameLogicTest
         public void DeckContainsOneLessNukeThanPlayers(int players, int expectedNukes)
         {
             var game = GameFactory.CreateExplodingKittensLikeGame(players);
-            var nukeCount = game.Deck.All.OfType<AtomicPigletCard>().Count();
+            var nukeCount = game.Deck.All.Count(x => x.Type == CardType.AtomicPigletCard);
 
             Assert.That(nukeCount, Is.EqualTo(expectedNukes));
         }
@@ -55,7 +67,7 @@ namespace GameLogicTest
 
             var allCards = game.Deck.All.Concat(game.Players.SelectMany(x => x.Hand.All)).ToList();
 
-            var defuseCount = allCards.OfType<DefuseCard>().Count();
+            var defuseCount = allCards.Count(x => x.Type == CardType.DefuseCard);
 
             Assert.That(defuseCount, Is.EqualTo(expectedDefusers));
         }
