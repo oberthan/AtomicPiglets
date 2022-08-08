@@ -9,8 +9,11 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+<<<<<<< HEAD
 using UnityEngine.UI;
+=======
 using UnityEngine.UIElements;
+>>>>>>> 203e607e9a2153a5cbee53e70856efb7a1a071cd
 
 namespace Assets.Network
 {
@@ -91,12 +94,18 @@ namespace Assets.Network
             Debug.Log($"Client {playerState.PlayerInfo.PlayerName} game state hand: " + playerState.Hand.ToString());
             myPlayerGameState = playerState;
             publicGameState = publicState;
+<<<<<<< HEAD
             LegalActionsButtonList(playerState.AvailableActions);
+            LegalActionsText.text = string.Join("\n", playerState.AvailableActions);
+            PlayerHandText.text =  "Hand:" + string.Join("\n", playerState.Hand.All);
+=======
+//            LegalActionsText.text = string.Join("\n", playerState.AvailableActions);
             PlayerHandText.text =  string.Join("\n", playerState.Hand);
 
             LegalActionsDropdown.ClearOptions();
             LegalActionsDropdown.AddOptions(playerState.AvailableActions.ToList());
 
+>>>>>>> 203e607e9a2153a5cbee53e70856efb7a1a071cd
         }
 
         [SerializeField] Transform LegalActionsList;

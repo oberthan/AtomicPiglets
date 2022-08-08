@@ -6,7 +6,7 @@ namespace GameLogic
 {
     public class CardCollection
     {
-        private List<Card> cards = new List<Card>();
+        public List<Card> cards = new List<Card>();
 
         public CardCollection()
         {
