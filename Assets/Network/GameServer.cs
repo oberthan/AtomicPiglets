@@ -159,7 +159,7 @@ namespace Assets.Network
                 button.transform.SetParent(LegalActionsList.transform, false);
                 button.transform.rotation = new Quaternion(0, 0, 0, 0);
                 button.GetComponent<Button>().onClick.AddListener(
-                    () => { ActionPressed(TheAction); }
+                    () => { ActionPressed(TheAction.ToString()); }
                     );
                
             }
@@ -167,7 +167,7 @@ namespace Assets.Network
 
         private void ActionPressed(string TheAction)
         {
-            Debug.Log(TheAction + "was chosen.");
+            Debug.Log(TheAction + " was chosen.");
         }
     }
     public class PlayerGameState
