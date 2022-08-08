@@ -17,6 +17,11 @@ namespace GameLogic
 
         public CardCollection Deck { get; }
 
+        internal Player GetPlayer(Guid playerId)
+        {
+            return Players.Single(x => x.Id == playerId);
+        }
+
         /// <summary>
         /// Cards played, but not yet executed.
         /// </summary>

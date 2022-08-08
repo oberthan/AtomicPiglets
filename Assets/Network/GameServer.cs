@@ -90,6 +90,7 @@ namespace Assets.Network
         public void ClientUpdateGameState(NetworkConnection conn, PlayerGameState playerState, PublicGameState publicState)
         {
             Debug.Log($"Client {playerState.PlayerInfo.PlayerName} game state hand: " + playerState.Hand.ToString());
+            Debug.Log($"Client update game state owner: {IsOwner}");
             myPlayerGameState = playerState;
             publicGameState = publicState;
             var actionList = DeserializeActionListJson(playerState.ActionListJson);
@@ -108,11 +109,17 @@ namespace Assets.Network
             ServerPlayAction(actionJson);
         }
 
-        [ServerRpc]
+        [ServerRpc(RequireOwnership = false)]
         public void ServerPlayAction(string actionJson)
         {
+            if (!InstanceFinder.NetworkManager.IsServer)
+            {
+                Debug.LogWarning("Only servers can play actions");
+                return;
+            }
             var action = DeserializeGameActionJson(actionJson);
             game.PlayAction(action);
+            UpdateClients();
         }
 
         public static List<IGameAction> DeserializeActionListJson(string actionListJson)
@@ -148,7 +155,9 @@ namespace Assets.Network
         [SerializeField] GameObject ButtonPrefab;         
         public void LegalActionsButtonList(List<IGameAction> availableActions)
         {
-            foreach(var action in availableActions)
+            Debug.Log($"Action owner: {IsOwner}");
+            LegalActionsList.DetachChildren();
+            foreach (var action in availableActions)
             {
                 var TheAction = action;
                 GameObject button = Instantiate(ButtonPrefab);
@@ -158,16 +167,26 @@ namespace Assets.Network
 
                 button.transform.SetParent(LegalActionsList.transform, false);
                 button.transform.rotation = new Quaternion(0, 0, 0, 0);
+                var buttonAction = action;
                 button.GetComponent<Button>().onClick.AddListener(
-                    () => { ActionPressed(TheAction.ToString()); }
+                    () => { ActionPressed(buttonAction); }
                     );
                
             }
         }
 
-        private void ActionPressed(string TheAction)
+        private void ActionPressed(IGameAction action)
         {
-            Debug.Log(TheAction + " was chosen.");
+            Debug.Log(action.FormatShort() + " was chosen.");
+            Debug.Log($"Action pressed owner: {IsOwner}");
+            SigHej("Muggi");
+            PlayAction(action);
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void SigHej(string besked)
+        {
+            Debug.Log("Der bliver sagt hej til server med besked "+besked);
         }
     }
     public class PlayerGameState

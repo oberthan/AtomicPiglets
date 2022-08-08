@@ -11,16 +11,16 @@ namespace GameLogic
     }
     public class DrawFromDeckAction : IGameAction
     {
-        private readonly Player player;
+        public Guid playerId;
 
-        public DrawFromDeckAction(Player player)
+        public DrawFromDeckAction()
         {
-            this.player = player;
         }
 
         public void Execute(AtomicGame game)
         {
             var card = game.Deck.DrawTop();
+            var player = game.GetPlayer(playerId);
             player.AddCard(card);
             game.PlayerTurns--;
         }
