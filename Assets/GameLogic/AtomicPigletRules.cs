@@ -51,7 +51,20 @@ namespace GameLogic
                     if (distinctCards.Count >= 5) yield return new DrawFromDiscardPileAction(player, distinctCards.ToArray());
                 }
             }
-            yield break;
+            else yield return new NoAction();
+        }
+    }
+
+    public class NoAction : IGameAction
+    {
+        public void Execute(AtomicGame game)
+        {
+            // Do nothing
+        }
+
+        public string FormatShort()
+        {
+            return "No action";
         }
     }
 

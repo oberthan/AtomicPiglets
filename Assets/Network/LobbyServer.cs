@@ -54,6 +54,8 @@ namespace Assets.Network
             base.OnStartServer();
             Debug.Log("Lobby server started");
             NetworkManager.ServerManager.OnRemoteConnectionState += ServerManager_OnRemoteConnectionState;
+            SceneManager.OnActiveSceneSet += SceneManager_OnActiveSceneSet;
+            SceneManager.OnClientPresenceChangeEnd += SceneManager_OnClientPresenceChangeEnd;
         }
 
         public override void OnStopServer()
@@ -61,6 +63,7 @@ namespace Assets.Network
             base.OnStopServer();
             Debug.Log("Lobby server stopped");
             base.NetworkManager.ServerManager.OnRemoteConnectionState -= ServerManager_OnRemoteConnectionState;
+            SceneManager.OnActiveSceneSet -= SceneManager_OnActiveSceneSet;
         }
 
         internal static float GetStartTimer()
@@ -130,43 +133,8 @@ namespace Assets.Network
             }
 
             gameScene.MovedNetworkObjects = _playerInfos.Select(x => x.Key).SelectMany(x => x.Objects).ToArray();
-            //foreach (NetworkConnection item in InstanceFinder.ServerManager.Clients.Values)
-            //{
-            //    foreach (NetworkObject nob in item.Objects)
-            //    {
-            //        movedObjects.Add(nob);
-            //    }
-            //}
-
-            
-
-//            gameScene.MovedNetworkObjects = movedObjects;
 
             SceneManager.LoadGlobalScenes(gameScene);
-            SceneManager.OnActiveSceneSet += SceneManager_OnActiveSceneSet;
-
-
-            //Debug.Log("Unloading menu scene");
-            //var menuScene = new FishNet.Managing.Scened.SceneUnloadData("MenuScene");
-            //SceneManager.UnloadGlobalScenes(menuScene);
-
-
-            //var gs1 = SceneManager.GetComponent<GameServer>();
-            //if (gs1 == null) Debug.Log("Did NOT found GameServer with scene manager");
-
-            //Debug.Log("Start client game");
-            //var gameNetworking = GameObject.Find("GameNetworking");
-            //if (gameNetworking == null)
-            //{
-            //    Debug.Log("Did not find game server");
-            //}
-            //else
-            //{
-            //    Debug.Log("Found game server");
-            //    var gameServer = gameNetworking.GetComponent<GameServer>();
-            //    gameServer.StartGame(_playerInfos);
-            //}
-
 
             StartClientGame();
         }
@@ -182,9 +150,19 @@ namespace Assets.Network
             {
                 Debug.Log("Did find game server in OnActiveSceneSet");
                 var gameServer = gameNetworking.GetComponent<GameServer>();
+//                gameServer.StartGame(_playerInfos);
+            }
+        }
+        private void SceneManager_OnClientPresenceChangeEnd(ClientPresenceChangeEventArgs obj)
+        {
+            var gameNetworking = GameObject.Find("GameNetworking");
+            if (gameNetworking != null)
+            {
+                var gameServer = gameNetworking.GetComponent<GameServer>();
                 gameServer.StartGame(_playerInfos);
             }
         }
+
 
         [ObserversRpc]
         public void StartClientGame()

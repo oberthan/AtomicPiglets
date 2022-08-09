@@ -27,7 +27,7 @@ namespace GameLogic
             var card = game.Deck.DrawTop();
             var player = game.GetPlayer(PlayerId);
             player.AddCard(card);
-            game.PlayerTurns--;
+            game.EndTurn();
         }
 
         public string FormatShort()
