@@ -88,7 +88,8 @@ namespace GameLogic
 
         internal void RemoveAll(IEnumerable<Card> cardsToRemove)
         {
-            foreach (var card in cardsToRemove) cards.Remove(card);
+            var cardIds = new HashSet<int>(cardsToRemove.Select(card => card.Id));
+            cards.RemoveAll(x => cardIds.Contains(x.Id));
         }
 
         public void CloneNew(CardCollection dealPile)

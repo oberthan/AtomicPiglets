@@ -70,6 +70,7 @@ namespace Assets.Network
                 Debug.Log($"{player.Name} hand: " + player.FormatHand());
 
                 var connection = playerConnectionMap[player.Id];
+                Debug.Log("Getting legal actions from player " + player.Id);
                 PlayerGameState playerState = PlayerGameState.FromAtomicGame(player, rules);
 
                 Debug.Log($"Server {playerState.PlayerInfo.PlayerName} game state hand: " + playerState.Hand.ToString());
@@ -83,6 +84,7 @@ namespace Assets.Network
 
   //      public TMP_Text LegalActionsText;
         public TMP_Text PlayerHandText;
+        public TMP_Text PlayerTurnsLeft;
 
         public TMP_Dropdown LegalActionsDropdown;
 
@@ -96,6 +98,7 @@ namespace Assets.Network
             var actionList = DeserializeActionListJson(playerState.ActionListJson);
             LegalActionsButtonList(actionList);
             PlayerHandText.text =  string.Join("\n", playerState.Hand.All.Select(x => x.Type));
+            PlayerTurnsLeft.text = publicState.TurnsLeft.ToString();
             Debug.Log("Actions: "+string.Join("\n", actionList.Select(x => x.FormatShort())));
 //            Debug.Log("Actions json: " + playerState.ActionListJson);
             //LegalActionsDropdown.ClearOptions();
@@ -105,6 +108,10 @@ namespace Assets.Network
 
         public void PlayAction(IGameAction action)
         {
+            if (action is ICardAction cardAction)
+            {
+                Debug.Log("Playing action for player " + cardAction.PlayerId);
+            }
             var actionJson = SerializeGameActionJson(action);
             ServerPlayAction(actionJson);
         }

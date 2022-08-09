@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 
 namespace GameLogic
@@ -44,8 +45,11 @@ namespace GameLogic
 
     public class DefuseAction : ICardAction
     {
+        [JsonProperty]
         public Guid PlayerId { get; private set; }
+        [JsonProperty]
         private Card defuseCard;
+        [JsonProperty]
         private Card atomicPigletCard;
 
         /// <summary>
@@ -77,7 +81,9 @@ namespace GameLogic
     }
     public class SkipAction : ICardAction
     {
+        [JsonProperty]
         public Guid PlayerId { get; private set; }
+        [JsonProperty]
         private Card card;
 
         /// <summary>
@@ -106,7 +112,10 @@ namespace GameLogic
 
     public class AttackAction : ICardAction
     {
+        [JsonProperty]
         public Guid PlayerId { get; private set; }
+        [JsonProperty]
+
         private Card card;
         private AttackAction() { }
         public AttackAction(Player player, Card card)
@@ -139,7 +148,10 @@ namespace GameLogic
 
     public class ShuffleAction : ICardAction
     {
+        [JsonProperty]
         public Guid PlayerId { get; private set; }
+        [JsonProperty]
+
         private Card card;
         private ShuffleAction() { }
         public ShuffleAction(Player player, Card card)
@@ -164,7 +176,10 @@ namespace GameLogic
 
     public class SeeTheFutureAction : ICardAction
     {
+        [JsonProperty]
         public Guid PlayerId { get; private set; }
+        [JsonProperty]
+
         private Card card;
         private SeeTheFutureAction() { }
         public SeeTheFutureAction(Player player, Card card)
@@ -190,7 +205,10 @@ namespace GameLogic
     }
     public class FavorAction : ICardAction
     {
+        [JsonProperty]
         public Guid PlayerId { get; private set; }
+        [JsonProperty]
+
         private Card card;
         private FavorAction() { }
         public FavorAction(Player player, Card card)
@@ -216,7 +234,9 @@ namespace GameLogic
 
     public class NopeAction : ICardAction
     {
+        [JsonProperty]
         public Guid PlayerId { get; private set; }
+        [JsonProperty]
         private Card card;
         private NopeAction() { }
         public NopeAction(Player player, Card card)
@@ -242,7 +262,9 @@ namespace GameLogic
 
     public class DrawFromPlayerAction : ICardAction
     {
+        [JsonProperty]
         public Guid PlayerId { get; private set; }
+        [JsonProperty]
         private Card[] cards;
         private DrawFromPlayerAction() { }
         public DrawFromPlayerAction(Player player, Card[] cards)
@@ -265,7 +287,9 @@ namespace GameLogic
 
     public class DemandCardFromPlayerAction : ICardAction
     {
+        [JsonProperty]
         public Guid PlayerId { get; private set; }
+        [JsonProperty]
         private Card[] cards;
         private DemandCardFromPlayerAction() { }
         public DemandCardFromPlayerAction(Player player, Card[] cards)
@@ -288,7 +312,9 @@ namespace GameLogic
 
     public class DrawFromDiscardPileAction : ICardAction
     {
+        [JsonProperty]
         public Guid PlayerId { get; private set; }
+        [JsonProperty]
         private Card[] cards;
         private DrawFromDiscardPileAction() { }
         public DrawFromDiscardPileAction(Player player, Card[] cards)

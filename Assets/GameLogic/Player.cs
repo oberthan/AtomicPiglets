@@ -35,7 +35,7 @@ namespace GameLogic
 
         public override string ToString()
         {
-            return Name;
+            return $"{Name} ({Id})";
         }
     }
 

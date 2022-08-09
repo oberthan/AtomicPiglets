@@ -19,6 +19,9 @@ namespace GameLogic
 
         internal Player GetPlayer(Guid playerId)
         {
+            var player = Players.FirstOrDefault(x => x.Id == playerId);
+            if (player == null)
+                throw new ArgumentException($"Cannot find a player with id {playerId}. Players: {string.Join(", ", Players)}");
             return Players.Single(x => x.Id == playerId);
         }
 
