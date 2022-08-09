@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace GameLogic
 {
@@ -207,9 +208,10 @@ namespace GameLogic
     {
         [JsonProperty]
         public Guid PlayerId { get; private set; }
-        [JsonProperty]
 
+        [JsonProperty]
         private Card card;
+
         private FavorAction() { }
         public FavorAction(Player player, Card card)
         {
@@ -219,10 +221,19 @@ namespace GameLogic
 
         public IEnumerable<Card> Cards => new[] { card };
 
+        public Guid TargetPlayerId { get; set; }
 
         public void Execute(AtomicGame game)
         {
-            throw new NotImplementedException();
+            var player = game.GetPlayer(PlayerId);
+
+            var otherPlayer = TargetPlayerId == Guid.Empty
+                ? GameHelper.SelectRandomOtherPlayer(game, PlayerId)
+                : game.GetPlayer(TargetPlayerId);
+
+            var card = GameHelper.SelectRandomCard(otherPlayer.Hand);
+
+            game.DiscardPile.TransferCardTo(card, player.Hand);
         }
 
         public string FormatShort()
@@ -246,8 +257,6 @@ namespace GameLogic
         }
 
         public IEnumerable<Card> Cards => new[] { card };
-
-        public CardCollection FutureCards { get; private set; }
 
         public void Execute(AtomicGame game)
         {
@@ -275,8 +284,19 @@ namespace GameLogic
 
         public IEnumerable<Card> Cards => cards;
 
+        public Guid TargetPlayerId { get; set; }
+
         public void Execute(AtomicGame game)
         {
+            var player = game.GetPlayer(PlayerId);
+
+            var otherPlayer = TargetPlayerId == Guid.Empty
+                ? GameHelper.SelectRandomOtherPlayer(game, PlayerId)
+                : game.GetPlayer(TargetPlayerId);
+
+            var card = GameHelper.SelectRandomCard(otherPlayer.Hand);
+
+            game.DiscardPile.TransferCardTo(card, player.Hand);
         }
 
         public string FormatShort()
@@ -299,9 +319,22 @@ namespace GameLogic
         }
 
         public IEnumerable<Card> Cards => cards;
+        public Guid TargetPlayerId { get; set; }
+        public CardType CardType { get; set; }
 
         public void Execute(AtomicGame game)
         {
+            var player = game.GetPlayer(PlayerId);
+
+            var otherPlayer = TargetPlayerId == Guid.Empty
+                ? GameHelper.SelectRandomOtherPlayer(game, PlayerId)
+                : game.GetPlayer(TargetPlayerId);
+
+            var card =
+                (CardType == CardType.NoCard) // Default action
+                    ? GameHelper.SelectRandomCard(otherPlayer.Hand)
+                    : otherPlayer.Hand.DrawFromTop(CardType);
+            game.DiscardPile.TransferCardTo(card, player.Hand);
         }
 
         public string FormatShort()
@@ -324,9 +357,19 @@ namespace GameLogic
         }
 
         public IEnumerable<Card> Cards => cards;
+        public CardType CardType { get; set; }
 
         public void Execute(AtomicGame game)
         {
+            if (!game.DiscardPile.Any()) return;
+
+            var player = game.GetPlayer(PlayerId);
+            
+            var card =                 
+                (CardType == CardType.NoCard) // Default action
+                    ? GameHelper.SelectRandomCard(game.DiscardPile)
+                    : game.DiscardPile.DrawFromTop(CardType);
+            game.DiscardPile.TransferCardTo(card, player.Hand);
         }
 
         public string FormatShort()
@@ -335,23 +378,6 @@ namespace GameLogic
         }
     }
 
-
-    public class NextPlayerAction : IGameAction
-    {
-        public NextPlayerAction()
-        {
-        }
-
-        public void Execute(AtomicGame game)
-        {
-            game.NextPlayer();
-        }
-        public string FormatShort()
-        {
-            return "Next";
-        }
-
-    }
     public class GameOverAction : IGameAction
     {
         private readonly Player player;
@@ -363,7 +389,7 @@ namespace GameLogic
 
         public void Execute(AtomicGame game)
         {
-            throw new NotImplementedException();
+           // throw new NotImplementedException();
         }
         public string FormatShort()
         {

@@ -100,9 +100,6 @@ namespace Assets.Network
             PlayerHandText.text =  string.Join("\n", playerState.Hand.All.Select(x => x.Type));
             PlayerTurnsLeft.text = publicState.TurnsLeft.ToString();
             Debug.Log("Actions: "+string.Join("\n", actionList.Select(x => x.FormatShort())));
-//            Debug.Log("Actions json: " + playerState.ActionListJson);
-            //LegalActionsDropdown.ClearOptions();
-            //LegalActionsDropdown.AddOptions(playerState.AvailableActions.ToList());
 
         }
 

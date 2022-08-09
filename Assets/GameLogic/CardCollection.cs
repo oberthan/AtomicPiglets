@@ -83,7 +83,7 @@ namespace GameLogic
                     return card;
                 }
             }
-            throw new InvalidOperationException($"Could not find a card of type {t}");
+            return null;
         }
 
         internal void RemoveAll(IEnumerable<Card> cardsToRemove)
@@ -120,6 +120,13 @@ namespace GameLogic
         IEnumerator IEnumerable.GetEnumerator()
         {
             return ((IEnumerable)cards).GetEnumerator();
+        }
+
+        internal void TransferCardTo(Card card, CardCollection other)
+        {
+            if (card == null) return;
+            RemoveAll(new[] { card });
+            other.Add(card);
         }
     }
 

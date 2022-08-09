@@ -35,16 +35,16 @@ namespace GameLogic
                     if (hand.Contains(CardType.ShuffleCard)) yield return new ShuffleAction(player, hand.PeekFromTop(CardType.ShuffleCard));
                     if (hand.Contains(CardType.SeeTheFutureCard)) yield return new SeeTheFutureAction(player, hand.PeekFromTop(CardType.SeeTheFutureCard));
                     if (hand.Contains(CardType.FavorCard)) yield return new FavorAction(player, hand.PeekFromTop(CardType.FavorCard));
-                    var twoEqualCardGroups = from card in hand.All
-                                               group card by card.GetType() into collectionGroups
-                                               where collectionGroups.Count() >= 2
-                                               select collectionGroups.Take(2).ToList();
+                    var twoEqualCardGroups = (from card in hand
+                                               group card by card.GetType() into collectionGroup
+                                               where collectionGroup.Count() >= 2
+                                               select collectionGroup.Take(2)).ToList();
                     if (twoEqualCardGroups.Any()) yield return new DrawFromPlayerAction(player, twoEqualCardGroups.SelectMany(x => x).ToArray());
 
-                    var threeEqualCardGroups = from card in hand.All
-                                             group card by card.GetType() into collectionGroups
-                                             where collectionGroups.Count() >= 3
-                                             select collectionGroups.Take(3).ToList();
+                    var threeEqualCardGroups = (from card in hand
+                                             group card by card.GetType() into collectionGroup
+                                             where collectionGroup.Count() >= 3
+                                             select collectionGroup.Take(3)).ToList();
                     if (threeEqualCardGroups.Any()) yield return new DemandCardFromPlayerAction(player, threeEqualCardGroups.SelectMany(x => x).ToArray());
 
                     var distinctCards = hand.All.Distinct(new GenericEqualityComparer<Card, Type>(x => x.GetType())).ToList();

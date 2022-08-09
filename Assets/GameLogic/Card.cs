@@ -26,6 +26,7 @@ namespace GameLogic
 
     public enum CardType
     {
+        NoCard = 0,
         AtomicPigletCard = 1,
         DefuseCard = 2,
         SkipCard = 3,
