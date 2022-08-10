@@ -86,6 +86,7 @@ namespace Assets.Network
         public TMP_Text PlayerHandText;
         public TMP_Text PlayerTurnsLeft;
         public TMP_Text CurrentPlayerText;
+        public TMP_Text CardsLeft;
 
         
 
@@ -101,6 +102,7 @@ namespace Assets.Network
             PlayerHandText.text =  string.Join("\n", playerState.Hand.All.Select(x => x.Type));
             PlayerTurnsLeft.text = publicState.TurnsLeft.ToString();
             CurrentPlayerText.text = publicState.CurrentPlayer.PlayerName.ToString();
+            CardsLeft.text = $"There's {publicState.DeckCardsLeft.ToString()} cards left";
             Debug.Log("Actions: "+string.Join("\n", actionList.Select(x => x.FormatShort())));
 
         }
