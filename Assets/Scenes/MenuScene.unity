@@ -4699,7 +4699,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1798096849}
   m_HandleRect: {fileID: 1798096848}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -6363,7 +6363,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 176.2
+  m_fontSize: 166.65
   m_fontSizeBase: 14
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -8892,7 +8892,7 @@ MonoBehaviour:
   _ipv6BindAddress: 
   _port: 25566
   _maximumClients: 30
-  _clientAddress: 
+  _clientAddress: localhost
   _timeout: 15
 --- !u!114 &7209568947850379402
 MonoBehaviour:
