@@ -29,7 +29,8 @@ namespace GameLogic
             var card = game.Deck.DrawTop();
             var player = game.GetPlayer(PlayerId);
             player.AddCard(card);
-            game.EndTurn();
+            if (card.Type != CardType.AtomicPigletCard)
+                game.EndTurn();
         }
 
         public string FormatShort()
@@ -302,7 +303,7 @@ namespace GameLogic
 
         public string FormatShort()
         {
-            return "Draw from player";
+            return $"Draw from player ({cards.First().Type})";
         }
     }
 
@@ -321,7 +322,7 @@ namespace GameLogic
 
         public IEnumerable<Card> Cards => cards;
         public Guid TargetPlayerId { get; set; }
-        public CardType CardType { get; set; }
+        public CardType CardType { get; set; } = CardType.DefuseCard;
 
         public void Execute(AtomicGame game)
         {
@@ -341,7 +342,7 @@ namespace GameLogic
 
         public string FormatShort()
         {
-            return "Demand card";
+            return $"Demand {CardType} card ({cards.First().Type})";
         }
     }
 

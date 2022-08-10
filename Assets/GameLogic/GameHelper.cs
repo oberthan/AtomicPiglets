@@ -30,5 +30,19 @@ namespace GameLogic
             return cards.ElementAt(Rnd.Next(cards.Count));
         }
 
+        public static CardType[] GetCardTypePriorityList()
+        {
+            return new[]
+            {
+                CardType.DefuseCard,
+                CardType.AttackCard,
+                CardType.NopeCard,
+                CardType.SkipCard,
+                CardType.SeeTheFutureCard,
+                CardType.ShuffleCard,
+                CardType.FavorCard
+            };
+        }
+
     }
 }

@@ -1,0 +1,34 @@
+TODO
+----
+
+2022-08-10
+
+
+
+Canvas eller game object, der viser en CardCollection som en hånd.
+Canvas eller game object, der viser en CardCollection som en stak.
+
+* Vis hvor mange kort, der er tilbage.
+* Vis navnet på den spiller, hvis tur det er.
+
+Kort-grafik. Forside og bagside.
+
+Vis discard pile
+Vis play pile
+Pause efter kort er spillet, hvor der kan spilles nope.
+
+Fix:
+Demand card
+Draw from player
+
+Træk fra spiller.
+Fix favor
+"Demand from player" skal vise valgmuligheder for type, der skal trækkes.
+
+
+Game over scene / præsentation.
+
+
+
+Hvis en spiller forlader spillet, skal der fjernes et bombekort fra deck
+og deres kort skal lægges til discard pile.
