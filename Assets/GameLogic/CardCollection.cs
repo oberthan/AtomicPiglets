@@ -33,14 +33,26 @@ namespace GameLogic
             this.cards.AddRange(cards.cards);
         }
 
-        public void AddNew(int count, Func<Card> createFunc)
+        public Card AddNew(CardType cardType)
         {
+            return AddNew(1, cardType).FirstOrDefault();
+        }
+        public IEnumerable<Card> AddNew(int count, CardType cardType)
+        {
+            return AddNew(count, () => new Card(cardType));
+        }
+
+        public IEnumerable<Card> AddNew(int count, Func<Card> createFunc)
+        {
+            var newCards = new List<Card>();
             for(int i = 0; i < count; i++)
             {
                 var card = createFunc();
                 card.Id = nextId++;
-                cards.Add(card);
+                newCards.Add(card);
             }
+            cards.AddRange(newCards);
+            return newCards;
         }
 
         public void InsertFromTop(Card card, int positionFromTop)
@@ -86,10 +98,15 @@ namespace GameLogic
             return null;
         }
 
-        internal void RemoveAll(IEnumerable<Card> cardsToRemove)
+        public void RemoveAll(IEnumerable<Card> cardsToRemove)
         {
-            var cardIds = new HashSet<int>(cardsToRemove.Select(card => card.Id));
-            cards.RemoveAll(x => cardIds.Contains(x.Id));
+            var cardsToRemoveList = cardsToRemove.ToList();
+            var cardIds = new HashSet<int>(cardsToRemoveList.Select(card => card.Id));
+            if (cardIds.Count != cardsToRemoveList.Count)
+                throw new ArgumentException($"Cards to remove must have unique ids", nameof(cardsToRemove));
+            int cardsRemoved = cards.RemoveAll(x => cardIds.Contains(x.Id));
+            if (cardsRemoved != cardIds.Count) 
+                throw new ArgumentException($"Could not remove all cards. Removed {cardsRemoved} cards. Expected {cardIds.Count}", nameof(cardsToRemove));
         }
 
         public void CloneNew(CardCollection dealPile)
@@ -122,7 +139,7 @@ namespace GameLogic
             return ((IEnumerable)cards).GetEnumerator();
         }
 
-        internal void TransferCardTo(Card card, CardCollection other)
+        public void TransferCardTo(Card card, CardCollection other)
         {
             if (card == null) return;
             RemoveAll(new[] { card });

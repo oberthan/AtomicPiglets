@@ -6,6 +6,17 @@ namespace GameLogic
 {
     public class AtomicGame
     {
+        public IPlayTimer PlayTimer
+        {
+            get => _playTimer;
+            set
+            {
+                _playTimer.TimerElapsed -= PlayTimerOnTimerElapsed;
+                value.TimerElapsed += PlayTimerOnTimerElapsed;
+                _playTimer = value;
+            }
+        }
+
         public AtomicGame(CardCollection deck, List<Player> players)
         {
             Deck = deck;
@@ -13,6 +24,13 @@ namespace GameLogic
             GameHelper.Shuffle(Players);
             CurrentPlayer = players[0];
             PlayerTurns = 1;
+
+            PlayTimer.TimerElapsed += PlayTimerOnTimerElapsed;
+        }
+
+        private void PlayTimerOnTimerElapsed(object sender, EventArgs e)
+        {
+            ExecutePlayedCards();
         }
 
         public CardCollection Deck { get; }
@@ -43,6 +61,7 @@ namespace GameLogic
         public Player CurrentPlayer { get; private set; }
 
         public int PlayerTurns;
+        private IPlayTimer _playTimer = new ImmediatePlayTimer();
 
         /// <summary>
         /// Selects next player as current player cyclic.
@@ -72,8 +91,7 @@ namespace GameLogic
             var player = GetPlayer(cardAction.PlayerId);
             player.Hand.RemoveAll(cardAction.Cards);
             PlayPileActions.Add(cardAction);
-            ExecutePlayedCards();
-            // TODO: Reset execute timer
+            PlayTimer.Start(4f);
         }
 
         public void ExecutePlayedCards()
@@ -99,4 +117,23 @@ namespace GameLogic
         }
     }
 
+    public class ImmediatePlayTimer : IPlayTimer
+    {
+        public event EventHandler TimerElapsed;
+        public void Start(float delay)
+        {
+            OnTimerElapsed();
+        }
+
+        private void OnTimerElapsed()
+        {
+            TimerElapsed?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    public interface IPlayTimer
+    {
+        void Start(float delay);
+        event EventHandler TimerElapsed;
+    }
 }

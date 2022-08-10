@@ -121,6 +121,7 @@ namespace GameLogic
         private AttackAction() { }
         public AttackAction(Player player, Card card)
         {
+            if (card.Id == 0) throw new ArgumentException("Card should have an id");
             PlayerId = player.Id;
             this.card = card;
         }
@@ -231,9 +232,9 @@ namespace GameLogic
                 ? GameHelper.SelectRandomOtherPlayer(game, PlayerId)
                 : game.GetPlayer(TargetPlayerId);
 
-            var card = GameHelper.SelectRandomCard(otherPlayer.Hand);
+            var otherCard = GameHelper.SelectRandomCard(otherPlayer.Hand);
 
-            game.DiscardPile.TransferCardTo(card, player.Hand);
+            otherPlayer.Hand.TransferCardTo(otherCard, player.Hand);
         }
 
         public string FormatShort()
@@ -276,10 +277,10 @@ namespace GameLogic
         [JsonProperty]
         private Card[] cards;
         private DrawFromPlayerAction() { }
-        public DrawFromPlayerAction(Player player, Card[] cards)
+        public DrawFromPlayerAction(Player player, List<IEnumerable<Card>> cards)
         {
             PlayerId = player.Id;
-            this.cards = cards;
+            this.cards = cards.First().ToArray();
         }
 
         public IEnumerable<Card> Cards => cards;
@@ -296,7 +297,7 @@ namespace GameLogic
 
             var card = GameHelper.SelectRandomCard(otherPlayer.Hand);
 
-            game.DiscardPile.TransferCardTo(card, player.Hand);
+            otherPlayer.Hand.TransferCardTo(card, player.Hand);
         }
 
         public string FormatShort()
@@ -312,10 +313,10 @@ namespace GameLogic
         [JsonProperty]
         private Card[] cards;
         private DemandCardFromPlayerAction() { }
-        public DemandCardFromPlayerAction(Player player, Card[] cards)
+        public DemandCardFromPlayerAction(Player player, List<IEnumerable<Card>> cards)
         {
             PlayerId = player.Id;
-            this.cards = cards;
+            this.cards = cards.First().ToArray();
         }
 
         public IEnumerable<Card> Cards => cards;
@@ -330,11 +331,12 @@ namespace GameLogic
                 ? GameHelper.SelectRandomOtherPlayer(game, PlayerId)
                 : game.GetPlayer(TargetPlayerId);
 
-            var card =
-                (CardType == CardType.NoCard) // Default action
+            var otherCard =
+                CardType == CardType.NoCard // Default action
                     ? GameHelper.SelectRandomCard(otherPlayer.Hand)
                     : otherPlayer.Hand.DrawFromTop(CardType);
-            game.DiscardPile.TransferCardTo(card, player.Hand);
+
+            otherPlayer.Hand.TransferCardTo(otherCard, player.Hand);
         }
 
         public string FormatShort()
@@ -353,7 +355,7 @@ namespace GameLogic
         public DrawFromDiscardPileAction(Player player, Card[] cards)
         {
             PlayerId = player.Id;
-            this.cards = cards;
+            this.cards = cards.Take(5).ToArray();
         }
 
         public IEnumerable<Card> Cards => cards;

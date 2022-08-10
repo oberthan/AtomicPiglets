@@ -185,14 +185,7 @@ namespace Assets.Network
         {
             Debug.Log(action.FormatShort() + " was chosen.");
             Debug.Log($"Action pressed owner: {IsOwner}");
-            SigHej("Muggi");
             PlayAction(action);
-        }
-
-        [ServerRpc(RequireOwnership = false)]
-        public void SigHej(string besked)
-        {
-            Debug.Log("Der bliver sagt hej til server med besked "+besked);
         }
     }
     public class PlayerGameState

@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 using GameLogic;
 using System.Linq;
 
@@ -78,7 +79,7 @@ namespace GameLogicTest
             var player = game.CurrentPlayer;
             game.PlayerTurns = turnsLeft;
 
-            var attackCard = new Card(CardType.AttackCard);
+            var attackCard = player.Hand.AddNew(CardType.AttackCard);
             var action = new AttackAction(player, attackCard);
 
             action.Execute(game);
@@ -129,27 +130,30 @@ namespace GameLogicTest
         public void NopeRemovesTopPlayedAction()
         {
             var game = GameFactory.CreateExplodingKittensLikeGame(2);
+            var gamePlayTimer = new MockPlayTimer();
+            game.PlayTimer = gamePlayTimer;
 
             var opponent = game.CurrentPlayer;
+            var attackCard = opponent.Hand.AddNew(CardType.AttackCard);
 
             // Other player played attack
-            var attackAction = new AttackAction(opponent, new Card(CardType.AttackCard));
+            var attackAction = new AttackAction(opponent, attackCard);
             game.PlayCard(attackAction);
             game.EndTurn();
 
             Assume.That(game.PlayPileActions.Last(), Is.EqualTo(attackAction));
 
             var player = game.CurrentPlayer;
+            var nopeCard = player.Hand.AddNew(CardType.NopeCard);
 
             // Current player nopes the attack
-            var card = new Card(CardType.NopeCard);
-            var nopeAction = new NopeAction(player, card);
+            var nopeAction = new NopeAction(player, nopeCard);
             
             game.PlayCard(nopeAction);
             Assert.That(game.PlayPileActions.Last(), Is.EqualTo(nopeAction));
 
             // Time is up, nope removes attack
-            game.ExecutePlayedCards();
+            gamePlayTimer.Elapse();
 
             Assert.That(game.PlayPileActions, Is.Empty);
         }
@@ -158,29 +162,54 @@ namespace GameLogicTest
         public void NopeNopeKeepsPlayedAction()
         {
             var game = GameFactory.CreateExplodingKittensLikeGame(2);
+            var gamePlayTimer = new MockPlayTimer();
+            game.PlayTimer = gamePlayTimer;
 
             var playerA = game.CurrentPlayer;
             var playerB = game.CurrentPlayer == game.Players.First() ? game.Players.Last() : game.Players.First();
+            var nopeBCard = playerB.Hand.AddNew(CardType.NopeCard);
+
+            var attackCard = playerA.Hand.AddNew(CardType.AttackCard);
+            var nopeACard = playerA.Hand.AddNew(CardType.NopeCard);
 
             // Player A plays attack
-            var attackAction = new AttackAction(playerA, new Card(CardType.AttackCard));
+            var attackAction = new AttackAction(playerA, attackCard);
             game.PlayCard(attackAction);
 
             // Player B nopes
-            var playerBNopeAction = new NopeAction(playerB, new Card(CardType.NopeCard));
+            var playerBNopeAction = new NopeAction(playerB, nopeBCard);
             game.PlayCard(playerBNopeAction);
 
             // Player A nopes the nope
-            var playerANopeAction = new NopeAction(playerA, new Card(CardType.NopeCard));
+            var playerANopeAction = new NopeAction(playerA, nopeACard);
             game.PlayCard(playerANopeAction);
 
             // Time is up, nope removes attack
-            game.ExecutePlayedCards();
+            gamePlayTimer.Elapse();
 
-            // Check that attack is exectuted
+            // Check that attack is executed
             Assert.That(game.PlayerTurns, Is.EqualTo(2));
             Assert.That(game.CurrentPlayer, Is.EqualTo(playerB));
         }
 
+        class MockPlayTimer : IPlayTimer
+        {
+            public void Start(float delay)
+            {
+                // Do nothing
+            }
+
+            public void Elapse()
+            {
+                OnTimerElapsed();
+            }
+
+            public event EventHandler TimerElapsed;
+
+            protected virtual void OnTimerElapsed()
+            {
+                TimerElapsed?.Invoke(this, EventArgs.Empty);
+            }
+        }
     }
 }

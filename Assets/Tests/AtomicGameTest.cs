@@ -148,6 +148,12 @@ namespace GameLogicTest
         }
 
         [Test]
+        public void PlayCardAddsCardToPlayPile()
+        {
+
+        }
+
+        [Test]
         public void ExecutePlayedCardsMoveCardsToDiscardPile()
         {
             var game = GameFactory.CreateExplodingKittensLikeGame(5);
