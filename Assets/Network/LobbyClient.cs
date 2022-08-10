@@ -1,10 +1,7 @@
 ﻿using FishNet.Connection;
 using FishNet.Object;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -24,14 +21,24 @@ namespace Assets.Network
         private void Awake()
         {
             Debug.Log("Lobby client awake");
-            IsReady.onValueChanged.AddListener((isReady) => {
+            IsReady.onValueChanged.AddListener((isReady) =>
+            {
                 Player.IsReady = isReady;
-                LobbyServer.UpdatePlayerInfo(Player);
+                ServerUpdatePlayerInfo();
             });
 
             GameStartCountdownSlider.minValue = 0;
             GameStartCountdownSlider.maxValue = LobbyServer.GameStartCountdownSeconds;
        }
+
+        private void ServerUpdatePlayerInfo()
+        {
+            var playerGameObject = GameObject.Find("Player");
+            var playerNameInfoComponent = playerGameObject.GetComponent<PlayerNameInfo>();
+            var playerName = playerNameInfoComponent.PlayerName;
+            Player.PlayerName = playerName;
+            LobbyServer.UpdatePlayerInfo(Player);
+        }
 
         public override void OnStartClient()
         {
@@ -44,8 +51,8 @@ namespace Assets.Network
         public override void OnOwnershipClient(NetworkConnection prevOwner)
         {
             base.OnOwnershipClient(prevOwner);
-            Debug.Log($"Is owner: {IsOwner}");
-            LobbyServer.UpdatePlayerInfo(Player);
+            //            Debug.Log($"Is owner: {IsOwner}");
+            ServerUpdatePlayerInfo();
             UpdatePlayerList();
         }
 
