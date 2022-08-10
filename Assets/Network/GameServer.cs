@@ -85,8 +85,9 @@ namespace Assets.Network
   //      public TMP_Text LegalActionsText;
         public TMP_Text PlayerHandText;
         public TMP_Text PlayerTurnsLeft;
+        public TMP_Text CurrentPlayerText;
 
-        public TMP_Dropdown LegalActionsDropdown;
+        
 
         [TargetRpc]
         public void ClientUpdateGameState(NetworkConnection conn, PlayerGameState playerState, PublicGameState publicState)
@@ -99,6 +100,7 @@ namespace Assets.Network
             LegalActionsButtonList(actionList);
             PlayerHandText.text =  string.Join("\n", playerState.Hand.All.Select(x => x.Type));
             PlayerTurnsLeft.text = publicState.TurnsLeft.ToString();
+            CurrentPlayerText.text = publicState.CurrentPlayer.PlayerName.ToString();
             Debug.Log("Actions: "+string.Join("\n", actionList.Select(x => x.FormatShort())));
 
         }
