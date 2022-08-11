@@ -20,7 +20,18 @@ namespace Assets.Network
         private AtomicGame game;
         private AtomicPigletRules rules;
 
+        GameServerTimer gameServerTimer;
+
+        [SyncVar(SendRate = 0.1f)]
+        public float ExecutePlayedCardsTimer = 0;
+
         private Dictionary<Guid, NetworkConnection> playerConnectionMap;
+
+        private void Awake()
+        {
+            gameServerTimer = new GameServerTimer(this);
+        }
+
 
         public override void OnStartServer()
         {
@@ -33,6 +44,12 @@ namespace Assets.Network
             Debug.Log("Game server stopped");
         }
 
+        void Update()
+        {
+            gameServerTimer.Update();
+        }
+
+
         [Server]
         public void StartGame(SyncDictionary<NetworkConnection, PlayerInfo> players)
         {
@@ -44,6 +61,7 @@ namespace Assets.Network
             playerConnectionMap = players.ToDictionary(x => x.Value.Id, x => x.Key);
 
             game = GameFactory.CreateExplodingKittensLikeGame(players.Values.Select(PlayerFromPlayerInfo));
+            game.PlayTimer = gameServerTimer;
             rules = new AtomicPigletRules(game);
 
             Debug.Log($"Starting new game with {playerConnectionMap.Count} connected players. Players in game: {game.Players.Count} with {game.Players.Sum(x => x.Hand.Count)} cards dealt");
@@ -88,7 +106,11 @@ namespace Assets.Network
         public TMP_Text CurrentPlayerText;
         public TMP_Text CardsLeft;
 
-        
+        public TMP_Text PlayedCardsText;
+
+        public TMP_Text PlayedCardsTimeLeftText;
+
+
 
         [TargetRpc]
         public void ClientUpdateGameState(NetworkConnection conn, PlayerGameState playerState, PublicGameState publicState)
@@ -100,6 +122,7 @@ namespace Assets.Network
             var actionList = DeserializeActionListJson(playerState.ActionListJson);
             LegalActionsButtonList(actionList);
             PlayerHandText.text =  string.Join("\n", playerState.Hand.All.Select(x => x.Type));
+            PlayedCardsText.text =  string.Join("\n", publicState.PlayPile.All.Select(x => x.Type));
             PlayerTurnsLeft.text = publicState.TurnsLeft.ToString();
             CurrentPlayerText.text = publicState.CurrentPlayer.PlayerName.ToString();
             CardsLeft.text = $"There's {publicState.DeckCardsLeft.ToString()} cards left";
@@ -192,6 +215,47 @@ namespace Assets.Network
             PlayAction(action);
         }
     }
+
+    public class GameServerTimer : IPlayTimer
+    {
+        private readonly GameServer _gameServer;
+        private float _elapseTime;
+        private float _startTime;
+
+        public GameServerTimer(GameServer gameServer)
+        {
+            _gameServer = gameServer;
+        }
+
+        public void Update()
+        {
+            if (_elapseTime == 0) return;
+
+            var time = Time.time;
+            var timeLeft = _elapseTime - time;
+            if (timeLeft < 0) timeLeft = 0;
+            _gameServer.ExecutePlayedCardsTimer = timeLeft;
+            if (timeLeft <= 0)
+            {
+                OnTimerElapsed();
+                _elapseTime = 0;
+            }
+        }
+
+        public void Start(float delay)
+        {
+            _startTime = Time.time;
+            _elapseTime = _startTime + delay;
+        }
+
+        public event EventHandler TimerElapsed;
+
+        private void OnTimerElapsed()
+        {
+            TimerElapsed?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
     public class PlayerGameState
     {
         // Player info and hidden hand

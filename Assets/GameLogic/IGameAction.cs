@@ -181,9 +181,10 @@ namespace GameLogic
     {
         [JsonProperty]
         public Guid PlayerId { get; private set; }
-        [JsonProperty]
 
+        [JsonProperty]
         private Card card;
+
         private SeeTheFutureAction() { }
         public SeeTheFutureAction(Player player, Card card)
         {
@@ -233,7 +234,7 @@ namespace GameLogic
                 ? GameHelper.SelectRandomOtherPlayer(game, PlayerId)
                 : game.GetPlayer(TargetPlayerId);
 
-            var otherCard = GameHelper.SelectRandomCard(otherPlayer.Hand);
+            var otherCard = GameHelper.OrderByPriority(otherPlayer.Hand).Reverse().FirstOrDefault();
 
             otherPlayer.Hand.TransferCardTo(otherCard, player.Hand);
         }
@@ -275,16 +276,26 @@ namespace GameLogic
     {
         [JsonProperty]
         public Guid PlayerId { get; private set; }
+
+        /// <summary>
+        /// Two cards of same type.
+        /// </summary>
         [JsonProperty]
-        private Card[] cards;
+        public Card[] SelectedCards;
+
+        /// <summary>
+        /// All pair-cards of same type in player hand.
+        /// </summary>
+        [JsonProperty] public Card[] SelectableCards;
         private DrawFromPlayerAction() { }
         public DrawFromPlayerAction(Player player, List<IEnumerable<Card>> cards)
         {
             PlayerId = player.Id;
-            this.cards = cards.First().ToArray();
+            SelectableCards = cards.SelectMany(x => x).ToArray();
+            SelectedCards = cards.OrderByList(x => x.First().Type, GameHelper.GetCardTypePriorityList()).Last().ToArray();
         }
 
-        public IEnumerable<Card> Cards => cards;
+        public IEnumerable<Card> Cards => SelectedCards;
 
         public Guid TargetPlayerId { get; set; }
 
@@ -303,7 +314,7 @@ namespace GameLogic
 
         public string FormatShort()
         {
-            return $"Draw from player ({cards.First().Type})";
+            return $"Draw from player ({SelectedCards.First().Type})";
         }
     }
 
@@ -311,16 +322,27 @@ namespace GameLogic
     {
         [JsonProperty]
         public Guid PlayerId { get; private set; }
+
+        /// <summary>
+        /// Three cards of same type.
+        /// </summary>
         [JsonProperty]
-        private Card[] cards;
+        public Card[] SelectedCards;
+
+        /// <summary>
+        /// All triple-cards of same type in player hand.
+        /// </summary>
+        [JsonProperty] public Card[] SelectableCards;
+
         private DemandCardFromPlayerAction() { }
         public DemandCardFromPlayerAction(Player player, List<IEnumerable<Card>> cards)
         {
             PlayerId = player.Id;
-            this.cards = cards.First().ToArray();
+            SelectableCards = cards.SelectMany(x => x).ToArray();
+            SelectedCards = cards.OrderByList(x => x.First().Type, GameHelper.GetCardTypePriorityList()).Last().ToArray();
         }
 
-        public IEnumerable<Card> Cards => cards;
+        public IEnumerable<Card> Cards => SelectedCards;
         public Guid TargetPlayerId { get; set; }
         public CardType CardType { get; set; } = CardType.DefuseCard;
 
@@ -342,7 +364,7 @@ namespace GameLogic
 
         public string FormatShort()
         {
-            return $"Demand {CardType} card ({cards.First().Type})";
+            return $"Demand {CardType} card ({SelectedCards.First().Type})";
         }
     }
 
@@ -350,16 +372,26 @@ namespace GameLogic
     {
         [JsonProperty]
         public Guid PlayerId { get; private set; }
+        /// <summary>
+        /// Three cards of same type.
+        /// </summary>
         [JsonProperty]
-        private Card[] cards;
+        public Card[] SelectedCards;
+
+        /// <summary>
+        /// All triple-cards of same type in player hand.
+        /// </summary>
+        [JsonProperty] public Card[] SelectableCards;
+
         private DrawFromDiscardPileAction() { }
         public DrawFromDiscardPileAction(Player player, Card[] cards)
         {
             PlayerId = player.Id;
-            this.cards = cards.Take(5).ToArray();
+            SelectableCards = cards.ToArray();
+            SelectedCards = GameHelper.OrderByPriority(cards).Reverse().Take(5).ToArray();
         }
 
-        public IEnumerable<Card> Cards => cards;
+        public IEnumerable<Card> Cards => SelectedCards;
         public CardType CardType { get; set; }
 
         public void Execute(AtomicGame game)

@@ -30,6 +30,11 @@ namespace GameLogic
             return cards.ElementAt(Rnd.Next(cards.Count));
         }
 
+        public static IOrderedEnumerable<Card> OrderByPriority(IEnumerable<Card> cards)
+        {
+            return cards.OrderByList(x => x.Type, GetCardTypePriorityList());
+        }
+
         public static CardType[] GetCardTypePriorityList()
         {
             return new[]
@@ -44,5 +49,32 @@ namespace GameLogic
             };
         }
 
+    }
+
+    public static class LinqExtensions
+    {
+
+        /// <summary>
+        /// Orders collection by same order as a list of keys. Keys not matching list will be ordered last.
+        /// </summary>
+        public static IOrderedEnumerable<T> OrderByList<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector,
+            IEnumerable<TKey> orderedKeys)
+        {
+            var keyOrderLookup = orderedKeys.Select((key, index) => new { key, index })
+                .ToDictionary(x => x.key, y => y.index);
+            return source.OrderBy(x =>
+            {
+                if (keyOrderLookup.TryGetValue(keySelector(x), out var index)) return index;
+                return keyOrderLookup.Count + 1;
+            }).ThenBy(keySelector);
+        }
+
+        /// <summary>
+        /// Orders collection by same order as a list of items. Items not matching list will be ordered last.
+        /// </summary>
+        public static IEnumerable<T> OrderByList<T>(this IEnumerable<T> source, IEnumerable<T> orderedItems)
+        {
+            return OrderByList(source, x => x, orderedItems);
+        }
     }
 }
