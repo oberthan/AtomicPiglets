@@ -47,6 +47,11 @@ namespace Assets.Network
         void Update()
         {
             gameServerTimer.Update();
+            if (InstanceFinder.NetworkManager.IsClient)
+            {
+                PlayedCardsTimeLeftSlider.value = ExecutePlayedCardsTimer;
+                PlayedCardsTimeLeftSlider.maxValue = 4;
+            }
         }
 
 
@@ -80,7 +85,7 @@ namespace Assets.Network
             return new Player(playerInfo.PlayerName, playerInfo.Id);
         }
 
-        private void UpdateClients()
+        public void UpdateClients()
         {
             var publicState = PublicGameState.FromAtomicGame(game);
             foreach (var player in game.Players)
@@ -109,6 +114,8 @@ namespace Assets.Network
         public TMP_Text PlayedCardsText;
 
         public TMP_Text PlayedCardsTimeLeftText;
+
+        public Slider PlayedCardsTimeLeftSlider;
 
 
 
@@ -237,15 +244,19 @@ namespace Assets.Network
             _gameServer.ExecutePlayedCardsTimer = timeLeft;
             if (timeLeft <= 0)
             {
+                Debug.Log("Game timer elapsed");
                 OnTimerElapsed();
                 _elapseTime = 0;
+                _gameServer.UpdateClients();
             }
         }
 
         public void Start(float delay)
         {
+            Debug.Log($"Game timer started with {delay} delay");
             _startTime = Time.time;
             _elapseTime = _startTime + delay;
+            _gameServer.UpdateClients();
         }
 
         public event EventHandler TimerElapsed;

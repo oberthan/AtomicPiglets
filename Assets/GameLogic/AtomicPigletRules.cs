@@ -14,9 +14,21 @@ namespace GameLogic
         }
         public IEnumerable<IGameAction> GetLegalActionsForPlayer(Player player)
         {
+            var hand = player.Hand;
+            if (game.PlayPile.Any())
+            {
+                if (player != game.CurrentPlayer)
+                {
+                    if (hand.Contains(CardType.NopeCard))
+                        yield return new NopeAction(player, hand.PeekFromTop(CardType.NopeCard));
+                }
+                else
+                {
+                    yield break;
+                }
+            }
             if (player == game.CurrentPlayer)
             {
-                var hand = player.Hand;
 
                 // Players has drawn atomic piglet and must deal with it.
                 if (hand.Contains(CardType.AtomicPigletCard))
