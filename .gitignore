@@ -82,3 +82,6 @@ crashlytics-build.properties
 /FishNet.Generated.csproj
 /FishNet.Runtime.csproj
 /Unity.FishNet.Codegen.csproj
+/GameLogic.csproj
+/GameLogicAssemblyDefinition.csproj
+/Tests.csproj
