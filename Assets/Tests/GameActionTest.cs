@@ -156,6 +156,7 @@ namespace GameLogicTest
             gamePlayTimer.Elapse();
 
             Assert.That(game.PlayPileActions, Is.Empty);
+            Assert.That(game.PlayerTurns, Is.EqualTo(1));
         }
 
         [Test]

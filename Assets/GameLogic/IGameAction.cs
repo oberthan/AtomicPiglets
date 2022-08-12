@@ -263,6 +263,7 @@ namespace GameLogic
 
         public void Execute(AtomicGame game)
         {
+            game.DiscardTopPlayCards();
         }
 
         public string FormatShort()

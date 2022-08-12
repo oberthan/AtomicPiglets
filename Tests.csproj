@@ -61,6 +61,7 @@
     <Compile Include="Assets\Tests\CardTest.cs" />
     <Compile Include="Assets\Tests\AtomicGameTest.cs" />
     <Compile Include="Assets\Tests\CardCollectionTest.cs" />
+    <Compile Include="Assets\Tests\AtomicPigletsRulesTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Tests\Tests.asmdef" />

@@ -29,6 +29,10 @@ Fix favor
 Game over scene / præsentation.
 
 
-
 Hvis en spiller forlader spillet, skal der fjernes et bombekort fra deck
 og deres kort skal lægges til discard pile.
+
+
+Bug: Attack + Nope kørte stadig Attack efter timeout.
+
+Bug: to-ens / tre-ens virker ikke.

@@ -99,9 +99,18 @@ namespace GameLogic
             // Execute bottom played cards
             while (PlayPileActions.Any())
             {
-                PlayPileActions.Last().Execute(this);
-                PlayPileActions.RemoveAt(PlayPileActions.Count - 1);
+                var topAction = DiscardTopPlayCards();
+                topAction.Execute(this);
             }
+        }
+
+        public ICardAction DiscardTopPlayCards()
+        {
+            var topAction = PlayPileActions.Last();
+            var topCardCollection = new CardCollection(topAction.Cards);
+            DiscardPile.AddMany(topCardCollection);
+            PlayPileActions.RemoveAt(PlayPileActions.Count - 1);
+            return topAction;
         }
 
         public void PlayAction(IGameAction action)
