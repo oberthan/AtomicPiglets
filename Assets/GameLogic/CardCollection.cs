@@ -77,6 +77,12 @@ namespace GameLogic
             cards.RemoveRange(cards.Count - maxTake, maxTake);
             return new CardCollection(top);
         }
+
+        public Card PeekFromTop(CardType t)
+        {
+            return cards.LastOrDefault(x => x.Type == t);
+        }
+
         public CardCollection PeekFromTop(int count)
         {
             var maxTake = Math.Min(count, cards.Count);
@@ -115,11 +121,6 @@ namespace GameLogic
             {
                 AddNew(1, () => new Card(card.Type));
             }
-        }
-
-        public Card PeekFromTop(CardType t)
-        {
-            return cards.Last(x => x.Type == t);
         }
 
         public override string ToString()

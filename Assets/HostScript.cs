@@ -69,20 +69,20 @@ public class HostScript : MonoBehaviour{
         toggle.transform.localPosition = new Vector3(x, startPosition.y, startPosition.z);
     }
 
-    public void PlayerCount()
+    public void UpdatePlayerCount()
     {
         Value.text = Players.value.ToString("0" + " Players");
     }
     
-    public void playeradd()
+    public void PlayerPlus()
     {
-        Players.value = Players.value + 1;
-        PlayerCount();
+        Players.value++;
+        UpdatePlayerCount();
     }
 
-    public void playerminus()
+    public void PlayerMinus()
     {
-        Players.value = Players.value - 1;
-        PlayerCount();
+        Players.value--;
+        UpdatePlayerCount();
     }
 }

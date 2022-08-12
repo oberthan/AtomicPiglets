@@ -17,15 +17,19 @@ namespace GameLogic
             var hand = player.Hand;
             if (game.PlayPile.Any())
             {
-                if (player != game.CurrentPlayer)
+                var playPileHasDefuseCard = game.PlayPile.PeekFromTop(CardType.DefuseCard) != null;
+                var topCardIsNope = game.PlayPile.PeekFromTop(1).First().Type == CardType.NopeCard;
+                var hasNopeCard = hand.Contains(CardType.NopeCard);
+                
+                if (hasNopeCard && !playPileHasDefuseCard && (topCardIsNope || player != game.CurrentPlayer))
                 {
-                    if (hand.Contains(CardType.NopeCard))
-                        yield return new NopeAction(player, hand.PeekFromTop(CardType.NopeCard));
+                    yield return new NopeAction(player, hand.PeekFromTop(CardType.NopeCard));
                 }
                 else
                 {
-                    yield break;
+                    yield return new NoAction();
                 }
+                yield break;
             }
             if (player == game.CurrentPlayer)
             {

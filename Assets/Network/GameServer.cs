@@ -2,7 +2,6 @@
 using FishNet.Connection;
 using FishNet.Object;
 using FishNet.Object.Synchronizing;
-using FishNet.Transporting;
 using GameLogic;
 using Newtonsoft.Json;
 using System;
@@ -17,19 +16,23 @@ namespace Assets.Network
 {
     public class GameServer : NetworkBehaviour
     {
-        private AtomicGame game;
-        private AtomicPigletRules rules;
+        private AtomicGame _game;
+        private AtomicPigletRules _rules;
 
-        GameServerTimer gameServerTimer;
+        public int AtomicPigletPosition;
+        public TMP_Text AtomicPigletPositionText;
+        public GameObject PigletPositionControl;
+
+        GameServerTimer _gameServerTimer;
 
         [SyncVar(SendRate = 0.1f)]
-        public float ExecutePlayedCardsTimer = 0;
+        public float ExecutePlayedCardsTimer;
 
-        private Dictionary<Guid, NetworkConnection> playerConnectionMap;
+        private Dictionary<Guid, NetworkConnection> _playerConnectionMap;
 
         private void Awake()
         {
-            gameServerTimer = new GameServerTimer(this);
+            _gameServerTimer = new GameServerTimer(this);
         }
 
 
@@ -46,7 +49,7 @@ namespace Assets.Network
 
         void Update()
         {
-            gameServerTimer.Update();
+            _gameServerTimer.Update();
             if (InstanceFinder.NetworkManager.IsClient)
             {
                 PlayedCardsTimeLeftSlider.value = ExecutePlayedCardsTimer;
@@ -63,15 +66,15 @@ namespace Assets.Network
                 Debug.LogWarning("Only servers can start a new game");
                 return;
             }
-            playerConnectionMap = players.ToDictionary(x => x.Value.Id, x => x.Key);
+            _playerConnectionMap = players.ToDictionary(x => x.Value.Id, x => x.Key);
 
-            game = GameFactory.CreateExplodingKittensLikeGame(players.Values.Select(PlayerFromPlayerInfo));
-            game.PlayTimer = gameServerTimer;
-            rules = new AtomicPigletRules(game);
+            _game = GameFactory.CreateExplodingKittensLikeGame(players.Values.Select(PlayerFromPlayerInfo));
+            _game.PlayTimer = _gameServerTimer;
+            _rules = new AtomicPigletRules(_game);
 
-            Debug.Log($"Starting new game with {playerConnectionMap.Count} connected players. Players in game: {game.Players.Count} with {game.Players.Sum(x => x.Hand.Count)} cards dealt");
+            Debug.Log($"Starting new game with {_playerConnectionMap.Count} connected players. Players in game: {_game.Players.Count} with {_game.Players.Sum(x => x.Hand.Count)} cards dealt");
 
-            foreach (var playerConnection in playerConnectionMap)
+            foreach (var playerConnection in _playerConnectionMap)
             {
                 Debug.Log($"Connection for player {playerConnection.Key} with client id {playerConnection.Value.ClientId} is {playerConnection.Value.IsValid}");
 
@@ -87,33 +90,29 @@ namespace Assets.Network
 
         public void UpdateClients()
         {
-            var publicState = PublicGameState.FromAtomicGame(game);
-            foreach (var player in game.Players)
+            var publicState = PublicGameState.FromAtomicGame(_game);
+            foreach (var player in _game.Players)
             {
                 Debug.Log($"{player.Name} hand: " + player.FormatHand());
 
-                var connection = playerConnectionMap[player.Id];
+                var connection = _playerConnectionMap[player.Id];
                 Debug.Log("Getting legal actions from player " + player.Id);
-                PlayerGameState playerState = PlayerGameState.FromAtomicGame(player, rules);
+                PlayerGameState playerState = PlayerGameState.FromAtomicGame(player, _rules);
 
-                Debug.Log($"Server {playerState.PlayerInfo.PlayerName} game state hand: " + playerState.Hand.ToString());
+                Debug.Log($"Server {playerState.PlayerInfo.PlayerName} game state hand: " + playerState.Hand);
 
                 ClientUpdateGameState(connection, playerState, publicState);
             }
         }
 
-        private PlayerGameState myPlayerGameState;
-        private PublicGameState publicGameState;
-
-  //      public TMP_Text LegalActionsText;
         public TMP_Text PlayerHandText;
+        public TMP_Text FutureCardsText;
         public TMP_Text PlayerTurnsLeft;
         public TMP_Text CurrentPlayerText;
+        private int cardsLeft;
         public TMP_Text CardsLeft;
 
         public TMP_Text PlayedCardsText;
-
-        public TMP_Text PlayedCardsTimeLeftText;
 
         public Slider PlayedCardsTimeLeftSlider;
 
@@ -122,17 +121,25 @@ namespace Assets.Network
         [TargetRpc]
         public void ClientUpdateGameState(NetworkConnection conn, PlayerGameState playerState, PublicGameState publicState)
         {
-            Debug.Log($"Client {playerState.PlayerInfo.PlayerName} game state hand: " + playerState.Hand.ToString());
+            Debug.Log($"Client {playerState.PlayerInfo.PlayerName} game state hand: " + playerState.Hand);
             Debug.Log($"Client update game state owner: {IsOwner}");
-            myPlayerGameState = playerState;
-            publicGameState = publicState;
+
             var actionList = DeserializeActionListJson(playerState.ActionListJson);
             LegalActionsButtonList(actionList);
+
+            var canDefuse = actionList.Any(x => x is DefuseAction);
+            //var pigletPos = GameObject.Find( "PigletPos");
+            //if (pigletPos != null)
+            PigletPositionControl.SetActive(canDefuse);
+
             PlayerHandText.text =  string.Join("\n", playerState.Hand.All.Select(x => x.Type));
+            FutureCardsText.text = string.Join("\n", playerState.FutureCards.All.Select(x => x.Type));
+
             PlayedCardsText.text =  string.Join("\n", publicState.PlayPile.All.Select(x => x.Type));
             PlayerTurnsLeft.text = publicState.TurnsLeft.ToString();
-            CurrentPlayerText.text = publicState.CurrentPlayer.PlayerName.ToString();
-            CardsLeft.text = $"There's {publicState.DeckCardsLeft.ToString()} cards left";
+            CurrentPlayerText.text = publicState.CurrentPlayer.PlayerName;
+            cardsLeft = publicState.DeckCardsLeft;
+            CardsLeft.text = $"There's {publicState.DeckCardsLeft} cards left";
             Debug.Log("Actions: "+string.Join("\n", actionList.Select(x => x.FormatShort())));
 
         }
@@ -143,8 +150,36 @@ namespace Assets.Network
             {
                 Debug.Log("Playing action for player " + cardAction.PlayerId);
             }
+
+            if (action is DefuseAction defuseAction)
+            {
+                if (AtomicPigletPosition > cardsLeft)
+                    AtomicPigletPosition = cardsLeft;
+
+                defuseAction.AtomicPositionFromTop = AtomicPigletPosition;
+            }
             var actionJson = SerializeGameActionJson(action);
             ServerPlayAction(actionJson);
+        }
+
+        public void AtomicPigletPositionPlus()
+        {
+            AtomicPigletPosition++;
+            UpdateAtomicPigletPositionText();
+        }
+
+        public void AtomicPigletPositionMinus()
+        {
+            AtomicPigletPosition--;
+            UpdateAtomicPigletPositionText();
+        }
+
+        private void UpdateAtomicPigletPositionText()
+        {
+            if (AtomicPigletPosition < 0) AtomicPigletPosition = 0;
+            if (AtomicPigletPosition >= cardsLeft)
+                AtomicPigletPosition = cardsLeft-1;
+            AtomicPigletPositionText.text = AtomicPigletPosition.ToString();
         }
 
         [ServerRpc(RequireOwnership = false)]
@@ -156,7 +191,7 @@ namespace Assets.Network
                 return;
             }
             var action = DeserializeGameActionJson(actionJson);
-            game.PlayAction(action);
+            _game.PlayAction(action);
             UpdateClients();
         }
 
@@ -196,7 +231,12 @@ namespace Assets.Network
         public void LegalActionsButtonList(List<IGameAction> availableActions)
         {
             Debug.Log($"Action owner: {IsOwner}");
-            LegalActionsList.DetachChildren();
+            foreach (Transform child in LegalActionsList.transform)
+            {
+                Destroy(child.gameObject);
+            }
+            //LegalActionsList.DetachChildren();
+
             foreach (var action in availableActions)
             {
                 var TheAction = action;
@@ -272,6 +312,7 @@ namespace Assets.Network
         // Player info and hidden hand
         public PlayerInfo PlayerInfo;
         public CardCollection Hand;
+        public CardCollection FutureCards;
         public string ActionListJson;
 
         internal static PlayerGameState FromAtomicGame(Player player, AtomicPigletRules rules)
@@ -282,9 +323,11 @@ namespace Assets.Network
             {
                 PlayerInfo = PlayerInfoFromPlayer(player),
                 Hand = player.Hand,
+                FutureCards = player.FutureCards,
                 ActionListJson = GameServer.SerializeActionListJson(actionList)
             };
         }
+
 
         private static string[] GetLegalActions(Player player, AtomicPigletRules rules)
         {
