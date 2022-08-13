@@ -22,7 +22,7 @@ namespace GameLogic
             Deck = deck;
             Players = players.ToList();
             GameHelper.Shuffle(Players);
-            CurrentPlayer = players[0];
+            CurrentPlayer = Players[0];
             PlayerTurns = 1;
 
             PlayTimer.TimerElapsed += PlayTimerOnTimerElapsed;

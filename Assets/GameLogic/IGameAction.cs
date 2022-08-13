@@ -356,7 +356,7 @@ namespace GameLogic
             var otherCard =
                 CardType == CardType.NoCard // Default action
                     ? GameHelper.SelectRandomCard(otherPlayer.Hand)
-                    : otherPlayer.Hand.DrawFromTop(CardType);
+                    : otherPlayer.Hand.PeekFromTop(CardType);
 
             otherPlayer.Hand.TransferCardTo(otherCard, player.Hand);
         }

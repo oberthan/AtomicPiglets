@@ -139,7 +139,7 @@ namespace Assets.Network
             PlayerTurnsLeft.text = publicState.TurnsLeft.ToString();
             CurrentPlayerText.text = publicState.CurrentPlayer.PlayerName;
             cardsLeft = publicState.DeckCardsLeft;
-            CardsLeft.text = $"There's {publicState.DeckCardsLeft} cards left";
+            CardsLeft.text = publicState.DeckCardsLeft.ToString();
             Debug.Log("Actions: "+string.Join("\n", actionList.Select(x => x.FormatShort())));
 
         }
