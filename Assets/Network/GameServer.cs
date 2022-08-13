@@ -25,7 +25,7 @@ namespace Assets.Network
 
         GameServerTimer _gameServerTimer;
 
-        [SyncVar(SendRate = 0.1f)]
+        [SyncVar(SendRate = 0.05f)]
         public float ExecutePlayedCardsTimer;
 
         private Dictionary<Guid, NetworkConnection> _playerConnectionMap;
