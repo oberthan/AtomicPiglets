@@ -123,6 +123,8 @@ namespace GameLogic
             {
                 action.Execute(this);
             }
+            // Hide future cards
+            CurrentPlayer.FutureCards = new CardCollection();
         }
     }
 

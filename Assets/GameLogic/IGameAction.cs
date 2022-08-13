@@ -194,11 +194,9 @@ namespace GameLogic
 
         public IEnumerable<Card> Cards => new[] { card };
 
-        public CardCollection FutureCards { get; private set; }
-
         public void Execute(AtomicGame game)
         {
-            FutureCards = game.Deck.PeekFromTop(3);
+            game.CurrentPlayer.FutureCards = game.Deck.PeekFromTop(3);
         }
 
         public string FormatShort()
@@ -403,7 +401,7 @@ namespace GameLogic
             
             var card =                 
                 (CardType == CardType.NoCard) // Default action
-                    ? GameHelper.SelectRandomCard(game.DiscardPile)
+                    ? GameHelper.OrderByPriority(game.DiscardPile).FirstOrDefault()
                     : game.DiscardPile.DrawFromTop(CardType);
             game.DiscardPile.TransferCardTo(card, player.Hand);
         }

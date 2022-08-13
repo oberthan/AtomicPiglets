@@ -17,6 +17,7 @@ namespace GameLogic
         public string Name { get; set; }
 
         public CardCollection Hand { get; private set; } = new CardCollection();
+        public CardCollection FutureCards { get; set; } = new CardCollection();
 
         public void Deal(CardCollection hand)
         {

@@ -118,12 +118,12 @@ namespace GameLogicTest
             var card = new Card(CardType.SeeTheFutureCard);
             var action = new SeeTheFutureAction(player, card);
 
-            Assert.That(action.FutureCards, Is.Null);
+            Assert.That(player.FutureCards, Is.Empty);
 
             action.Execute(game);
 
-            Assert.That(action.FutureCards, Is.Not.Null);
-            Assert.That(action.FutureCards.All, Is.EqualTo(startDeckFromTop.Take(3)));
+            Assert.That(player.FutureCards, Is.Not.Null);
+            Assert.That(player.FutureCards.All, Is.EqualTo(startDeckFromTop.Take(3)));
         }
 
         [Test]
