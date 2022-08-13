@@ -109,6 +109,7 @@ namespace Assets.Network
         public TMP_Text FutureCardsText;
         public TMP_Text PlayerTurnsLeft;
         public TMP_Text CurrentPlayerText;
+        public TMP_Text AllPlayersText;
         private int cardsLeft;
         public TMP_Text CardsLeft;
 
@@ -138,6 +139,9 @@ namespace Assets.Network
             PlayedCardsText.text =  string.Join("\n", publicState.PlayPile.All.Select(x => x.Type));
             PlayerTurnsLeft.text = publicState.TurnsLeft.ToString();
             CurrentPlayerText.text = publicState.CurrentPlayer.PlayerName;
+            var AllPlayerName = String.Join("\n", publicState.AllPlayers.Select(x => x.PlayerName + " " + x.CardsLeft));
+            //var AllPlayerCardCount = String.Join("\n", publicState.AllPlayers.Select(x => x.CardsLeft));
+            AllPlayersText.text = AllPlayerName;// +AllPlayerCardCount;
             cardsLeft = publicState.DeckCardsLeft;
             CardsLeft.text = publicState.DeckCardsLeft.ToString();
             Debug.Log("Actions: "+string.Join("\n", actionList.Select(x => x.FormatShort())));
