@@ -16,7 +16,10 @@ namespace GameLogic
         public Guid Id;
         public string Name { get; set; }
 
-        public bool IsGameOver;
+        public bool IsGameOver()
+        {
+            return Hand.Contains(CardType.AtomicPigletCard) && !Hand.Contains(CardType.DefuseCard);
+        }
 
         public CardCollection Hand { get; private set; } = new CardCollection();
         public CardCollection FutureCards { get; set; } = new CardCollection();

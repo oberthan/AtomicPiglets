@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System;
+using FishNet;
 
 public class HostScript : MonoBehaviour{
     private const int Z = 0;
@@ -84,5 +85,12 @@ public class HostScript : MonoBehaviour{
     {
         Players.value--;
         UpdatePlayerCount();
+    }
+
+
+    public void StartHosting()
+    {
+        InstanceFinder.ServerManager.StartConnection();
+        InstanceFinder.ClientManager.StartConnection();
     }
 }

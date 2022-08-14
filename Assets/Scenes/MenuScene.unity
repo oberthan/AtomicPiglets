@@ -2873,7 +2873,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0.0007324219}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &825853276
@@ -3450,21 +3450,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 6411577145423093122}
-        m_TargetAssemblyTypeName: NetworkHudCanvases, FishNet.Example
-        m_MethodName: OnClick_Server
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 6411577145423093122}
-        m_TargetAssemblyTypeName: NetworkHudCanvases, FishNet.Example
-        m_MethodName: OnClick_Client
+      - m_Target: {fileID: 375902179}
+        m_TargetAssemblyTypeName: HostScript, Assembly-CSharp
+        m_MethodName: StartHosting
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3758,8 +3746,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.056222007, y: -0.11773454, z: -106.68568}
+  m_LocalRotation: {x: 0.23031752, y: 0.027729418, z: -0.0065658335, w: 0.9726982}
+  m_LocalPosition: {x: -9.986601, y: 88.32314, z: -268.03598}
   m_LocalScale: {x: 1, y: 0, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4458,7 +4446,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1798096849}
   m_HandleRect: {fileID: 1798096848}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -8201,7 +8189,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5106345287266068924, guid: 3d07326f060c4ed47b60ade33cb0c2dd, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5106345287266068927, guid: 3d07326f060c4ed47b60ade33cb0c2dd, type: 3}
       propertyPath: m_Pivot.x
@@ -8221,7 +8209,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5106345287266068927, guid: 3d07326f060c4ed47b60ade33cb0c2dd, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5106345287266068927, guid: 3d07326f060c4ed47b60ade33cb0c2dd, type: 3}
       propertyPath: m_AnchorMin.x
@@ -8229,11 +8217,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5106345287266068927, guid: 3d07326f060c4ed47b60ade33cb0c2dd, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5106345287266068927, guid: 3d07326f060c4ed47b60ade33cb0c2dd, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 1523
       objectReference: {fileID: 0}
     - target: {fileID: 5106345287266068927, guid: 3d07326f060c4ed47b60ade33cb0c2dd, type: 3}
       propertyPath: m_SizeDelta.y
@@ -8269,11 +8257,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5106345287266068927, guid: 3d07326f060c4ed47b60ade33cb0c2dd, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 791.5
       objectReference: {fileID: 0}
     - target: {fileID: 5106345287266068927, guid: 3d07326f060c4ed47b60ade33cb0c2dd, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -122.3
       objectReference: {fileID: 0}
     - target: {fileID: 5106345287266068927, guid: 3d07326f060c4ed47b60ade33cb0c2dd, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -8504,7 +8492,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &6411577145603130682
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8638,7 +8626,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &6411577145955791034
 MonoBehaviour:
   m_ObjectHideFlags: 0

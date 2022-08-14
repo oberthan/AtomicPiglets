@@ -16,7 +16,7 @@ namespace GameLogic
         {
             var hand = player.Hand;
 
-            if (player.IsGameOver)
+            if (player.IsGameOver())
             {
                 yield return new GameOverAction(player);
                 yield break;
@@ -52,7 +52,7 @@ namespace GameLogic
                 else // Player has NOT just drawn atomic piglet
                 {
                     // Check if player has won
-                    if (game.GetOtherPlayers(player).All(x => x.IsGameOver))
+                    if (game.GetOtherPlayers(player).All(x => x.IsGameOver()))
                     {
                         yield return new WinGameAction(player);
                         yield break;

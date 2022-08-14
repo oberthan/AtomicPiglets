@@ -31,11 +31,6 @@ namespace GameLogic
             player.AddCard(card);
             if (card.Type != CardType.AtomicPigletCard)
                 game.EndTurn();
-            else
-            {
-                if (!player.Hand.Contains(CardType.DefuseCard))
-                    player.IsGameOver = true;
-            }
         }
 
         public string FormatShort()
@@ -422,6 +417,7 @@ namespace GameLogic
         [JsonProperty]
         public Guid PlayerId { get; private set; }
 
+        private GameOverAction(){}
         public GameOverAction(Player player)
         {
             PlayerId = player.Id;
@@ -441,6 +437,7 @@ namespace GameLogic
         [JsonProperty]
         public Guid PlayerId { get; private set; }
 
+        private WinGameAction() {}
         public WinGameAction(Player player)
         {
             PlayerId = player.Id;

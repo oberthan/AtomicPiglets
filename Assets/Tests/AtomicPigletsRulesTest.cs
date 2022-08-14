@@ -73,8 +73,7 @@ namespace Assets.Tests
             TestFactory.MakeTestHand(player0, new[] { CardType.BeirdCard, CardType.BeirdCard, CardType.AtomicPigletCard });
             TestFactory.MakeTestHand(player2, new[] { CardType.BeirdCard, CardType.BeirdCard, CardType.AtomicPigletCard });
 
-            player0.IsGameOver = true;
-            player2.IsGameOver = true;
+            player0.IsGameOver();
 
             game.Deck.Clear();
             game.Deck.AddNew(CardType.WatermelonCard);

@@ -93,13 +93,13 @@ namespace Assets.Network
             var publicState = PublicGameState.FromAtomicGame(_game);
             foreach (var player in _game.Players)
             {
-                Debug.Log($"{player.Name} hand: " + player.FormatHand());
+//                Debug.Log($"{player.Name} hand: " + player.FormatHand());
 
                 var connection = _playerConnectionMap[player.Id];
-                Debug.Log("Getting legal actions from player " + player.Id);
+//                Debug.Log("Getting legal actions from player " + player.Id);
                 PlayerGameState playerState = PlayerGameState.FromAtomicGame(player, _rules);
 
-                Debug.Log($"Server {playerState.PlayerInfo.PlayerName} game state hand: " + playerState.Hand);
+//                Debug.Log($"Server {playerState.PlayerInfo.PlayerName} game state hand: " + playerState.Hand);
 
                 ClientUpdateGameState(connection, playerState, publicState);
             }
@@ -122,8 +122,8 @@ namespace Assets.Network
         [TargetRpc]
         public void ClientUpdateGameState(NetworkConnection conn, PlayerGameState playerState, PublicGameState publicState)
         {
-            Debug.Log($"Client {playerState.PlayerInfo.PlayerName} game state hand: " + playerState.Hand);
-            Debug.Log($"Client update game state owner: {IsOwner}");
+//            Debug.Log($"Client {playerState.PlayerInfo.PlayerName} game state hand: " + playerState.Hand);
+//            Debug.Log($"Client update game state owner: {IsOwner}");
 
             var actionList = DeserializeActionListJson(playerState.ActionListJson);
             LegalActionsButtonList(actionList);

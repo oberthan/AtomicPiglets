@@ -70,7 +70,7 @@ namespace GameLogic
         {
             var playerCount = Players.Count;
 
-            if (Players.All(x => x.IsGameOver))
+            if (Players.All(x => x.IsGameOver()))
             {
                 throw new InvalidOperationException("Cannot select next player. All players are game over");
             }
@@ -80,7 +80,7 @@ namespace GameLogic
                 var currentPlayerIndex = Players.IndexOf(CurrentPlayer);
                 currentPlayerIndex = (currentPlayerIndex + 1) % playerCount;
                 CurrentPlayer = Players[currentPlayerIndex];
-            } while (CurrentPlayer.IsGameOver);
+            } while (CurrentPlayer.IsGameOver());
 
         }
 
