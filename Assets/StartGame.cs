@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Linq;
+using Assets.Dto;
 using GameLogic;
 using FishNet.Object;
 using FishNet.Connection;

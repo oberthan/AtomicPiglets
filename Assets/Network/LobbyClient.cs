@@ -2,6 +2,7 @@
 using FishNet.Object;
 using System;
 using System.Linq;
+using Assets.Dto;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;

@@ -9,8 +9,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Assets.Bots;
+using Assets.Dto;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace Assets.Network
 {
@@ -25,7 +25,7 @@ namespace Assets.Network
         /// Collection of each player name for connections.
         /// </summary>
         [SyncObject]
-        private readonly SyncDictionary<NetworkConnection, PlayerInfo> _playerInfos = new SyncDictionary<NetworkConnection, PlayerInfo>();
+        private readonly SyncDictionary<NetworkConnection, PlayerInfo> _playerInfos = new();
 
         public const int GameStartCountdownSeconds = 2;
 
@@ -216,16 +216,5 @@ namespace Assets.Network
         {
             _playerInfos[sender] = playerInfo;
         }
-    }
-
-    public class PlayerInfo
-    {
-        public Guid Id;
-        public string PlayerName;
-        public bool IsReady;
-        
-        // In game only
-        public int CardsLeft;
-        public bool IsGameOver;
     }
 }

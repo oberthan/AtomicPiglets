@@ -3,13 +3,12 @@ using FishNet.Connection;
 using FishNet.Object;
 using FishNet.Object.Synchronizing;
 using GameLogic;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Assets.Bots;
+using Assets.Dto;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using static System.String;
@@ -146,7 +145,7 @@ namespace Assets.Network
 //            Debug.Log($"Client {playerState.PlayerInfo.PlayerName} game state hand: " + playerState.Hand);
 //            Debug.Log($"Client update game state owner: {IsOwner}");
 
-            var actionList = DeserializeActionListJson(playerState.ActionListJson);
+            var actionList = GameDataSerializer.DeserializeActionListJson(playerState.ActionListJson);
             LegalActionsButtonList(actionList);
 
             var canDefuse = actionList.Any(x => x is DefuseAction);
@@ -203,7 +202,7 @@ namespace Assets.Network
                 defuseAction.AtomicPositionFromTop = AtomicPigletPosition;
             }
 
-            var actionJson = SerializeGameActionJson(action);
+            var actionJson = GameDataSerializer.SerializeGameActionJson(action);
             ServerPlayAction(actionJson);
         }
 
@@ -234,7 +233,7 @@ namespace Assets.Network
                 Debug.LogWarning("Only servers can play actions");
                 return;
             }
-            var action = DeserializeGameActionJson(actionJson);
+            var action = GameDataSerializer.DeserializeGameActionJson(actionJson);
 
             if (action is WinGameAction)
             {
@@ -246,37 +245,6 @@ namespace Assets.Network
             }
 
             UpdateClients();
-        }
-
-        public static List<IGameAction> DeserializeActionListJson(string actionListJson)
-        {
-            return JsonConvert.DeserializeObject<List<IGameAction>>(actionListJson, new JsonSerializerSettings
-            {
-                TypeNameHandling = TypeNameHandling.Objects,
-                ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor
-            });
-        }
-        public static string SerializeActionListJson(List<IGameAction> actionList)
-        {
-            return JsonConvert.SerializeObject(actionList, Formatting.Indented, new JsonSerializerSettings
-            {
-                TypeNameHandling = TypeNameHandling.Objects,
-            });
-        }
-        public static IGameAction DeserializeGameActionJson(string actionJson)
-        {
-            return JsonConvert.DeserializeObject<IGameAction>(actionJson, new JsonSerializerSettings
-            {
-                TypeNameHandling = TypeNameHandling.Objects,
-                ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor
-            });
-        }
-        public static string SerializeGameActionJson(IGameAction gameAction)
-        {
-            return JsonConvert.SerializeObject(gameAction, Formatting.Indented, new JsonSerializerSettings
-            {
-                TypeNameHandling = TypeNameHandling.Objects,
-            });
         }
 
         [SerializeField] Transform LegalActionsList;
@@ -317,116 +285,5 @@ namespace Assets.Network
             Debug.Log($"Action pressed owner: {IsOwner}");
             PlayAction(action);
         }
-    }
-
-    public class GameServerTimer : IPlayTimer
-    {
-        private readonly GameServer _gameServer;
-        private float _elapseTime;
-        private float _startTime;
-
-        public GameServerTimer(GameServer gameServer)
-        {
-            _gameServer = gameServer;
-        }
-
-        public void Update()
-        {
-            if (_elapseTime == 0) return;
-
-            var time = Time.time;
-            var timeLeft = _elapseTime - time;
-            if (timeLeft < 0) timeLeft = 0;
-            _gameServer.ExecutePlayedCardsTimer = timeLeft;
-            if (timeLeft <= 0)
-            {
-                Debug.Log("Game timer elapsed");
-                OnTimerElapsed();
-                _elapseTime = 0;
-                _gameServer.UpdateClients();
-            }
-        }
-
-        public void Start(float delay)
-        {
-            Debug.Log($"Game timer started with {delay} delay");
-            _startTime = Time.time;
-            _elapseTime = _startTime + delay;
-            _gameServer.ExecutePlayedCardsTimerMax = delay;
-            _gameServer.UpdateClients();
-        }
-
-        public event EventHandler TimerElapsed;
-
-        private void OnTimerElapsed()
-        {
-            TimerElapsed?.Invoke(this, EventArgs.Empty);
-        }
-    }
-
-    public class PlayerGameState
-    {
-        // Player info and hidden hand
-        public PlayerInfo PlayerInfo;
-        public CardCollection Hand;
-        public CardCollection FutureCards;
-        public string ActionListJson;
-
-        internal static PlayerGameState FromAtomicGame(Player player, AtomicPigletRules rules)
-        {
-            var actionList = rules.GetLegalActionsForPlayer(player).ToList();
-
-            return new PlayerGameState
-            {
-                PlayerInfo = PlayerInfoFromPlayer(player),
-                Hand = player.Hand,
-                FutureCards = player.FutureCards,
-                ActionListJson = GameServer.SerializeActionListJson(actionList)
-            };
-        }
-
-
-        private static string[] GetLegalActions(Player player, AtomicPigletRules rules)
-        {
-            var actions = rules.GetLegalActionsForPlayer(player);
-            return actions.Select(x => x.FormatShort()).ToArray();
-        }
-
-        public static PlayerInfo PlayerInfoFromPlayer(Player player)
-        {
-            return new PlayerInfo { Id = player.Id, PlayerName = player.Name, IsReady = true, CardsLeft = player.Hand.Count, IsGameOver = player.IsGameOver()};
-        }
-
-        public static string[] SerializeCardCollection(CardCollection cards)
-        {
-            return cards.All.Select(x => x.GetType().Name).ToArray();
-        }
-
-    }
-
-    public class PublicGameState
-    {
-        public PlayerInfo CurrentPlayer;
-        public PlayerInfo[] AllPlayers;
-        public CardCollection PlayPile;
-        public CardCollection DiscardPile;
-        public int DeckCardsLeft;
-        public int TurnsLeft;
-        public string PublicMessage;
-
-        public static PublicGameState FromAtomicGame(AtomicGame game)
-        {
-            return new PublicGameState
-            {
-                CurrentPlayer = PlayerGameState.PlayerInfoFromPlayer(game.CurrentPlayer),
-                AllPlayers = game.Players.Select(PlayerGameState.PlayerInfoFromPlayer).ToArray(),
-                PlayPile = game.PlayPile,
-                DiscardPile = game.DiscardPile,
-                DeckCardsLeft = game.Deck.Count,
-                TurnsLeft = game.PlayerTurns,
-                PublicMessage = game.PublicMessage
-            };
-        }
-
     }
 }
