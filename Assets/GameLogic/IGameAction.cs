@@ -216,7 +216,13 @@ namespace GameLogic
         }
 
     }
-    public class FavorAction : ICardAction
+
+    public interface ITargetGameAction
+    {
+        Guid TargetPlayerId { get; }
+    }
+
+    public class FavorAction : ICardAction, ITargetGameAction
     {
         [JsonProperty]
         public Guid PlayerId { get; private set; }
@@ -284,7 +290,7 @@ namespace GameLogic
 
     }
 
-    public class DrawFromPlayerAction : ICardAction
+    public class DrawFromPlayerAction : ICardAction, ITargetGameAction
     {
         [JsonProperty]
         public Guid PlayerId { get; private set; }
@@ -332,7 +338,7 @@ namespace GameLogic
         }
     }
 
-    public class DemandCardFromPlayerAction : ICardAction
+    public class DemandCardFromPlayerAction : ICardAction, ITargetGameAction
     {
         [JsonProperty]
         public Guid PlayerId { get; private set; }
