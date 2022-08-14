@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using FishNet;
 using FishNet.Discovery;
+using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
 using UnityEngine.PlayerLoop;
@@ -79,5 +80,10 @@ public class FindGameScript : MonoBehaviour
             _newEndPoints.Clear();
         }
 
+    }
+
+    public void Scan()
+    {
+        networkDiscovery.StartSearchingForServers();
     }
 }
