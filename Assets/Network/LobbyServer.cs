@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Assets.Bots;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -54,7 +55,6 @@ namespace Assets.Network
             base.OnStartServer();
             Debug.Log("Lobby server started");
             NetworkManager.ServerManager.OnRemoteConnectionState += ServerManager_OnRemoteConnectionState;
-            SceneManager.OnActiveSceneSet += SceneManager_OnActiveSceneSet;
             SceneManager.OnClientPresenceChangeEnd += SceneManager_OnClientPresenceChangeEnd;
         }
 
@@ -62,8 +62,7 @@ namespace Assets.Network
         {
             base.OnStopServer();
             Debug.Log("Lobby server stopped");
-            base.NetworkManager.ServerManager.OnRemoteConnectionState -= ServerManager_OnRemoteConnectionState;
-            SceneManager.OnActiveSceneSet -= SceneManager_OnActiveSceneSet;
+            NetworkManager.ServerManager.OnRemoteConnectionState -= ServerManager_OnRemoteConnectionState;
         }
 
         internal static float GetStartTimer()
@@ -139,27 +138,22 @@ namespace Assets.Network
             StartClientGame();
         }
 
-        private void SceneManager_OnActiveSceneSet()
-        {
-            var gameNetworking = GameObject.Find("GameNetworking");
-            if (gameNetworking == null)
-            {
-                Debug.Log("Did not find game server in OnActiveSceneSet");
-            }
-            else
-            {
-                Debug.Log("Did find game server in OnActiveSceneSet");
-                var gameServer = gameNetworking.GetComponent<GameServer>();
-//                gameServer.StartGame(_playerInfos);
-            }
-        }
         private void SceneManager_OnClientPresenceChangeEnd(ClientPresenceChangeEventArgs obj)
         {
             var gameNetworking = GameObject.Find("GameNetworking");
             if (gameNetworking != null)
             {
                 var gameServer = gameNetworking.GetComponent<GameServer>();
-                gameServer.StartGame(_playerInfos);
+                var bots = MakeBots(2);
+                gameServer.StartGame(_playerInfos, bots);
+            }
+        }
+
+        private IEnumerable<IAtomicPigletBot> MakeBots(int count)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                yield return new MonkeyBot();
             }
         }
 

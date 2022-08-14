@@ -35,7 +35,7 @@ namespace GameLogic
 
         public CardCollection Deck { get; }
 
-        internal Player GetPlayer(Guid playerId)
+        public Player GetPlayer(Guid playerId)
         {
             var player = Players.FirstOrDefault(x => x.Id == playerId);
             if (player == null)

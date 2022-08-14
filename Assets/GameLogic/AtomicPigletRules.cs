@@ -6,12 +6,18 @@ namespace GameLogic
 {
     public class AtomicPigletRules
     {
-        private readonly AtomicGame _game;
+        public AtomicGame Game { get; }
 
         public AtomicPigletRules(AtomicGame game)
         {
-            _game = game;
+            Game = game;
         }
+
+        public IEnumerable<IGameAction> GetLegalActionsForPlayer(Guid playerId)
+        {
+            return GetLegalActionsForPlayer(Game.GetPlayer(playerId));
+        }
+
         public IEnumerable<IGameAction> GetLegalActionsForPlayer(Player player)
         {
             var hand = player.Hand;
@@ -22,13 +28,13 @@ namespace GameLogic
                 yield break;
             }
 
-            if (_game.PlayPile.Any())
+            if (Game.PlayPile.Any())
             {
-                var playPileHasDefuseCard = _game.PlayPile.PeekFromTop(CardType.DefuseCard) != null;
-                var topCardIsNope = _game.PlayPile.PeekFromTop(1).First().Type == CardType.NopeCard;
+                var playPileHasDefuseCard = Game.PlayPile.PeekFromTop(CardType.DefuseCard) != null;
+                var topCardIsNope = Game.PlayPile.PeekFromTop(1).First().Type == CardType.NopeCard;
                 var hasNopeCard = hand.Contains(CardType.NopeCard);
                 
-                if (hasNopeCard && !playPileHasDefuseCard && (topCardIsNope || player != _game.CurrentPlayer))
+                if (hasNopeCard && !playPileHasDefuseCard && (topCardIsNope || player != Game.CurrentPlayer))
                 {
                     yield return new NopeAction(player, hand.PeekFromTop(CardType.NopeCard));
                 }
@@ -38,7 +44,7 @@ namespace GameLogic
                 }
                 yield break;
             }
-            if (player == _game.CurrentPlayer)
+            if (player == Game.CurrentPlayer)
             {
 
                 // Players has drawn atomic piglet and must deal with it.
@@ -52,7 +58,7 @@ namespace GameLogic
                 else // Player has NOT just drawn atomic piglet
                 {
                     // Check if player has won
-                    if (_game.GetOtherPlayers(player).All(x => x.IsGameOver()))
+                    if (Game.GetOtherPlayers(player).All(x => x.IsGameOver()))
                     {
                         yield return new WinGameAction(player);
                         yield break;
@@ -64,18 +70,18 @@ namespace GameLogic
                     if (hand.Contains(CardType.AttackCard)) yield return new AttackAction(player, hand.PeekFromTop(CardType.AttackCard));
                     if (hand.Contains(CardType.ShuffleCard)) yield return new ShuffleAction(player, hand.PeekFromTop(CardType.ShuffleCard));
                     if (hand.Contains(CardType.SeeTheFutureCard)) yield return new SeeTheFutureAction(player, hand.PeekFromTop(CardType.SeeTheFutureCard));
-                    if (hand.Contains(CardType.FavorCard)) yield return new FavorAction(player, hand.PeekFromTop(CardType.FavorCard), GameHelper.SelectRandomOtherPlayer(_game, player.Id));
+                    if (hand.Contains(CardType.FavorCard)) yield return new FavorAction(player, hand.PeekFromTop(CardType.FavorCard), GameHelper.SelectRandomOtherPlayer(Game, player.Id));
                     var twoEqualCardGroups = (from card in hand
                                                group card by card.Type into collectionGroup
                                                where collectionGroup.Count() >= 2
                                                select collectionGroup.Take(2)).ToList();
-                    if (twoEqualCardGroups.Any()) yield return new DrawFromPlayerAction(player, twoEqualCardGroups, GameHelper.SelectRandomOtherPlayer(_game, player.Id));
+                    if (twoEqualCardGroups.Any()) yield return new DrawFromPlayerAction(player, twoEqualCardGroups, GameHelper.SelectRandomOtherPlayer(Game, player.Id));
 
                     var threeEqualCardGroups = (from card in hand
                                              group card by card.Type into collectionGroup
                                              where collectionGroup.Count() >= 3
                                              select collectionGroup.Take(3)).ToList();
-                    if (threeEqualCardGroups.Any()) yield return new DemandCardFromPlayerAction(player, threeEqualCardGroups, GameHelper.SelectRandomOtherPlayer(_game, player.Id));
+                    if (threeEqualCardGroups.Any()) yield return new DemandCardFromPlayerAction(player, threeEqualCardGroups, GameHelper.SelectRandomOtherPlayer(Game, player.Id));
 
                     var distinctCards = hand.All.Distinct(new GenericEqualityComparer<Card, CardType>(x => x.Type)).ToList();
                     if (distinctCards.Count >= 5) yield return new DrawFromDiscardPileAction(player, distinctCards.ToArray());

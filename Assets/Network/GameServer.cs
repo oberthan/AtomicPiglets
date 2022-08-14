@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Assets.Bots;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -34,6 +35,7 @@ namespace Assets.Network
         public float ExecutePlayedCardsTimer;
 
         private Dictionary<Guid, NetworkConnection> _playerConnectionMap;
+        private Dictionary<Guid, IAtomicPigletBot> _botMap;
 
         private void Awake()
         {
@@ -64,16 +66,17 @@ namespace Assets.Network
 
 
         [Server]
-        public void StartGame(SyncDictionary<NetworkConnection, PlayerInfo> players)
+        public void StartGame(SyncDictionary<NetworkConnection, PlayerInfo> netPlayers, IEnumerable<IAtomicPigletBot> bots)
         {
             if (!InstanceFinder.NetworkManager.IsServer)
             {
                 Debug.LogWarning("Only servers can start a new game");
                 return;
             }
-            _playerConnectionMap = players.ToDictionary(x => x.Value.Id, x => x.Key);
+            _playerConnectionMap = netPlayers.ToDictionary(x => x.Value.Id, x => x.Key);
+            _botMap = bots.ToDictionary(x => x.PlayerInfo.Id);
 
-            var playerInfos = players.Values.Select(PlayerFromPlayerInfo);
+            var playerInfos = netPlayers.Values.Concat(_botMap.Values.Select(x => x.PlayerInfo)).Select(PlayerFromPlayerInfo);
             StartNewGame(playerInfos);
         }
 
@@ -105,15 +108,19 @@ namespace Assets.Network
             var publicState = PublicGameState.FromAtomicGame(_game);
             foreach (var player in _game.Players)
             {
-//                Debug.Log($"{player.Name} hand: " + player.FormatHand());
+                var playerState = PlayerGameState.FromAtomicGame(player, _rules);
 
-                var connection = _playerConnectionMap[player.Id];
-//                Debug.Log("Getting legal actions from player " + player.Id);
-                PlayerGameState playerState = PlayerGameState.FromAtomicGame(player, _rules);
+                if (_playerConnectionMap.TryGetValue(player.Id, out var networkConnection))
+                {
+                    var connection = _playerConnectionMap[player.Id];
+                    ClientUpdateGameState(connection, playerState, publicState);
+                }
 
-//                Debug.Log($"Server {playerState.PlayerInfo.PlayerName} game state hand: " + playerState.Hand);
-
-                ClientUpdateGameState(connection, playerState, publicState);
+                if (_botMap.TryGetValue(player.Id, out var bot))
+                {
+                    var action = bot.GetAction(_rules, playerState, publicState);
+                    PlayAction(action);
+                }
             }
         }
 
@@ -182,6 +189,7 @@ namespace Assets.Network
 
         public void PlayAction(IGameAction action)
         {
+            if (action is NoAction) return;
             if (action is ICardAction cardAction)
             {
                 Debug.Log("Playing action for player " + cardAction.PlayerId);
