@@ -1,4 +1,5 @@
 ﻿using System;
+using Assets.Dto;
 using Newtonsoft.Json;
 
 namespace GameLogic
@@ -9,6 +10,8 @@ namespace GameLogic
         public Player(string name) : this(name, Guid.NewGuid())
         {
         }
+        public Player(PlayerInfo playerInfo) : this(playerInfo.PlayerName, playerInfo.Id)
+        {}
         public Player(string name, Guid id)
         {
             Name = name;

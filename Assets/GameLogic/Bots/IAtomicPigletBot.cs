@@ -25,11 +25,13 @@ namespace Assets.Bots
         }
         public IGameAction GetAction(AtomicPigletRules rules, PlayerGameState playerState, PublicGameState publicState)
         {
+            var player = rules.Game.GetPlayer(PlayerId);
             if (rules.Game.CurrentPlayer.Id != PlayerId)
             {
-                return new NoAction(rules.Game.GetPlayer(PlayerId));
+                return new NoAction(player);
             }
             var actions = rules.GetLegalActionsForPlayer(PlayerId).ToList();
+            if (!actions.Any()) return new NoAction(player);
             return actions[_rnd.Next(actions.Count)];
         }
     }

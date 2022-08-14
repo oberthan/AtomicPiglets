@@ -69,7 +69,7 @@ namespace GameLogic
 
         public Card DrawTop()
         {
-            return DrawTop(1).All.Single();
+            return DrawTop(1).Single();
         }
 
         public CardCollection DrawTop(int count)

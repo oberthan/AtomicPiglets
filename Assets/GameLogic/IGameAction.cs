@@ -82,8 +82,9 @@ namespace GameLogic
 
         public void Execute(AtomicGame game)
         {
-            game.EndTurn();
+            game.GetPlayer(PlayerId).Hand.RemoveAll(new[] {atomicPigletCard});
             game.Deck.InsertFromTop(atomicPigletCard, AtomicPositionFromTop);
+            game.EndTurn();
         }
 
         public string FormatShort()

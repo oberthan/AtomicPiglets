@@ -101,7 +101,10 @@ namespace GameLogic
             player.Hand.RemoveAll(cardAction.Cards);
             PlayPileActions.Add(cardAction);
 
-            PlayTimer.Start(4f);
+            if (cardAction is DefuseAction)
+                ExecutePlayedCards();
+            else
+                PlayTimer.Start(4f);
         }
 
         public void ExecutePlayedCards()
@@ -143,6 +146,12 @@ namespace GameLogic
         public IEnumerable<Player> GetOtherPlayers(Player player)
         {
             return Players.Where(x => x.Id != player.Id);
+        }
+
+        public CardCollection GetAllCards()
+        {
+            return new CardCollection(Deck.Concat(PlayPile).Concat(DiscardPile)
+                .Concat(Players.SelectMany(x => x.Hand)));
         }
     }
 

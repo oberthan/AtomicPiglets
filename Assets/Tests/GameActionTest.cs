@@ -14,13 +14,14 @@ namespace GameLogicTest
         {
             var game = GameFactory.CreateExplodingKittensLikeGame(2);
             var player = game.CurrentPlayer;
+            var hand = player.Hand;
 
-            var defuseCard = new Card(CardType.DefuseCard);
-            var atomicCard = new Card(CardType.AtomicPigletCard);
+            var defuseCard = hand.AddNew(CardType.DefuseCard);
+            var atomicCard = hand.AddNew(CardType.AtomicPigletCard);
             var action = new DefuseAction(player, defuseCard, atomicCard);
             action.AtomicPositionFromTop = 2;
 
-            action.Execute(game);
+            game.PlayAction(action);
 
             // Defusing will end turn
             Assert.That(game.CurrentPlayer, Is.Not.EqualTo(player));
@@ -36,13 +37,14 @@ namespace GameLogicTest
             var game = GameFactory.CreateExplodingKittensLikeGame(2);
             game.PlayerTurns = 2;
             var player = game.CurrentPlayer;
+            var hand = player.Hand;
 
-            var defuseCard = new Card(CardType.DefuseCard);
-            var atomicCard = new Card(CardType.AtomicPigletCard);
+            var defuseCard = hand.AddNew(CardType.DefuseCard);
+            var atomicCard = hand.AddNew(CardType.AtomicPigletCard);
             var action = new DefuseAction(player, defuseCard, atomicCard);
             action.AtomicPositionFromTop = 2;
 
-            action.Execute(game);
+            game.PlayAction(action);
 
             // Defusing will end turn, but not next player
             Assert.That(game.CurrentPlayer, Is.EqualTo(player));
