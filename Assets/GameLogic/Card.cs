@@ -38,7 +38,7 @@ namespace GameLogic
         TacoCard = 9,
         RainbowCard = 10,
         PotatoCard = 11,
-        BeirdCard = 12,
+        BeardCard = 12,
         WatermelonCard = 13
     }
 
@@ -98,7 +98,7 @@ namespace GameLogic
     //{
 
     //}
-    //public class BeirdCard : CollectionCard
+    //public class BeardCard : CollectionCard
     //{
 
     //}

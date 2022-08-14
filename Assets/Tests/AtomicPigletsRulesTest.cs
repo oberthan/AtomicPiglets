@@ -23,8 +23,8 @@ namespace Assets.Tests
             TestFactory.MakeTestHand(currentPlayer,
                 new[]
                 {
-                    CardType.BeirdCard, CardType.DefuseCard, CardType.BeirdCard, CardType.WatermelonCard,
-                    CardType.BeirdCard, CardType.WatermelonCard
+                    CardType.BeardCard, CardType.DefuseCard, CardType.BeardCard, CardType.WatermelonCard,
+                    CardType.BeardCard, CardType.WatermelonCard
                 });
 
             var legalActions = rules.GetLegalActionsForPlayer(currentPlayer).ToList();
@@ -32,11 +32,11 @@ namespace Assets.Tests
 
             var demandCardFromPlayerAction = legalActions.OfType<DemandCardFromPlayerAction>().Single();
             Assert.That(demandCardFromPlayerAction.SelectableCards.Count, Is.EqualTo(3));
-            Assert.That(demandCardFromPlayerAction.SelectableCards.Count(x => x.Type == CardType.BeirdCard), Is.EqualTo(3), $"Selectable cards was {string.Join(", ", demandCardFromPlayerAction.SelectableCards.Select(x => x.Type))}");
+            Assert.That(demandCardFromPlayerAction.SelectableCards.Count(x => x.Type == CardType.BeardCard), Is.EqualTo(3), $"Selectable cards was {string.Join(", ", demandCardFromPlayerAction.SelectableCards.Select(x => x.Type))}");
 
             var drawFromPlayerAction = legalActions.OfType<DrawFromPlayerAction>().Single();
             Assert.That(drawFromPlayerAction.SelectableCards.Count, Is.EqualTo(4));
-            Assert.That(drawFromPlayerAction.SelectableCards.Count(x => x.Type == CardType.BeirdCard), Is.EqualTo(2));
+            Assert.That(drawFromPlayerAction.SelectableCards.Count(x => x.Type == CardType.BeardCard), Is.EqualTo(2));
             Assert.That(drawFromPlayerAction.SelectableCards.Count(x => x.Type == CardType.WatermelonCard), Is.EqualTo(2));
         }
 
@@ -48,7 +48,7 @@ namespace Assets.Tests
 
             var currentPlayer = game.CurrentPlayer;
 
-            TestFactory.MakeTestHand(currentPlayer, new[] { CardType.BeirdCard, CardType.BeirdCard, CardType.SkipCard });
+            TestFactory.MakeTestHand(currentPlayer, new[] { CardType.BeardCard, CardType.BeardCard, CardType.SkipCard });
             game.Deck.Clear();
             game.Deck.AddNew(CardType.AtomicPigletCard);
 
@@ -70,8 +70,8 @@ namespace Assets.Tests
             var player1 = game.Players[1];
             var player2 = game.Players[2];
 
-            TestFactory.MakeTestHand(player0, new[] { CardType.BeirdCard, CardType.BeirdCard, CardType.AtomicPigletCard });
-            TestFactory.MakeTestHand(player2, new[] { CardType.BeirdCard, CardType.BeirdCard, CardType.AtomicPigletCard });
+            TestFactory.MakeTestHand(player0, new[] { CardType.BeardCard, CardType.BeardCard, CardType.AtomicPigletCard });
+            TestFactory.MakeTestHand(player2, new[] { CardType.BeardCard, CardType.BeardCard, CardType.AtomicPigletCard });
 
             player0.IsGameOver();
 

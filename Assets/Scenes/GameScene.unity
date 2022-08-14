@@ -4735,7 +4735,7 @@ GameObject:
   - component: {fileID: 543450652371095413}
   - component: {fileID: 919132148369774032}
   m_Layer: 0
-  m_Name: Kort
+  m_Name: Deck
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4754,3 +4754,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CardPrefab: {fileID: 5100288644001096221, guid: 40497e8808ad38741a586b27bc248c9d, type: 3}
+  Deck: {fileID: 0}
+  MaxCards: 56

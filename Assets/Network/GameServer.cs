@@ -162,6 +162,9 @@ namespace Assets.Network
 
             Debug.Log("Actions: "+Join("\n", actionList.Select(x => x.FormatShort())));
 
+            var deck = GameObject.Find("Deck");
+            var deckScript = deck.GetComponent<CardDeckScript>();
+            deckScript.SetCardCount(_cardsLeft);
         }
 
         private static string FormatPlayerHand(PlayerGameState playerState)

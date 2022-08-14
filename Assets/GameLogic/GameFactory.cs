@@ -41,7 +41,7 @@ namespace GameLogic
             dealPile.AddNew(4, () => new Card(CardType.FavorCard));
             dealPile.AddNew(4, () => new Card(CardType.WatermelonCard));
             dealPile.AddNew(4, () => new Card(CardType.PotatoCard));
-            dealPile.AddNew(4, () => new Card(CardType.BeirdCard));
+            dealPile.AddNew(4, () => new Card(CardType.BeardCard));
             dealPile.AddNew(4, () => new Card(CardType.RainbowCard));
             dealPile.AddNew(4, () => new Card(CardType.TacoCard));
 
