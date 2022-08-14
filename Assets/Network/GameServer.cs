@@ -144,10 +144,10 @@ namespace Assets.Network
             //if (pigletPos != null)
             PigletPositionControl.SetActive(canDefuse);
 
-            PlayerHandText.text =  string.Join("\n", playerState.Hand.All.Select(x => x.Type));
-            FutureCardsText.text = string.Join("\n", playerState.FutureCards.All.Select(x => x.Type));
+            PlayerHandText.text =  string.Join("\n", GameHelper.OrderByPriority(playerState.Hand));
+            FutureCardsText.text = string.Join("\n", playerState.FutureCards);
 
-            PlayedCardsText.text =  string.Join("\n", publicState.PlayPile.All.Select(x => x.Type));
+            PlayedCardsText.text =  string.Join("\n", publicState.PlayPile);
             PlayerTurnsLeft.text = publicState.TurnsLeft.ToString();
             CurrentPlayerText.text = publicState.CurrentPlayer.PlayerName;
             var AllPlayerName = String.Join("\n", publicState.AllPlayers.Select(FormatOtherPlayer));
@@ -290,6 +290,8 @@ namespace Assets.Network
 
         private void ActionPressed(IGameAction action)
         {
+            if (action is NoAction) return;
+            if (action is GameOverAction) return;
             Debug.Log(action.FormatShort() + " was chosen.");
             Debug.Log($"Action pressed owner: {IsOwner}");
             PlayAction(action);

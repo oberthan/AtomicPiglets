@@ -327,7 +327,7 @@ namespace GameLogic
 
         public string FormatShort()
         {
-            return $"Draw from {TargetPlayer.Name} ({SelectedCards.First().Type})";
+            return $"Draw from {TargetPlayer.Name} with 2x {SelectedCards.First()})";
         }
     }
 
@@ -379,7 +379,7 @@ namespace GameLogic
 
         public string FormatShort()
         {
-            return $"Demand card ({SelectedCards.First().Type}) from {TargetPlayer.Name}";
+            return $"Demand from {TargetPlayer.Name} with 3x {SelectedCards.First().Type}";
         }
     }
 

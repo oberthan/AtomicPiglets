@@ -15,7 +15,7 @@ namespace GameLogic
         {
             Type = cardType;
         }
-        public string Name => GetType().Name;
+        public string Name => Type.ToString().Replace("Card", "");
 
 
         public override string ToString()
