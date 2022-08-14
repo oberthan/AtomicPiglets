@@ -7,13 +7,16 @@ namespace GameLogic
 {
     public interface IGameAction
     {
+        Guid PlayerId { get; }
+
         void Execute(AtomicGame game);
 
         string FormatShort();
     }
     public class DrawFromDeckAction : IGameAction
     {
-        public Guid PlayerId;
+        [JsonProperty]
+        public Guid PlayerId { get; private set; }
 
         /// <summary>
         /// Deserialize constructor.
@@ -29,7 +32,15 @@ namespace GameLogic
             var card = game.Deck.DrawTop();
             var player = game.GetPlayer(PlayerId);
             player.AddCard(card);
-            if (card.Type != CardType.AtomicPigletCard)
+            if (card.Type == CardType.AtomicPigletCard)
+            {
+                if (player.IsGameOver())
+                {
+                    game.PlayerTurns = 1;
+                    game.NextPlayer();
+                }
+            }
+            else
                 game.EndTurn();
         }
 
@@ -41,7 +52,6 @@ namespace GameLogic
 
     public interface ICardAction : IGameAction
     {
-        Guid PlayerId { get; }
         IEnumerable<Card> Cards { get; }
     }
 
@@ -213,16 +223,18 @@ namespace GameLogic
         [JsonProperty]
         private Card card;
 
+
         private FavorAction() { }
-        public FavorAction(Player player, Card card)
+        public FavorAction(Player player, Card card, Player targetPlayer)
         {
             PlayerId = player.Id;
             this.card = card;
+            TargetPlayer = targetPlayer;
         }
 
         public IEnumerable<Card> Cards => new[] { card };
-
-        public Guid TargetPlayerId { get; set; }
+        [JsonProperty] public Player TargetPlayer;
+        public Guid TargetPlayerId => TargetPlayer.Id;
 
         public void Execute(AtomicGame game)
         {
@@ -239,7 +251,7 @@ namespace GameLogic
 
         public string FormatShort()
         {
-            return "Favor";
+            return $"Favor from {TargetPlayer.Name}";
         }
 
     }
@@ -287,16 +299,18 @@ namespace GameLogic
         /// </summary>
         [JsonProperty] public Card[] SelectableCards;
         private DrawFromPlayerAction() { }
-        public DrawFromPlayerAction(Player player, List<IEnumerable<Card>> cards)
+        public DrawFromPlayerAction(Player player, List<IEnumerable<Card>> cards, Player targetPlayer)
         {
             PlayerId = player.Id;
             SelectableCards = cards.SelectMany(x => x).ToArray();
             SelectedCards = cards.OrderByList(x => x.First().Type, GameHelper.GetCardTypePriorityList()).Last().ToArray();
+            TargetPlayer = targetPlayer;
         }
 
         public IEnumerable<Card> Cards => SelectedCards;
 
-        public Guid TargetPlayerId { get; set; }
+        [JsonProperty] public Player TargetPlayer;
+        public Guid TargetPlayerId => TargetPlayer.Id;
 
         public void Execute(AtomicGame game)
         {
@@ -313,7 +327,7 @@ namespace GameLogic
 
         public string FormatShort()
         {
-            return $"Draw from player ({SelectedCards.First().Type})";
+            return $"Draw from {TargetPlayer.Name} ({SelectedCards.First().Type})";
         }
     }
 
@@ -334,15 +348,17 @@ namespace GameLogic
         [JsonProperty] public Card[] SelectableCards;
 
         private DemandCardFromPlayerAction() { }
-        public DemandCardFromPlayerAction(Player player, List<IEnumerable<Card>> cards)
+        public DemandCardFromPlayerAction(Player player, List<IEnumerable<Card>> cards, Player targetPlayer)
         {
             PlayerId = player.Id;
             SelectableCards = cards.SelectMany(x => x).ToArray();
             SelectedCards = cards.OrderByList(x => x.First().Type, GameHelper.GetCardTypePriorityList()).Last().ToArray();
+            TargetPlayer = targetPlayer;
         }
 
         public IEnumerable<Card> Cards => SelectedCards;
-        public Guid TargetPlayerId { get; set; }
+        [JsonProperty] public Player TargetPlayer;
+        public Guid TargetPlayerId => TargetPlayer.Id;
         public CardType CardType { get; set; } = CardType.DefuseCard;
 
         public void Execute(AtomicGame game)
@@ -363,7 +379,7 @@ namespace GameLogic
 
         public string FormatShort()
         {
-            return $"Demand {CardType} card ({SelectedCards.First().Type})";
+            return $"Demand card ({SelectedCards.First().Type}) from {TargetPlayer.Name}";
         }
     }
 
@@ -445,11 +461,33 @@ namespace GameLogic
 
         public void Execute(AtomicGame game)
         {
-           // No action. Game over!
         }
         public string FormatShort()
         {
             return "You won!";
         }
     }
+
+    public class NoAction : IGameAction
+    {
+        [JsonProperty]
+        public Guid PlayerId { get; private set; }
+
+        private NoAction(){}
+
+        public NoAction(Player player)
+        {
+            PlayerId = player.Id;
+        }
+        public void Execute(AtomicGame game)
+        {
+            // Do nothing
+        }
+
+        public string FormatShort()
+        {
+            return "No action";
+        }
+    }
+
 }

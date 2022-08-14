@@ -1,9 +1,11 @@
 ﻿using System;
+using Newtonsoft.Json;
 
 namespace GameLogic
 {
     public class Player
     {
+        private Player() {}
         public Player(string name) : this(name, Guid.NewGuid())
         {
         }
@@ -13,7 +15,10 @@ namespace GameLogic
             Id = id;
         }
 
+        [JsonProperty]
         public Guid Id;
+
+        [JsonProperty]
         public string Name { get; set; }
 
         public bool IsGameOver()

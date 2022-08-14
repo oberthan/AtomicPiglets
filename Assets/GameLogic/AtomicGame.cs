@@ -59,6 +59,7 @@ namespace GameLogic
         public List<Player> Players { get; }
 
         public Player CurrentPlayer { get; private set; }
+        public string PublicMessage { get; set; } = "";
 
         public int PlayerTurns;
         private IPlayTimer _playTimer = new ImmediatePlayTimer();
@@ -99,6 +100,7 @@ namespace GameLogic
             var player = GetPlayer(cardAction.PlayerId);
             player.Hand.RemoveAll(cardAction.Cards);
             PlayPileActions.Add(cardAction);
+
             PlayTimer.Start(4f);
         }
 
@@ -123,6 +125,9 @@ namespace GameLogic
 
         public void PlayAction(IGameAction action)
         {
+            var player = GetPlayer(action.PlayerId);
+            PublicMessage = $"{player.Name} plays {action.FormatShort()}";
+
             if (action is ICardAction cardAction)
             {
                 PlayCard(cardAction);

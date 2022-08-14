@@ -34,7 +34,7 @@ namespace GameLogic
                 }
                 else
                 {
-                    yield return new NoAction();
+                    yield return new NoAction(player);
                 }
                 yield break;
             }
@@ -64,37 +64,24 @@ namespace GameLogic
                     if (hand.Contains(CardType.AttackCard)) yield return new AttackAction(player, hand.PeekFromTop(CardType.AttackCard));
                     if (hand.Contains(CardType.ShuffleCard)) yield return new ShuffleAction(player, hand.PeekFromTop(CardType.ShuffleCard));
                     if (hand.Contains(CardType.SeeTheFutureCard)) yield return new SeeTheFutureAction(player, hand.PeekFromTop(CardType.SeeTheFutureCard));
-                    if (hand.Contains(CardType.FavorCard)) yield return new FavorAction(player, hand.PeekFromTop(CardType.FavorCard));
+                    if (hand.Contains(CardType.FavorCard)) yield return new FavorAction(player, hand.PeekFromTop(CardType.FavorCard), GameHelper.SelectRandomOtherPlayer(game, player.Id));
                     var twoEqualCardGroups = (from card in hand
                                                group card by card.Type into collectionGroup
                                                where collectionGroup.Count() >= 2
                                                select collectionGroup.Take(2)).ToList();
-                    if (twoEqualCardGroups.Any()) yield return new DrawFromPlayerAction(player, twoEqualCardGroups);
+                    if (twoEqualCardGroups.Any()) yield return new DrawFromPlayerAction(player, twoEqualCardGroups, GameHelper.SelectRandomOtherPlayer(game, player.Id));
 
                     var threeEqualCardGroups = (from card in hand
                                              group card by card.Type into collectionGroup
                                              where collectionGroup.Count() >= 3
                                              select collectionGroup.Take(3)).ToList();
-                    if (threeEqualCardGroups.Any()) yield return new DemandCardFromPlayerAction(player, threeEqualCardGroups);
+                    if (threeEqualCardGroups.Any()) yield return new DemandCardFromPlayerAction(player, threeEqualCardGroups, GameHelper.SelectRandomOtherPlayer(game, player.Id));
 
                     var distinctCards = hand.All.Distinct(new GenericEqualityComparer<Card, CardType>(x => x.Type)).ToList();
                     if (distinctCards.Count >= 5) yield return new DrawFromDiscardPileAction(player, distinctCards.ToArray());
                 }
             }
-            else yield return new NoAction();
-        }
-    }
-
-    public class NoAction : IGameAction
-    {
-        public void Execute(AtomicGame game)
-        {
-            // Do nothing
-        }
-
-        public string FormatShort()
-        {
-            return "No action";
+            else yield return new NoAction(player);
         }
     }
 

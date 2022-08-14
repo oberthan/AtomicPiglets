@@ -25,7 +25,10 @@ namespace Assets.Network
 
         GameServerTimer _gameServerTimer;
 
-        [SyncVar(SendRate = 0.05f)]
+        [SyncVar(SendRate = 0.1f)]
+        public float ExecutePlayedCardsTimerMax;
+
+        [SyncVar(SendRate = 0.1f)]
         public float ExecutePlayedCardsTimer;
 
         private Dictionary<Guid, NetworkConnection> _playerConnectionMap;
@@ -53,7 +56,7 @@ namespace Assets.Network
             if (InstanceFinder.NetworkManager.IsClient)
             {
                 PlayedCardsTimeLeftSlider.value = ExecutePlayedCardsTimer;
-                PlayedCardsTimeLeftSlider.maxValue = 4;
+                PlayedCardsTimeLeftSlider.maxValue = ExecutePlayedCardsTimerMax;
             }
         }
 
@@ -68,16 +71,23 @@ namespace Assets.Network
             }
             _playerConnectionMap = players.ToDictionary(x => x.Value.Id, x => x.Key);
 
-            _game = GameFactory.CreateExplodingKittensLikeGame(players.Values.Select(PlayerFromPlayerInfo));
+            var playerInfos = players.Values.Select(PlayerFromPlayerInfo);
+            StartNewGame(playerInfos);
+        }
+
+        private void StartNewGame(IEnumerable<Player> players)
+        {
+            _game = GameFactory.CreateExplodingKittensLikeGame(players);
             _game.PlayTimer = _gameServerTimer;
             _rules = new AtomicPigletRules(_game);
 
-            Debug.Log($"Starting new game with {_playerConnectionMap.Count} connected players. Players in game: {_game.Players.Count} with {_game.Players.Sum(x => x.Hand.Count)} cards dealt");
+            Debug.Log(
+                $"Starting new game with {_playerConnectionMap.Count} connected players. Players in game: {_game.Players.Count} with {_game.Players.Sum(x => x.Hand.Count)} cards dealt");
 
             foreach (var playerConnection in _playerConnectionMap)
             {
-                Debug.Log($"Connection for player {playerConnection.Key} with client id {playerConnection.Value.ClientId} is {playerConnection.Value.IsValid}");
-
+                Debug.Log(
+                    $"Connection for player {playerConnection.Key} with client id {playerConnection.Value.ClientId} is {playerConnection.Value.IsValid}");
             }
 
             UpdateClients();
@@ -114,6 +124,7 @@ namespace Assets.Network
         public TMP_Text CardsLeft;
 
         public TMP_Text PlayedCardsText;
+        public TMP_Text MessageText;
 
         public Slider PlayedCardsTimeLeftSlider;
 
@@ -139,13 +150,22 @@ namespace Assets.Network
             PlayedCardsText.text =  string.Join("\n", publicState.PlayPile.All.Select(x => x.Type));
             PlayerTurnsLeft.text = publicState.TurnsLeft.ToString();
             CurrentPlayerText.text = publicState.CurrentPlayer.PlayerName;
-            var AllPlayerName = String.Join("\n", publicState.AllPlayers.Select(x => x.PlayerName + " " + x.CardsLeft));
+            var AllPlayerName = String.Join("\n", publicState.AllPlayers.Select(FormatOtherPlayer));
             //var AllPlayerCardCount = String.Join("\n", publicState.AllPlayers.Select(x => x.CardsLeft));
             AllPlayersText.text = AllPlayerName;// +AllPlayerCardCount;
             cardsLeft = publicState.DeckCardsLeft;
             CardsLeft.text = publicState.DeckCardsLeft.ToString();
+
+            MessageText.text = publicState.PublicMessage;
+
             Debug.Log("Actions: "+string.Join("\n", actionList.Select(x => x.FormatShort())));
 
+        }
+
+        private static string FormatOtherPlayer(PlayerInfo playerInfo)
+        {
+            if (playerInfo.IsGameOver) return playerInfo.PlayerName + " (out)";  /// Skull: " \U0001f480";
+            return playerInfo.PlayerName + " " + playerInfo.CardsLeft;
         }
 
         public void PlayAction(IGameAction action)
@@ -162,6 +182,7 @@ namespace Assets.Network
 
                 defuseAction.AtomicPositionFromTop = AtomicPigletPosition;
             }
+
             var actionJson = SerializeGameActionJson(action);
             ServerPlayAction(actionJson);
         }
@@ -194,7 +215,16 @@ namespace Assets.Network
                 return;
             }
             var action = DeserializeGameActionJson(actionJson);
-            _game.PlayAction(action);
+
+            if (action is WinGameAction)
+            {
+                StartNewGame(_game.Players);
+            }
+            else
+            {
+                _game.PlayAction(action);
+            }
+
             UpdateClients();
         }
 
@@ -299,6 +329,7 @@ namespace Assets.Network
             Debug.Log($"Game timer started with {delay} delay");
             _startTime = Time.time;
             _elapseTime = _startTime + delay;
+            _gameServer.ExecutePlayedCardsTimerMax = delay;
             _gameServer.UpdateClients();
         }
 
@@ -340,7 +371,7 @@ namespace Assets.Network
 
         public static PlayerInfo PlayerInfoFromPlayer(Player player)
         {
-            return new PlayerInfo { Id = player.Id, PlayerName = player.Name, IsReady = true, CardsLeft = player.Hand.Count };
+            return new PlayerInfo { Id = player.Id, PlayerName = player.Name, IsReady = true, CardsLeft = player.Hand.Count, IsGameOver = player.IsGameOver()};
         }
 
         public static string[] SerializeCardCollection(CardCollection cards)
@@ -358,6 +389,7 @@ namespace Assets.Network
         public CardCollection DiscardPile;
         public int DeckCardsLeft;
         public int TurnsLeft;
+        public string PublicMessage;
 
         public static PublicGameState FromAtomicGame(AtomicGame game)
         {
@@ -368,8 +400,10 @@ namespace Assets.Network
                 PlayPile = game.PlayPile,
                 DiscardPile = game.DiscardPile,
                 DeckCardsLeft = game.Deck.Count,
-                TurnsLeft = game.PlayerTurns
+                TurnsLeft = game.PlayerTurns,
+                PublicMessage = game.PublicMessage
             };
         }
+
     }
 }

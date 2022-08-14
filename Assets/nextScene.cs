@@ -8,7 +8,7 @@ public class nextScene : MonoBehaviour
    
  
     public GameObject escapeMenu;
-    public GameObject Game;
+   
     
     void Update()
     {
@@ -16,6 +16,7 @@ public class nextScene : MonoBehaviour
         {
             print("escape trykket");
             escapeMenu.SetActive(true);
+            gameObject.SetActive(false);
         }
     }
 

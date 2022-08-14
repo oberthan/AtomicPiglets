@@ -20,7 +20,7 @@ namespace GameLogic
 
         public static Player SelectRandomOtherPlayer(AtomicGame game, Guid playerId)
         {
-            var otherPlayers = game.Players.Where(x => x.Id != playerId).ToList();
+            var otherPlayers = game.Players.Where(x => x.Id != playerId && !x.IsGameOver()).ToList();
             if (!otherPlayers.Any()) return game.Players.First(); // Single player test
             return otherPlayers[Rnd.Next(otherPlayers.Count)];            
         }

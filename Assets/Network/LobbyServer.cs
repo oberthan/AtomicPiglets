@@ -232,5 +232,6 @@ namespace Assets.Network
         
         // In game only
         public int CardsLeft;
+        public bool IsGameOver;
     }
 }

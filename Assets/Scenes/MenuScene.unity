@@ -2640,6 +2640,9 @@ MonoBehaviour:
   <SceneId>k__BackingField: 6725440575173161665
   <AssetPathHash>k__BackingField: 0
   _sceneNetworkObjects:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 792833241}
 --- !u!114 &792833242
 MonoBehaviour:
