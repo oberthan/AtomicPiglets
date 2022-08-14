@@ -181,8 +181,7 @@ namespace Assets.Network
         private void UpdateAtomicPigletPositionText()
         {
             if (AtomicPigletPosition < 0) AtomicPigletPosition = 0;
-            if (AtomicPigletPosition >= cardsLeft)
-                AtomicPigletPosition = cardsLeft-1;
+            if (AtomicPigletPosition > cardsLeft) AtomicPigletPosition = cardsLeft;
             AtomicPigletPositionText.text = AtomicPigletPosition.ToString();
         }
 

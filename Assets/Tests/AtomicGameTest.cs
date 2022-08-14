@@ -1,9 +1,5 @@
 ﻿using System.Linq;
-using System.Collections;
-using System.Collections.Generic;
 using NUnit.Framework;
-using UnityEngine;
-using UnityEngine.TestTools;
 using GameLogic;
 
 
@@ -127,6 +123,21 @@ namespace GameLogicTest
 
             // Turns are reset for new player.
             Assert.That(game.PlayerTurns, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void EndTurnSkipsGameOverPlayers()
+        {
+            var game = GameFactory.CreateExplodingKittensLikeGame(3);
+            var player0 = game.Players[0];
+            var player1 = game.Players[1];
+            var player2 = game.Players[2];
+
+            player1.IsGameOver = true;
+
+            game.EndTurn();
+
+            Assert.That(game.CurrentPlayer, Is.EqualTo(player2));
         }
 
 

@@ -15,6 +15,13 @@ namespace GameLogic
         public IEnumerable<IGameAction> GetLegalActionsForPlayer(Player player)
         {
             var hand = player.Hand;
+
+            if (player.IsGameOver)
+            {
+                yield return new GameOverAction(player);
+                yield break;
+            }
+
             if (game.PlayPile.Any())
             {
                 var playPileHasDefuseCard = game.PlayPile.PeekFromTop(CardType.DefuseCard) != null;
@@ -44,6 +51,13 @@ namespace GameLogic
                 }
                 else // Player has NOT just drawn atomic piglet
                 {
+                    // Check if player has won
+                    if (game.GetOtherPlayers(player).All(x => x.IsGameOver))
+                    {
+                        yield return new WinGameAction(player);
+                        yield break;
+                    }
+
                     // Player can end this turn by drawing from deck.
                     yield return new DrawFromDeckAction(player);
                     if (hand.Contains(CardType.SkipCard)) yield return new SkipAction(player, hand.PeekFromTop(CardType.SkipCard));

@@ -70,10 +70,18 @@ namespace GameLogic
         {
             var playerCount = Players.Count;
 
-            var currentPlayerIndex = Players.IndexOf(CurrentPlayer);
-            currentPlayerIndex = (currentPlayerIndex + 1) % playerCount;
-            CurrentPlayer = Players[currentPlayerIndex];
-            
+            if (Players.All(x => x.IsGameOver))
+            {
+                throw new InvalidOperationException("Cannot select next player. All players are game over");
+            }
+
+            do
+            {
+                var currentPlayerIndex = Players.IndexOf(CurrentPlayer);
+                currentPlayerIndex = (currentPlayerIndex + 1) % playerCount;
+                CurrentPlayer = Players[currentPlayerIndex];
+            } while (CurrentPlayer.IsGameOver);
+
         }
 
         public void EndTurn()
@@ -82,7 +90,7 @@ namespace GameLogic
             if (PlayerTurns == 0)
             {
                 NextPlayer();
-                PlayerTurns++;
+                PlayerTurns = 1;
             }
         }
 
@@ -125,6 +133,11 @@ namespace GameLogic
             }
             // Hide future cards
             CurrentPlayer.FutureCards = new CardCollection();
+        }
+
+        public IEnumerable<Player> GetOtherPlayers(Player player)
+        {
+            return Players.Where(x => x.Id != player.Id);
         }
     }
 

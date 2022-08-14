@@ -13,14 +13,14 @@ namespace Assets.Tests
     public class AtomicPigletsRulesTest
     {
         [Test]
-        public void LegalActionsPairs()
+        public void MultiCardLegalActionsTest()
         {
             var game = GameFactory.CreateExplodingKittensLikeGame(2);
             var rules = new AtomicPigletRules(game);
 
             var currentPlayer = game.CurrentPlayer;
 
-            MakeTestHand(currentPlayer,
+            TestFactory.MakeTestHand(currentPlayer,
                 new[]
                 {
                     CardType.BeirdCard, CardType.DefuseCard, CardType.BeirdCard, CardType.WatermelonCard,
@@ -38,17 +38,58 @@ namespace Assets.Tests
             Assert.That(drawFromPlayerAction.SelectableCards.Count, Is.EqualTo(4));
             Assert.That(drawFromPlayerAction.SelectableCards.Count(x => x.Type == CardType.BeirdCard), Is.EqualTo(2));
             Assert.That(drawFromPlayerAction.SelectableCards.Count(x => x.Type == CardType.WatermelonCard), Is.EqualTo(2));
-
         }
 
-        private void MakeTestHand(Player player, CardType[] cardTypes)
+        [Test]
+        public void GameOverActionTest()
         {
-            // Clear hand
-            player.Hand.RemoveAll(player.Hand);
-            foreach (var cardType in cardTypes)
-            {
-                player.Hand.AddNew(cardType);
-            }
+            var game = GameFactory.CreateExplodingKittensLikeGame(2);
+            var rules = new AtomicPigletRules(game);
+
+            var currentPlayer = game.CurrentPlayer;
+
+            TestFactory.MakeTestHand(currentPlayer, new[] { CardType.BeirdCard, CardType.BeirdCard, CardType.SkipCard });
+            game.Deck.Clear();
+            game.Deck.AddNew(CardType.AtomicPigletCard);
+
+            game.PlayAction(new DrawFromDeckAction(currentPlayer));
+
+            var actions = rules.GetLegalActionsForPlayer(currentPlayer);
+
+            Assert.That(actions.Single(), Is.TypeOf<GameOverAction>());
+            Assert.That(currentPlayer.IsGameOver, Is.True);
         }
+
+        [Test]
+        public void WinActionTest()
+        {
+            var game = GameFactory.CreateExplodingKittensLikeGame(3);
+            var rules = new AtomicPigletRules(game);
+
+            var player0 = game.Players[0];
+            var player1 = game.Players[1];
+            var player2 = game.Players[2];
+
+            TestFactory.MakeTestHand(player0, new[] { CardType.BeirdCard, CardType.BeirdCard, CardType.AtomicPigletCard });
+            TestFactory.MakeTestHand(player2, new[] { CardType.BeirdCard, CardType.BeirdCard, CardType.AtomicPigletCard });
+
+            player0.IsGameOver = true;
+            player2.IsGameOver = true;
+
+            game.Deck.Clear();
+            game.Deck.AddNew(CardType.WatermelonCard);
+            game.EndTurn();
+
+            Assert.That(game.CurrentPlayer, Is.EqualTo(player1));
+
+            var actions0 = rules.GetLegalActionsForPlayer(player0);
+            var actions1 = rules.GetLegalActionsForPlayer(player1);
+            var actions2 = rules.GetLegalActionsForPlayer(player2);
+
+            Assert.That(actions0.Single(), Is.TypeOf<GameOverAction>());
+            Assert.That(actions1.Single(), Is.TypeOf<WinGameAction>());
+            Assert.That(actions2.Single(), Is.TypeOf<GameOverAction>());
+        }
+
     }
 }

@@ -8,8 +8,8 @@ TODO
 Canvas eller game object, der viser en CardCollection som en hånd.
 Canvas eller game object, der viser en CardCollection som en stak.
 
-* Vis hvor mange kort, der er tilbage.
-* Vis navnet på den spiller, hvis tur det er.
+OK * Vis hvor mange kort, der er tilbage.
+OK * Vis navnet på den spiller, hvis tur det er.
 
 Kort-grafik. Forside og bagside.
 
@@ -18,11 +18,11 @@ Vis play pile
 Pause efter kort er spillet, hvor der kan spilles nope.
 
 Fix:
-Demand card
-Draw from player
+OK Demand card
+OK Draw from player
+OK Fix favor
 
 Træk fra spiller.
-Fix favor
 "Demand from player" skal vise valgmuligheder for type, der skal trækkes.
 
 
@@ -33,6 +33,7 @@ Hvis en spiller forlader spillet, skal der fjernes et bombekort fra deck
 og deres kort skal lægges til discard pile.
 
 
-Bug: Attack + Nope kørte stadig Attack efter timeout.
+OK Bug: Attack + Nope kørte stadig Attack efter timeout.
+OK Bug: to-ens / tre-ens virker ikke.
 
-Bug: to-ens / tre-ens virker ikke.
+Win action

@@ -31,6 +31,11 @@ namespace GameLogic
             player.AddCard(card);
             if (card.Type != CardType.AtomicPigletCard)
                 game.EndTurn();
+            else
+            {
+                if (!player.Hand.Contains(CardType.DefuseCard))
+                    player.IsGameOver = true;
+            }
         }
 
         public string FormatShort()
@@ -414,21 +419,40 @@ namespace GameLogic
 
     public class GameOverAction : IGameAction
     {
-        private readonly Player player;
+        [JsonProperty]
+        public Guid PlayerId { get; private set; }
 
         public GameOverAction(Player player)
         {
-            this.player = player;
+            PlayerId = player.Id;
         }
 
         public void Execute(AtomicGame game)
         {
-           // throw new NotImplementedException();
+           // No action. Game over!
         }
         public string FormatShort()
         {
             return "Game over";
         }
+    }
+    public class WinGameAction : IGameAction
+    {
+        [JsonProperty]
+        public Guid PlayerId { get; private set; }
 
+        public WinGameAction(Player player)
+        {
+            PlayerId = player.Id;
+        }
+
+        public void Execute(AtomicGame game)
+        {
+           // No action. Game over!
+        }
+        public string FormatShort()
+        {
+            return "You won!";
+        }
     }
 }

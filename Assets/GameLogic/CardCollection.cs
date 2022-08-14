@@ -146,6 +146,11 @@ namespace GameLogic
             RemoveAll(new[] { card });
             other.Add(card);
         }
+
+        public void Clear()
+        {
+            cards.Clear();
+        }
     }
 
 }
