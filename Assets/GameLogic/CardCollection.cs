@@ -9,6 +9,7 @@ namespace GameLogic
     {
         private static int nextId = 1;
         public List<Card> cards = new List<Card>();
+        public Card HighlightedCard { get; set; }
 
         public CardCollection()
         {
@@ -26,6 +27,7 @@ namespace GameLogic
         public void Add(Card card)
         {
             cards.Add(card);
+            HighlightedCard = card;
         }
 
         public void AddMany(CardCollection cards)
@@ -75,6 +77,7 @@ namespace GameLogic
             var maxTake = Math.Min(count, cards.Count);
             var top = cards.TakeLast(maxTake).Reverse().ToList();
             cards.RemoveRange(cards.Count - maxTake, maxTake);
+            UpdateHighlighted();
             return new CardCollection(top);
         }
 
@@ -98,9 +101,11 @@ namespace GameLogic
                 if (card.Type == t)
                 {
                     cards.RemoveAt(i);
+                    UpdateHighlighted();
                     return card;
                 }
             }
+
             return null;
         }
 
@@ -113,6 +118,16 @@ namespace GameLogic
             int cardsRemoved = cards.RemoveAll(x => cardIds.Contains(x.Id));
             if (cardsRemoved != cardIds.Count) 
                 throw new ArgumentException($"Could not remove all cards. Removed {cardsRemoved} cards. Expected {cardIds.Count}", nameof(cardsToRemove));
+            UpdateHighlighted();
+        }
+
+        private void UpdateHighlighted()
+        {
+            if (HighlightedCard != null)
+            {
+                if (cards.All(x => x.Id != HighlightedCard.Id))
+                    HighlightedCard = null;
+            }
         }
 
         public void CloneNew(CardCollection dealPile)
@@ -145,6 +160,7 @@ namespace GameLogic
             if (card == null) return;
             RemoveAll(new[] { card });
             other.Add(card);
+            HighlightedCard = card;
         }
 
         public void Clear()

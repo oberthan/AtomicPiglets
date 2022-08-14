@@ -8,8 +8,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
+using static System.String;
 
 
 namespace Assets.Network
@@ -120,7 +122,8 @@ namespace Assets.Network
         public TMP_Text PlayerTurnsLeft;
         public TMP_Text CurrentPlayerText;
         public TMP_Text AllPlayersText;
-        private int cardsLeft;
+
+        private int _cardsLeft;
         public TMP_Text CardsLeft;
 
         public TMP_Text PlayedCardsText;
@@ -144,22 +147,28 @@ namespace Assets.Network
             //if (pigletPos != null)
             PigletPositionControl.SetActive(canDefuse);
 
-            PlayerHandText.text =  string.Join("\n", GameHelper.OrderByPriority(playerState.Hand));
-            FutureCardsText.text = string.Join("\n", playerState.FutureCards);
+            PlayerHandText.text =  FormatPlayerHand(playerState);
+            FutureCardsText.text = Join("\n", playerState.FutureCards);
 
-            PlayedCardsText.text =  string.Join("\n", publicState.PlayPile);
+            PlayedCardsText.text =  Join("\n", publicState.PlayPile);
             PlayerTurnsLeft.text = publicState.TurnsLeft.ToString();
             CurrentPlayerText.text = publicState.CurrentPlayer.PlayerName;
-            var AllPlayerName = String.Join("\n", publicState.AllPlayers.Select(FormatOtherPlayer));
-            //var AllPlayerCardCount = String.Join("\n", publicState.AllPlayers.Select(x => x.CardsLeft));
-            AllPlayersText.text = AllPlayerName;// +AllPlayerCardCount;
-            cardsLeft = publicState.DeckCardsLeft;
+            var allPlayerNames = Join("\n", publicState.AllPlayers.Select(FormatOtherPlayer));
+            AllPlayersText.text = allPlayerNames;
+            _cardsLeft = publicState.DeckCardsLeft;
             CardsLeft.text = publicState.DeckCardsLeft.ToString();
 
             MessageText.text = publicState.PublicMessage;
 
-            Debug.Log("Actions: "+string.Join("\n", actionList.Select(x => x.FormatShort())));
+            Debug.Log("Actions: "+Join("\n", actionList.Select(x => x.FormatShort())));
 
+        }
+
+        private static string FormatPlayerHand(PlayerGameState playerState)
+        {
+            var hand = playerState.Hand;
+            var highlightId = hand.HighlightedCard?.Id ?? -1;
+            return Join("\n", GameHelper.OrderByPriority(hand).Select(x => x.Id == highlightId ? $"** {x} **" : x.ToString()));
         }
 
         private static string FormatOtherPlayer(PlayerInfo playerInfo)
@@ -177,8 +186,8 @@ namespace Assets.Network
 
             if (action is DefuseAction defuseAction)
             {
-                if (AtomicPigletPosition > cardsLeft)
-                    AtomicPigletPosition = cardsLeft;
+                if (AtomicPigletPosition > _cardsLeft)
+                    AtomicPigletPosition = _cardsLeft;
 
                 defuseAction.AtomicPositionFromTop = AtomicPigletPosition;
             }
@@ -202,7 +211,7 @@ namespace Assets.Network
         private void UpdateAtomicPigletPositionText()
         {
             if (AtomicPigletPosition < 0) AtomicPigletPosition = 0;
-            if (AtomicPigletPosition > cardsLeft) AtomicPigletPosition = cardsLeft;
+            if (AtomicPigletPosition > _cardsLeft) AtomicPigletPosition = _cardsLeft;
             AtomicPigletPositionText.text = AtomicPigletPosition.ToString();
         }
 
@@ -268,15 +277,16 @@ namespace Assets.Network
             {
                 Destroy(child.gameObject);
             }
-            //LegalActionsList.DetachChildren();
 
             foreach (var action in availableActions)
             {
-                var TheAction = action;
+                if (action is NoAction) continue;
+
+                var theAction = action;
                 GameObject button = Instantiate(ButtonPrefab);
                 var textComponent = button.GetComponentInChildren<TMP_Text>();
                 textComponent.text = action.FormatShort();
-                Debug.Log($"Creating a button for the action: {TheAction}");
+                Debug.Log($"Creating a button for the action: {theAction}");
 
                 button.transform.SetParent(LegalActionsList.transform, false);
                 button.transform.rotation = new Quaternion(0, 0, 0, 0);
