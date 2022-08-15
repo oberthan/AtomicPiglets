@@ -116,8 +116,13 @@ namespace GameLogic
             if (cardIds.Count != cardsToRemoveList.Count)
                 throw new ArgumentException($"Cards to remove must have unique ids", nameof(cardsToRemove));
             int cardsRemoved = cards.RemoveAll(x => cardIds.Contains(x.Id));
-            if (cardsRemoved != cardIds.Count) 
-                throw new ArgumentException($"Could not remove all cards. Removed {cardsRemoved} cards. Expected {cardIds.Count}", nameof(cardsToRemove));
+            if (cardsRemoved != cardIds.Count)
+            {
+                throw new ArgumentException(
+                    $"Could not remove all cards. Removed {cardsRemoved} cards. Expected {cardIds.Count}. Cards to remove {string.Join(", ", cardsToRemoveList)}. Collection {string.Join(", ", cards)}",
+                    nameof(cardsToRemove));
+            }
+
             UpdateHighlighted();
         }
 

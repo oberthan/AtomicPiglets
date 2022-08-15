@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using Assets.Dto;
+using Codice.CM.Common.Tree.Partial;
 using GameLogic;
+using UnityEngine;
+using Random = System.Random;
 
 namespace Assets.Bots
 {
@@ -62,6 +65,13 @@ namespace Assets.Bots
                     return avoidActions[selectIndex];
             }
 
+            if (BotHelper.TryGet<AttackAction>(actions, out var attackAction))
+            {
+                if (game.PlayPile.Contains(CardType.AttackCard) || game.PlayerTurns > 1)
+                    return attackAction;
+            }
+
+
             if (BotHelper.TryGet<DrawFromDeckAction>(actions, out var drawFromDeck))
             {
                 if (_rnd.Next(6) < 5) return drawFromDeck;
@@ -103,11 +113,15 @@ namespace Assets.Bots
                 var topCard = game.PlayPile.PeekFromTop(1).First();
 
                 // No nope nope
-                if (topCard.Type == CardType.NopeCard)
-                    actions.Remove(nope);
-                else if (BotHelper.IsTargeting(game.PlayPileActions.Last(), PlayerId))
+                if (topCard.Type == CardType.NopeCard) actions.Remove(nope);
+                else
                 {
-                    return nope;
+                    if (BotHelper.IsTargeting(game.PlayPileActions.Last(), PlayerId))
+                        return nope;
+                    if (BotHelper.MeNext(game, PlayerId) && game.PlayPile.Contains(CardType.AttackCard))
+                        return nope;
+                    if (BotHelper.MeNext(game, PlayerId) && game.PlayPile.Contains(CardType.SkipCard) && _rnd.Next(2)==0)
+                        return nope;
                 }
             }
 
@@ -149,6 +163,13 @@ namespace Assets.Bots
         public static IEnumerable<ICardAction> GetCardActions(List<IGameAction> actions, CardType[] cardTypes)
         {
             return actions.OfType<ICardAction>().Where(x => x.Cards.Any(y => cardTypes.Contains(y.Type)));
+        }
+
+        public static bool MeNext(AtomicGame game, Guid playerId)
+        {
+            var currentPlayerIndex = game.Players.IndexOf(game.CurrentPlayer);
+            var meIndex = game.Players.IndexOf(game.GetPlayer(playerId));
+            return (currentPlayerIndex + 1) % game.Players.Count == meIndex;
         }
     }
 }

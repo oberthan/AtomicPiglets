@@ -124,11 +124,30 @@ namespace Assets.Network
             }
         }
 
+        private readonly HashSet<Guid> isPlayingAction = new HashSet<Guid>();
+
         IEnumerator DelayedPlayAction(IGameAction action)
         {
+            if (isPlayingAction.Contains(action.PlayerId)) yield break;
             if (action is NoAction) yield break;
+            if (action is GameOverAction) yield break;
+            if (action is WinGameAction) yield break;
+            isPlayingAction.Add(action.PlayerId);
+            Debug.Log($"{_game.GetPlayer(action.PlayerId)} waiting to play {action}.");
             yield return new WaitForSeconds(1);
+            Debug.Log($"{_game.GetPlayer(action.PlayerId)} plays {action}. {FormatCardAction(action)}");
             PlayAction(action);
+            isPlayingAction.Remove(action.PlayerId);
+        }
+
+        private string FormatCardAction(IGameAction action)
+        {
+            if (action is ICardAction cardAction)
+            {
+                return string.Join(", ", cardAction.Cards.Select(x => $"{x.Name}({x.Id}"));
+            }
+
+            return "";
         }
 
 
@@ -260,7 +279,7 @@ namespace Assets.Network
         [SerializeField] GameObject ButtonPrefab;         
         public void LegalActionsButtonList(List<IGameAction> availableActions)
         {
-            Debug.Log($"Action owner: {IsOwner}");
+//            Debug.Log($"Action owner: {IsOwner}");
             foreach (Transform child in LegalActionsList.transform)
             {
                 Destroy(child.gameObject);
@@ -274,7 +293,7 @@ namespace Assets.Network
                 GameObject button = Instantiate(ButtonPrefab);
                 var textComponent = button.GetComponentInChildren<TMP_Text>();
                 textComponent.text = action.FormatShort();
-                Debug.Log($"Creating a button for the action: {theAction}");
+//                Debug.Log($"Creating a button for the action: {theAction}");
 
                 button.transform.SetParent(LegalActionsList.transform, false);
                 button.transform.rotation = new Quaternion(0, 0, 0, 0);
