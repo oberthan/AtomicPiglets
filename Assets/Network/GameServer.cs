@@ -4,6 +4,7 @@ using FishNet.Object;
 using FishNet.Object.Synchronizing;
 using GameLogic;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Assets.Bots;
@@ -118,10 +119,18 @@ namespace Assets.Network
                 if (_botMap.TryGetValue(player.Id, out var bot))
                 {
                     var action = bot.GetAction(_rules, playerState, publicState);
-                    PlayAction(action);
+                    StartCoroutine(DelayedPlayAction(action));
                 }
             }
         }
+
+        IEnumerator DelayedPlayAction(IGameAction action)
+        {
+            if (action is NoAction) yield break;
+            yield return new WaitForSeconds(1);
+            PlayAction(action);
+        }
+
 
         public TMP_Text PlayerHandText;
         public TMP_Text FutureCardsText;
