@@ -18,9 +18,20 @@ namespace Assets.Tests
 
     class MockPlayTimer : IPlayTimer
     {
+        private float _delay;
+
         public void Start(float delay)
         {
-            // Do nothing
+            _delay = delay;
+        }
+
+        public void Tick()
+        {
+            if (_delay > 0)
+            {
+                _delay = 0;
+            }
+            else if (_delay <= 0) Elapse();
         }
 
         public void Elapse()

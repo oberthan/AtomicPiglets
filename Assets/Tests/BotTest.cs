@@ -44,8 +44,8 @@ namespace Assets.Tests
         [Test]
         public void DummyBattle()
         {
-            var botA = new DummyBot();
-            var botB = new DummyBot();
+            var botA = new HorseBot();
+            var botB = new HorseBot();
             var bots = new[] { botA, botB };
             var monkeyPlayers = new Player[] { new(botA.PlayerInfo), new(botB.PlayerInfo) };
             var game = GameFactory.CreateExplodingKittensLikeGame(monkeyPlayers);
@@ -75,12 +75,13 @@ namespace Assets.Tests
             var botWins = new Dictionary<string, int>
             {
                 { nameof(MonkeyBot), 0 },
-                { nameof(DummyBot), 0 }
+                { nameof(HorseBot), 0 }
             };
-            for (int i = 0; i < 100; i++)
+            var fightsCount = 100;
+            for (int i = 0; i < fightsCount; i++)
             {
                 var monkeyBot = new MonkeyBot();
-                var dummyBot = new DummyBot();
+                var dummyBot = new HorseBot();
                 var bots = new IAtomicPigletBot[] { monkeyBot, dummyBot };
                 var botPlayers = new Player[] { new(monkeyBot.PlayerInfo), new(dummyBot.PlayerInfo) };
 
@@ -92,7 +93,11 @@ namespace Assets.Tests
                 }
             }
 
-            Assert.Fail($"{botWins.First().Key}: {botWins.First().Value}, {botWins.Last().Key}: {botWins.Last().Value}");
+            TestContext.Out.WriteLine($"{fightsCount} bot fights completed");
+            foreach (var ( botName,  wins) in botWins)
+            {
+                TestContext.Out.WriteLine($"{botName}: {wins} wins ({100.0*wins/fightsCount:F0}%)");
+            }
         }
 
         private static Player SimulateGame(IEnumerable<Player> players, IAtomicPigletBot[] bots)
@@ -119,8 +124,8 @@ namespace Assets.Tests
 
                     game.PlayAction(action);
 
-                    // Give bots a chance to respond to plays with nope.
-                    if (round % 2 == 1) playTimer.Elapse();
+                    playTimer.Tick();
+
                     round++;
                 }
             }

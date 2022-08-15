@@ -154,7 +154,7 @@ namespace Assets.Network
             for (int i = 0; i < count; i++)
             {
                 if (i % 2 == 0) yield return new MonkeyBot();
-                else yield return new DummyBot();
+                else yield return new HorseBot();
             }
         }
 

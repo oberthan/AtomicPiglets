@@ -83,7 +83,10 @@ namespace GameLogic
         public void Execute(AtomicGame game)
         {
             game.GetPlayer(PlayerId).Hand.RemoveAll(new[] {atomicPigletCard});
-            game.Deck.InsertFromTop(atomicPigletCard, AtomicPositionFromTop);
+            var position = AtomicPositionFromTop;
+            if (position < 0) position = 0;
+            if (position > game.Deck.Count) position = game.Deck.Count;
+                game.Deck.InsertFromTop(atomicPigletCard, position);
             game.EndTurn();
         }
 
