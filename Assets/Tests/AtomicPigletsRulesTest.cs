@@ -20,7 +20,7 @@ namespace Assets.Tests
 
             var currentPlayer = game.CurrentPlayer;
 
-            TestFactory.MakeTestHand(currentPlayer,
+            TestHelper.MakeTestHand(currentPlayer,
                 new[]
                 {
                     CardType.BeardCard, CardType.DefuseCard, CardType.BeardCard, CardType.WatermelonCard,
@@ -48,7 +48,7 @@ namespace Assets.Tests
 
             var currentPlayer = game.CurrentPlayer;
 
-            TestFactory.MakeTestHand(currentPlayer, new[] { CardType.BeardCard, CardType.BeardCard, CardType.SkipCard });
+            TestHelper.MakeTestHand(currentPlayer, new[] { CardType.BeardCard, CardType.BeardCard, CardType.SkipCard });
             game.Deck.Clear();
             game.Deck.AddNew(CardType.AtomicPigletCard);
 
@@ -70,8 +70,8 @@ namespace Assets.Tests
             var player1 = game.Players[1];
             var player2 = game.Players[2];
 
-            TestFactory.MakeTestHand(player0, new[] { CardType.BeardCard, CardType.BeardCard, CardType.AtomicPigletCard });
-            TestFactory.MakeTestHand(player2, new[] { CardType.BeardCard, CardType.BeardCard, CardType.AtomicPigletCard });
+            TestHelper.MakeTestHand(player0, new[] { CardType.BeardCard, CardType.BeardCard, CardType.AtomicPigletCard });
+            TestHelper.MakeTestHand(player2, new[] { CardType.BeardCard, CardType.BeardCard, CardType.AtomicPigletCard });
 
             player0.IsGameOver();
 

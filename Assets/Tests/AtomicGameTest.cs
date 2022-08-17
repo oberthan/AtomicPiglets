@@ -134,7 +134,7 @@ namespace GameLogicTest
             var player1 = game.Players[1];
             var player2 = game.Players[2];
 
-            TestFactory.MakeTestHand(player1, new [] {CardType.AtomicPigletCard});
+            TestHelper.MakeTestHand(player1, new [] {CardType.AtomicPigletCard});
 
             game.EndTurn();
 

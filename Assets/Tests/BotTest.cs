@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Assets.Bots;
 using Assets.Dto;
+using Assets.GameLogic.Bots;
 using GameLogic;
 using NUnit.Framework;
 
@@ -42,7 +41,7 @@ namespace Assets.Tests
         }
 
         [Test]
-        public void DummyBattle()
+        public void HorseBattle()
         {
             var botA = new HorseBot();
             var botB = new HorseBot();
@@ -72,32 +71,48 @@ namespace Assets.Tests
         [Test]
         public void BotBattle()
         {
-            var botWins = new Dictionary<string, int>
+            var botFactories = new Func<IAtomicPigletBot>[]
             {
-                { nameof(MonkeyBot), 0 },
-                { nameof(HorseBot), 0 }
+                () => new MonkeyBot(),
+                () => new HorseBot(),
+                () => new FoxBot(),
             };
-            var fightsCount = 100;
-            for (int i = 0; i < fightsCount; i++)
-            {
-                var monkeyBot = new MonkeyBot();
-                var dummyBot = new HorseBot();
-                var bots = new IAtomicPigletBot[] { monkeyBot, dummyBot };
-                var botPlayers = new Player[] { new(monkeyBot.PlayerInfo), new(dummyBot.PlayerInfo) };
 
-                var winner = SimulateGame(botPlayers, bots);
-                if (winner != null)
+            var battlePairs = botFactories.PairPermutate();
+
+            foreach (var (botFactoryA, botFactoryB) in battlePairs)
+            {
+                var protoA = botFactoryA();
+                var protoB = botFactoryB();
+                var botWins = new Dictionary<string, int>
                 {
-                    var winnerBot = bots.First(x => x.PlayerInfo.Id == winner.Id);
-                    botWins[winnerBot.GetType().Name] += 1;
+                    { protoA.PlayerInfo.PlayerName, 0 },
+                    { protoB.PlayerInfo.PlayerName, 0 }
+                };
+
+                var fightsCount = 100;
+                for (int i = 0; i < fightsCount; i++)
+                {
+                    var botA = botFactoryA();
+                    var botB = botFactoryB();
+                    var bots = new[] { botA, botB };
+
+                    var botPlayers = new Player[] { new(botA.PlayerInfo), new(botB.PlayerInfo) };
+
+                    var winner = SimulateGame(botPlayers, bots);
+                    if (winner != null)
+                    {
+                        botWins[winner.Name] += 1;
+                    }
+                }
+
+                TestContext.Out.WriteLine($"{fightsCount} {protoA.PlayerInfo.PlayerName} vs {protoB.PlayerInfo.PlayerName} fights completed");
+                foreach (var (botName, wins) in botWins)
+                {
+                    TestContext.Out.WriteLine($"{botName}: {wins} wins ({100.0 * wins / fightsCount:F0}%)");
                 }
             }
 
-            TestContext.Out.WriteLine($"{fightsCount} bot fights completed");
-            foreach (var ( botName,  wins) in botWins)
-            {
-                TestContext.Out.WriteLine($"{botName}: {wins} wins ({100.0*wins/fightsCount:F0}%)");
-            }
         }
 
         private static Player SimulateGame(IEnumerable<Player> players, IAtomicPigletBot[] bots)
