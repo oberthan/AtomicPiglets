@@ -131,10 +131,9 @@ namespace Assets.Network
             if (isPlayingAction.Contains(action.PlayerId)) yield break;
             if (action is NoAction) yield break;
             if (action is GameOverAction) yield break;
-            if (action is WinGameAction) yield break;
             isPlayingAction.Add(action.PlayerId);
             Debug.Log($"{_game.GetPlayer(action.PlayerId)} waiting to play {action}.");
-            yield return new WaitForSeconds(1);
+            yield return new WaitForSeconds(2);
             Debug.Log($"{_game.GetPlayer(action.PlayerId)} plays {action}. {FormatCardAction(action)}");
             PlayAction(action);
             isPlayingAction.Remove(action.PlayerId);

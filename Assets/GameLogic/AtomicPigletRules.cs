@@ -38,10 +38,11 @@ namespace GameLogic
             if (Game.PlayPile.Any())
             {
                 var playPileHasDefuseCard = Game.PlayPile.PeekFromTop(CardType.DefuseCard) != null;
-                var topCardIsNope = Game.PlayPile.PeekFromTop(1).First().Type == CardType.NopeCard;
+                var topCardIsNotMyNope = Game.PlayPileActions.LastOrDefault() is NopeAction nopeAction && nopeAction.PlayerId != player.Id;
                 var hasNopeCard = hand.Contains(CardType.NopeCard);
+                var myTurn = player.Id == Game.CurrentPlayer.Id;
 
-                if (hasNopeCard && !playPileHasDefuseCard && (topCardIsNope || player != Game.CurrentPlayer))
+                if (hasNopeCard && !playPileHasDefuseCard && (topCardIsNotMyNope || !myTurn))
                 {
                     yield return new NopeAction(player, hand.PeekFromTop(CardType.NopeCard));
                 }
