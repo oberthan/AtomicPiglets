@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Assets.Bots;
 using Assets.Dto;
+using FishNet.Transporting;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -47,12 +48,35 @@ namespace Assets.Network
         {
             base.OnStartServer();
             Debug.Log("Game server started");
+            NetworkManager.ServerManager.OnRemoteConnectionState += ServerManager_OnRemoteConnectionState;
+            NetworkManager.ServerManager.OnServerConnectionState += ServerManagerOnOnServerConnectionState;
         }
+
+        private void ServerManagerOnOnServerConnectionState(ServerConnectionStateArgs args)
+        {
+            if (args.ConnectionState == LocalConnectionState.Stopped)
+            {
+                Debug.LogWarning("Stopped game host");
+            }
+        }
+
+        private void ServerManager_OnRemoteConnectionState(NetworkConnection conn, RemoteConnectionStateArgs args)
+        {
+            if (args.ConnectionState == RemoteConnectionState.Stopped)
+            {
+                var playerId = _playerConnectionMap.First(x => x.Value.ClientId == conn.ClientId).Key;
+                var player = _game.GetPlayer(playerId);
+                player.Name += "(no net)";
+            }
+        }
+
         public override void OnStopServer()
         {
             base.OnStopServer();
             Debug.Log("Game server stopped");
+            NetworkManager.ServerManager.OnRemoteConnectionState -= ServerManager_OnRemoteConnectionState;
         }
+
 
         void Update()
         {
@@ -74,12 +98,14 @@ namespace Assets.Network
                 return;
             }
             _playerConnectionMap = netPlayers.ToDictionary(x => x.Value.Id, x => x.Key);
+
             _botMap = bots.ToDictionary(x => x.PlayerInfo.Id);
 
             var playerInfos = netPlayers.Values.Concat(_botMap.Values.Select(x => x.PlayerInfo)).Select(PlayerFromPlayerInfo);
             StartNewGame(playerInfos);
         }
 
+        [Server]
         private void StartNewGame(IEnumerable<Player> players)
         {
             _game = GameFactory.CreateExplodingKittensLikeGame(players);

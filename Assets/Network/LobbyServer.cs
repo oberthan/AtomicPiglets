@@ -140,12 +140,15 @@ namespace Assets.Network
 
         private void SceneManager_OnClientPresenceChangeEnd(ClientPresenceChangeEventArgs obj)
         {
-            var gameNetworking = GameObject.Find("GameNetworking");
-            if (gameNetworking != null)
+            if (_playerInfos.All(x => x.Key.LoadedStartScenes))
             {
-                var gameServer = gameNetworking.GetComponent<GameServer>();
-                var bots = MakeBots(2);
-                gameServer.StartGame(_playerInfos, bots);
+                var gameNetworking = GameObject.Find("GameNetworking");
+                if (gameNetworking != null)
+                {
+                    var gameServer = gameNetworking.GetComponent<GameServer>();
+                    var bots = MakeBots(2);
+                    gameServer.StartGame(_playerInfos, bots);
+                }
             }
         }
 
