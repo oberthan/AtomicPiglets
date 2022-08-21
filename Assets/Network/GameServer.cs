@@ -104,12 +104,12 @@ namespace Assets.Network
             _botMap = bots.ToDictionary(x => x.PlayerInfo.Id);
 
             var playerInfos = netPlayers.Values.Concat(_botMap.Values.Select(x => x.PlayerInfo)).Select(PlayerFromPlayerInfo);
-            var gameEvent = StartNewGame(playerInfos);
-            UpdateClients(gameEvent);
+            StartNewGame(playerInfos);
+            UpdateClients();
         }
 
         [Server]
-        private GameEvent StartNewGame(IEnumerable<Player> players)
+        private void StartNewGame(IEnumerable<Player> players)
         {
             _game = GameFactory.CreateExplodingKittensLikeGame(players);
             _game.PlayTimer = _gameServerTimer;
@@ -123,8 +123,6 @@ namespace Assets.Network
                 Debug.Log(
                     $"Connection for player {playerConnection.Key} with client id {playerConnection.Value.ClientId} is {playerConnection.Value.IsValid}");
             }
-
-            return new GameEvent { Type = GameEventType.NewGameStarted };
         }
 
         private Player PlayerFromPlayerInfo(PlayerInfo playerInfo)
@@ -132,12 +130,14 @@ namespace Assets.Network
             return new Player(playerInfo.PlayerName, playerInfo.Id);
         }
 
-        public void UpdateClients(GameEvent gameEvent)
+        public void UpdateClients()
         {
             var publicState = PublicGameState.FromAtomicGame(_game);
             foreach (var player in _game.Players)
             {
                 var playerState = PlayerGameState.FromAtomicGame(player, _rules);
+
+                var gameEvent = _game.GetLastGameEvent(player);
 
                 if (_playerConnectionMap.TryGetValue(player.Id, out var connection))
                 {
@@ -203,10 +203,10 @@ namespace Assets.Network
             var canDefuse = actionList.Any(x => x is DefuseAction);
             PigletPositionControl.SetActive(canDefuse);
 
-            PlayerHandText.text =  FormatPlayerHand(playerState);
+            PlayerHandText.text = FormatPlayerHand(playerState);
             FutureCardsText.text = Join("\n", playerState.FutureCards);
 
-            PlayedCardsText.text =  Join("\n", publicState.PlayPile);
+            PlayedCardsText.text = Join("\n", publicState.PlayPile);
             PlayerTurnsLeft.text = publicState.TurnsLeft.ToString();
             CurrentPlayerText.text = publicState.CurrentPlayer.PlayerName;
             var allPlayerNames = Join("\n", publicState.AllPlayers.Select(FormatOtherPlayer));
@@ -292,11 +292,12 @@ namespace Assets.Network
             }
             var action = GameDataSerializer.DeserializeGameActionJson(actionJson);
 
-            var gameEvent = action is WinGameAction 
-                ? StartNewGame(_game.Players) 
-                : _game.PlayAction(action);
+            if (action is WinGameAction)
+                StartNewGame(_game.Players);
+            else
+                _game.PlayAction(action);
 
-            UpdateClients(gameEvent);
+            UpdateClients();
         }
 
         [SerializeField] Transform LegalActionsList;
@@ -323,7 +324,7 @@ namespace Assets.Network
                 button.GetComponent<Button>().onClick.AddListener(
                     () => { ActionPressed(buttonAction); }
                     );
-               
+
             }
         }
 

@@ -79,7 +79,7 @@ namespace GameLogic
         }
 
         public IEnumerable<Card> Cards => new[] { defuseCard };
-        public float PlayDelay => 2;
+        public float PlayDelay => 0;
 
         public int AtomicPositionFromTop { get; set; }
 
