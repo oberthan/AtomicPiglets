@@ -28,7 +28,8 @@ namespace Assets.Network
                 Debug.Log("Game timer elapsed");
                 OnTimerElapsed();
                 _elapseTime = 0;
-                _gameServer.UpdateClients();
+                var gameEvent = new GameEvent { Type = GameEventType.ActionExecuted };
+                _gameServer.UpdateClients(gameEvent);
             }
         }
 

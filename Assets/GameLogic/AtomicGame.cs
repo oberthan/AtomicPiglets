@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Assets.Dto;
 
 namespace GameLogic
 {
@@ -122,13 +123,26 @@ namespace GameLogic
             return topAction;
         }
 
-        public void PlayAction(IGameAction action)
+        public GameEvent PlayAction(IGameAction action)
         {
             var player = GetPlayer(action.PlayerId);
             PublicMessage = $"{player.Name} plays {action.FormatShort()}";
 
+            var gameEvent = new GameEvent
+            {
+                Type = GameEventType.ActionExecuted,
+                ActionType = action.GetType().Name,
+                Player = player.GetPlayerInfo()
+            };
+
             if (action is ICardAction cardAction)
             {
+                gameEvent.Type = GameEventType.CardsPlayed;
+                gameEvent.PlayCards = cardAction.Cards.ToArray();
+                if (cardAction is ITargetGameAction targetGameAction)
+                {
+                    gameEvent.Target = GetPlayer(targetGameAction.TargetPlayerId).GetPlayerInfo();
+                }
                 PlayCard(cardAction);
             }
             else
@@ -137,6 +151,8 @@ namespace GameLogic
             }
             // Hide future cards
             CurrentPlayer.FutureCards = new CardCollection();
+
+            return gameEvent;
         }
 
         public IEnumerable<Player> GetOtherPlayers(Player player)
@@ -169,5 +185,43 @@ namespace GameLogic
     {
         void Start(float delay);
         event EventHandler TimerElapsed;
+    }
+
+    public class GameEvent
+    {
+        public GameEventType Type { get; set; }
+        public PlayerInfo Player { get; set; }
+        public PlayerInfo Target { get; set; }
+        public Card[] PlayCards;
+        public Card[] DrawCards;
+        public string ActionType;
+
+        public string FormatShortMessage(Guid playerId)
+        {
+            switch (Type)
+            {
+                case GameEventType.NewGameStarted:
+                    return "New game started";
+                case GameEventType.GameOver:
+                    return Player.PlayerName + " game over";
+                case GameEventType.GameWon:
+                    return Player.PlayerName + " won";
+                case GameEventType.CardsPlayed:
+                    return Player.PlayerName + " plays "+string.Join(", ",PlayCards.Select(x => x.Name));
+                case GameEventType.ActionExecuted:
+                    return Player.PlayerName + " executed " + ActionType;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+    }
+
+    public enum GameEventType
+    {
+        NewGameStarted,
+        GameOver,
+        GameWon,
+        CardsPlayed,
+        ActionExecuted
     }
 }

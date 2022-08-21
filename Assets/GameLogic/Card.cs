@@ -39,7 +39,8 @@ namespace GameLogic
         RainbowCard = 10,
         PotatoCard = 11,
         BeardCard = 12,
-        WatermelonCard = 13
+        WatermelonCard = 13,
+        Secret = 255
     }
 
     //public class AtomicPigletCard : Card

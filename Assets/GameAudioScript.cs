@@ -1,5 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
+using System.Linq;
+using GameLogic;
 using UnityEngine;
 
 public class GameAudioScript : MonoBehaviour
@@ -36,7 +37,7 @@ public class GameAudioScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        _audioSource = GetComponent<AudioSource>();
+        _audioSource = GameObject.Find("Game").GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -50,15 +51,15 @@ public class GameAudioScript : MonoBehaviour
         PlayRandom(new[] { Shuffle1, Shuffle2, Shuffle3, Shuffle4 });
     } 
     
-    public void Deal()
+    public void PlayDeal()
     {
         PlayRandom(new[] { Deal1, Deal2 });
     }
-    public void Draw()
+    public void PlayDraw()
     {
         PlayRandom(new[] { Draw1, Draw2, Draw3 });
     }
-    public void DrawFromPlayer()
+    public void PlayDrawFromPlayer()
     {
         PlayRandom(new[] { DrawFromPlayer1, DrawFromPlayer2 });
     }
@@ -98,5 +99,53 @@ public class GameAudioScript : MonoBehaviour
         _audioSource.clip = clips[_rnd.Next(clips.Length)];
         _audioSource.pitch = (float)(1.0 + 0.2 * (_rnd.NextDouble() - 0.5));
         _audioSource.Play();
+    }
+
+    public void PlayGameEvent(GameEvent gameEvent)
+    {
+        switch (gameEvent.Type)
+        {
+            case GameEventType.NewGameStarted:
+                PlayDeal();
+                break;
+            case GameEventType.GameOver:
+                PlayGameOver();
+                break;
+            case GameEventType.GameWon:
+                PlayWin();
+                break;
+            case GameEventType.CardsPlayed:
+                if (gameEvent.PlayCards.Length > 1)
+                    PlayMulti();
+                else
+                {
+                    if (gameEvent.PlayCards.First().Type == CardType.DefuseCard)
+                        PlayDefuse();
+                    else
+                        PlayCard();
+                }
+
+                break;
+            case GameEventType.ActionExecuted:
+                switch (gameEvent.ActionType)
+                {
+                    case nameof(DrawFromPlayerAction):
+                    case nameof(DemandCardFromPlayerAction):
+                    case nameof(FavorAction):
+                        PlayDrawFromPlayer();
+                        break;
+                    case nameof(DrawFromDiscardPileAction):
+                    case nameof(DrawFromDeckAction):
+                        PlayDraw();
+                        break;
+                    case nameof(NopeAction):
+                        PlayNope();
+                        break;
+                }
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+
     }
 }

@@ -38,6 +38,7 @@ namespace Assets.Network
         private Dictionary<Guid, NetworkConnection> _playerConnectionMap;
         private Dictionary<Guid, IAtomicPigletBot> _botMap;
 
+        // ReSharper disable once UnusedMember.Local
         private void Awake()
         {
             _gameServerTimer = new GameServerTimer(this);
@@ -78,6 +79,7 @@ namespace Assets.Network
         }
 
 
+        // ReSharper disable once UnusedMember.Local
         void Update()
         {
             _gameServerTimer.Update();
@@ -102,11 +104,12 @@ namespace Assets.Network
             _botMap = bots.ToDictionary(x => x.PlayerInfo.Id);
 
             var playerInfos = netPlayers.Values.Concat(_botMap.Values.Select(x => x.PlayerInfo)).Select(PlayerFromPlayerInfo);
-            StartNewGame(playerInfos);
+            var gameEvent = StartNewGame(playerInfos);
+            UpdateClients(gameEvent);
         }
 
         [Server]
-        private void StartNewGame(IEnumerable<Player> players)
+        private GameEvent StartNewGame(IEnumerable<Player> players)
         {
             _game = GameFactory.CreateExplodingKittensLikeGame(players);
             _game.PlayTimer = _gameServerTimer;
@@ -121,7 +124,7 @@ namespace Assets.Network
                     $"Connection for player {playerConnection.Key} with client id {playerConnection.Value.ClientId} is {playerConnection.Value.IsValid}");
             }
 
-            UpdateClients();
+            return new GameEvent { Type = GameEventType.NewGameStarted };
         }
 
         private Player PlayerFromPlayerInfo(PlayerInfo playerInfo)
@@ -129,7 +132,7 @@ namespace Assets.Network
             return new Player(playerInfo.PlayerName, playerInfo.Id);
         }
 
-        public void UpdateClients()
+        public void UpdateClients(GameEvent gameEvent)
         {
             var publicState = PublicGameState.FromAtomicGame(_game);
             foreach (var player in _game.Players)
@@ -138,7 +141,7 @@ namespace Assets.Network
 
                 if (_playerConnectionMap.TryGetValue(player.Id, out var connection))
                 {
-                    ClientUpdateGameState(connection, playerState, publicState);
+                    ClientUpdateGameState(connection, gameEvent, playerState, publicState);
                 }
 
                 if (_botMap.TryGetValue(player.Id, out var bot))
@@ -149,26 +152,26 @@ namespace Assets.Network
             }
         }
 
-        private readonly HashSet<Guid> isPlayingAction = new HashSet<Guid>();
+        private readonly HashSet<Guid> _isPlayingAction = new();
 
         IEnumerator DelayedPlayAction(IGameAction action)
         {
-            if (isPlayingAction.Contains(action.PlayerId)) yield break;
+            if (_isPlayingAction.Contains(action.PlayerId)) yield break;
             if (action is NoAction) yield break;
             if (action is GameOverAction) yield break;
-            isPlayingAction.Add(action.PlayerId);
+            _isPlayingAction.Add(action.PlayerId);
             Debug.Log($"{_game.GetPlayer(action.PlayerId)} waiting to play {action}.");
             yield return new WaitForSeconds(2);
             Debug.Log($"{_game.GetPlayer(action.PlayerId)} plays {action}. {FormatCardAction(action)}");
             PlayAction(action);
-            isPlayingAction.Remove(action.PlayerId);
+            _isPlayingAction.Remove(action.PlayerId);
         }
 
         private string FormatCardAction(IGameAction action)
         {
             if (action is ICardAction cardAction)
             {
-                return string.Join(", ", cardAction.Cards.Select(x => $"{x.Name}({x.Id}"));
+                return Join(", ", cardAction.Cards.Select(x => $"{x.Name}({x.Id}"));
             }
 
             return "";
@@ -192,17 +195,12 @@ namespace Assets.Network
 
 
         [TargetRpc]
-        public void ClientUpdateGameState(NetworkConnection conn, PlayerGameState playerState, PublicGameState publicState)
+        public void ClientUpdateGameState(NetworkConnection conn, GameEvent gameEvent, PlayerGameState playerState, PublicGameState publicState)
         {
-//            Debug.Log($"Client {playerState.PlayerInfo.PlayerName} game state hand: " + playerState.Hand);
-//            Debug.Log($"Client update game state owner: {IsOwner}");
-
             var actionList = GameDataSerializer.DeserializeActionListJson(playerState.ActionListJson);
             LegalActionsButtonList(actionList);
 
             var canDefuse = actionList.Any(x => x is DefuseAction);
-            //var pigletPos = GameObject.Find( "PigletPos");
-            //if (pigletPos != null)
             PigletPositionControl.SetActive(canDefuse);
 
             PlayerHandText.text =  FormatPlayerHand(playerState);
@@ -218,11 +216,18 @@ namespace Assets.Network
 
             MessageText.text = publicState.PublicMessage;
 
-            Debug.Log("Actions: "+Join("\n", actionList.Select(x => x.FormatShort())));
-
             var deck = GameObject.Find("Deck");
             var deckScript = deck.GetComponent<CardDeckScript>();
             deckScript.SetCardCount(_cardsLeft);
+
+            PlaySoundEffect(gameEvent);
+        }
+
+        private void PlaySoundEffect(GameEvent gameEvent)
+        {
+            var gameAudio = GameObject.Find("GameAudio");
+            var audioScript = gameAudio.GetComponent<GameAudioScript>();
+            audioScript.PlayGameEvent(gameEvent);
         }
 
         private static string FormatPlayerHand(PlayerGameState playerState)
@@ -234,7 +239,7 @@ namespace Assets.Network
 
         private static string FormatOtherPlayer(PlayerInfo playerInfo)
         {
-            if (playerInfo.IsGameOver) return playerInfo.PlayerName + " (out)";  /// Skull: " \U0001f480";
+            if (playerInfo.IsGameOver) return playerInfo.PlayerName + " (out)";  // Skull: " \U0001f480";
             return playerInfo.PlayerName + " " + playerInfo.CardsLeft;
         }
 
@@ -287,20 +292,16 @@ namespace Assets.Network
             }
             var action = GameDataSerializer.DeserializeGameActionJson(actionJson);
 
-            if (action is WinGameAction)
-            {
-                StartNewGame(_game.Players);
-            }
-            else
-            {
-                _game.PlayAction(action);
-            }
+            var gameEvent = action is WinGameAction 
+                ? StartNewGame(_game.Players) 
+                : _game.PlayAction(action);
 
-            UpdateClients();
+            UpdateClients(gameEvent);
         }
 
         [SerializeField] Transform LegalActionsList;
-        [SerializeField] GameObject ButtonPrefab;         
+        [SerializeField] GameObject ButtonPrefab;
+
         public void LegalActionsButtonList(List<IGameAction> availableActions)
         {
             foreach (Transform child in LegalActionsList.transform)

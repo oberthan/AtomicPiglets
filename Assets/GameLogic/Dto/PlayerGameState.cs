@@ -18,16 +18,11 @@ namespace Assets.Dto
 
             return new PlayerGameState
             {
-                PlayerInfo = PlayerInfoFromPlayer(player),
+                PlayerInfo = player.GetPlayerInfo(),
                 Hand = player.Hand,
                 FutureCards = player.FutureCards,
                 ActionListJson = GameDataSerializer.SerializeActionListJson(actionList)
             };
-        }
-
-        public static PlayerInfo PlayerInfoFromPlayer(Player player)
-        {
-            return new PlayerInfo { Id = player.Id, PlayerName = player.Name, IsReady = true, CardsLeft = player.Hand.Count, IsGameOver = player.IsGameOver()};
         }
     }
 }

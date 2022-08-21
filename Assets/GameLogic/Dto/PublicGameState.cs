@@ -17,8 +17,8 @@ namespace Assets.Dto
         {
             return new PublicGameState
             {
-                CurrentPlayer = PlayerGameState.PlayerInfoFromPlayer(game.CurrentPlayer),
-                AllPlayers = game.Players.Select(PlayerGameState.PlayerInfoFromPlayer).ToArray(),
+                CurrentPlayer = game.CurrentPlayer.GetPlayerInfo(),
+                AllPlayers = game.Players.Select(x => x.GetPlayerInfo()).ToArray(),
                 PlayPile = game.PlayPile,
                 DiscardPile = game.DiscardPile,
                 DeckCardsLeft = game.Deck.Count,

@@ -4398,14 +4398,15 @@ MonoBehaviour:
   Draw3: {fileID: 8300000, guid: 51ff691aa2ff8c0448b7f090eb5c1420, type: 3}
   DrawFromPlayer1: {fileID: 8300000, guid: 6bd3616dbefbe054eaf7ea35b09488e7, type: 3}
   DrawFromPlayer2: {fileID: 8300000, guid: 8c7635bf8c7a9e74e86dd5ceb3722f9a, type: 3}
-  Play1: {fileID: 8300000, guid: c2eabde7d439c584c80cdf6de6a70b1f, type: 3}
-  Play2: {fileID: 8300000, guid: 5bf8c8821a25c9c4d8b9ab31ffd5cdbd, type: 3}
+  PlayCard1: {fileID: 8300000, guid: c2eabde7d439c584c80cdf6de6a70b1f, type: 3}
+  PlayCard2: {fileID: 8300000, guid: 5bf8c8821a25c9c4d8b9ab31ffd5cdbd, type: 3}
   PlayMulti1: {fileID: 8300000, guid: d45d526f6d3f58d44b4afa10b97ca73a, type: 3}
   PlayMulti2: {fileID: 8300000, guid: 530af053434bbcd40a9f876a2b50fc8b, type: 3}
+  Nope: {fileID: 8300000, guid: e4eb2b128d0699245be0b724dbac844e, type: 3}
   Win: {fileID: 8300000, guid: 51ab5163987bca24492c4f9b927e3742, type: 3}
   GameOver: {fileID: 8300000, guid: 7b1f1d307fdafa344a946599eccfcda4, type: 3}
   Defuse: {fileID: 8300000, guid: b7852beb284827847b0bc5a6781957cc, type: 3}
-  DrawAtomicPiglet: {fileID: 8300000, guid: e4eb2b128d0699245be0b724dbac844e, type: 3}
+  DrawAtomicPiglet: {fileID: 8300000, guid: 6f3c30525627e7241a262984186ed6dd, type: 3}
 --- !u!1 &1925757924
 GameObject:
   m_ObjectHideFlags: 0

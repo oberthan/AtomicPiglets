@@ -51,6 +51,11 @@ namespace GameLogic
         {
             return $"{Name} ({Id})";
         }
+
+        public PlayerInfo GetPlayerInfo()
+        {
+            return new PlayerInfo { Id = Id, PlayerName = Name, IsReady = true, CardsLeft = Hand.Count, IsGameOver = IsGameOver() };
+        }
     }
 
 }
