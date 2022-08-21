@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Assets.Dto;
+using JetBrains.Annotations;
 
 namespace GameLogic
 {
@@ -18,6 +19,8 @@ namespace GameLogic
             }
         }
 
+        private List<GameEvent> _gameEvents = new List<GameEvent>();
+
         public AtomicGame(CardCollection deck, List<Player> players)
         {
             Deck = deck;
@@ -27,6 +30,8 @@ namespace GameLogic
             PlayerTurns = 1;
 
             PlayTimer.TimerElapsed += PlayTimerOnTimerElapsed;
+
+            _gameEvents.Add(new GameEvent {Type = GameEventType.NewGameStarted});
         }
 
         private void PlayTimerOnTimerElapsed(object sender, EventArgs e)
@@ -111,6 +116,11 @@ namespace GameLogic
             {
                 var topAction = DiscardTopPlayCards();
                 topAction.Execute(this);
+                _gameEvents.Add(new GameEvent
+                {
+                    Type = GameEventType.ActionExecuted, 
+                    ActionType = topAction.GetType().Name,
+                });
             }
         }
 
@@ -128,6 +138,26 @@ namespace GameLogic
             var player = GetPlayer(action.PlayerId);
             PublicMessage = $"{player.Name} plays {action.FormatShort()}";
 
+            var gameEvent = CreateGameEventFromAction(action, player);
+
+            if (action is ICardAction cardAction)
+            {
+                PlayCard(cardAction);
+            }
+            else
+            {
+                action.Execute(this);
+            }
+            // Hide future cards
+            CurrentPlayer.FutureCards = new CardCollection();
+
+            _gameEvents.Add(gameEvent);
+
+            return gameEvent;
+        }
+
+        private GameEvent CreateGameEventFromAction(IGameAction action, Player player)
+        {
             var gameEvent = new GameEvent
             {
                 Type = GameEventType.ActionExecuted,
@@ -143,14 +173,7 @@ namespace GameLogic
                 {
                     gameEvent.Target = GetPlayer(targetGameAction.TargetPlayerId).GetPlayerInfo();
                 }
-                PlayCard(cardAction);
             }
-            else
-            {
-                action.Execute(this);
-            }
-            // Hide future cards
-            CurrentPlayer.FutureCards = new CardCollection();
 
             return gameEvent;
         }
@@ -164,6 +187,21 @@ namespace GameLogic
         {
             return new CardCollection(Deck.Concat(PlayPile).Concat(DiscardPile)
                 .Concat(Players.SelectMany(x => x.Hand)));
+        }
+
+        public GameEvent GetLastGameEvent(Player player)
+        {
+            var lastGameEvent = _gameEvents.Last();
+
+            // Hide information not visible to player
+            return new GameEvent
+            {
+                Type = lastGameEvent.Type,
+                ActionType = lastGameEvent.ActionType,
+                Player = lastGameEvent.Player,
+                Target = lastGameEvent.Target,
+                PlayCards = lastGameEvent.PlayCards,
+            };
         }
     }
 

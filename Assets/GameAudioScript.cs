@@ -46,7 +46,7 @@ public class GameAudioScript : MonoBehaviour
         
     }
 
-    public void Shuffle()
+    public void PlayShuffle()
     {
         PlayRandom(new[] { Shuffle1, Shuffle2, Shuffle3, Shuffle4 });
     } 
@@ -140,6 +140,12 @@ public class GameAudioScript : MonoBehaviour
                         break;
                     case nameof(NopeAction):
                         PlayNope();
+                        break;
+                    case nameof(ShuffleAction):
+                        PlayShuffle();
+                        break;
+                    case nameof(SeeTheFutureAction):
+                        PlayDraw();
                         break;
                 }
                 break;
