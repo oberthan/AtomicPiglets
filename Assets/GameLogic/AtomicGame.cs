@@ -116,11 +116,12 @@ namespace GameLogic
             {
                 var topAction = DiscardTopPlayCards();
                 topAction.Execute(this);
-                _gameEvents.Add(new GameEvent
-                {
-                    Type = GameEventType.ActionExecuted, 
-                    ActionType = topAction.GetType().Name,
-                });
+
+                var gameEvent = CreateGameEventFromAction(topAction);
+                if (topAction is IDrawCardAction drawCardAction)
+                    gameEvent.DrawCard = drawCardAction.DrawCard;
+
+                _gameEvents.Add(gameEvent);
             }
         }
 
@@ -138,7 +139,7 @@ namespace GameLogic
             var player = GetPlayer(action.PlayerId);
             PublicMessage = $"{player.Name} plays {action.FormatShort()}";
 
-            var gameEvent = CreateGameEventFromAction(action, player);
+            var gameEvent = CreateGameEventFromAction(action);
 
             if (action is ICardAction cardAction)
             {
@@ -156,13 +157,13 @@ namespace GameLogic
             return gameEvent;
         }
 
-        private GameEvent CreateGameEventFromAction(IGameAction action, Player player)
+        private GameEvent CreateGameEventFromAction(IGameAction action)
         {
             var gameEvent = new GameEvent
             {
                 Type = GameEventType.ActionExecuted,
                 ActionType = action.GetType().Name,
-                Player = player.GetPlayerInfo()
+                Player = GetPlayer(action.PlayerId).GetPlayerInfo()
             };
 
             if (action is ICardAction cardAction)
@@ -173,6 +174,11 @@ namespace GameLogic
                 {
                     gameEvent.Target = GetPlayer(targetGameAction.TargetPlayerId).GetPlayerInfo();
                 }
+            }
+
+            if (action is IDrawCardAction drawCardAction)
+            {
+                gameEvent.DrawCard = drawCardAction.DrawCard;
             }
 
             return gameEvent;
@@ -194,6 +200,10 @@ namespace GameLogic
             var lastGameEvent = _gameEvents.Last();
 
             // Hide information not visible to player
+            var drawCard = lastGameEvent.DrawCard;
+            if (drawCard != null && player.Id != lastGameEvent.Player.Id && player.Id != lastGameEvent.Target?.Id)
+                drawCard = new Card(CardType.Secret);
+
             return new GameEvent
             {
                 Type = lastGameEvent.Type,
@@ -201,6 +211,7 @@ namespace GameLogic
                 Player = lastGameEvent.Player,
                 Target = lastGameEvent.Target,
                 PlayCards = lastGameEvent.PlayCards,
+                DrawCard = drawCard
             };
         }
     }
@@ -230,9 +241,9 @@ namespace GameLogic
         public GameEventType Type { get; set; }
         public PlayerInfo Player { get; set; }
         public PlayerInfo Target { get; set; }
-        public Card[] PlayCards;
-        public Card[] DrawCards;
-        public string ActionType;
+        public Card[] PlayCards { get; set; }
+        public Card DrawCard { get; set; }
+        public string ActionType { get; set; }
 
         public string FormatShortMessage(Guid playerId)
         {

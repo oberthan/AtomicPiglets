@@ -220,6 +220,13 @@ namespace Assets.Network
             var deckScript = deck.GetComponent<CardDeckScript>();
             deckScript.SetCardCount(_cardsLeft);
 
+            if (gameEvent.Type == GameEventType.GameOver)
+            {
+                if (!playerState.PlayerInfo.IsGameOver && publicState.AllPlayers
+                        .Where(x => x.Id != playerState.PlayerInfo.Id).All(x => x.IsGameOver))
+                    gameEvent = new GameEvent { Type = GameEventType.GameWon };
+            }
+
             PlaySoundEffect(gameEvent);
         }
 

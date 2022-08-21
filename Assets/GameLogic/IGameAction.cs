@@ -14,7 +14,7 @@ namespace GameLogic
         string FormatShort();
     }
 
-    public class DrawFromDeckAction : IGameAction
+    public class DrawFromDeckAction : IGameAction, IDrawCardAction
     {
         [JsonProperty]
         public Guid PlayerId { get; private set; }
@@ -30,13 +30,15 @@ namespace GameLogic
 
         public void Execute(AtomicGame game)
         {
-            var card = game.Deck.DrawTop();
+            DrawCard = game.Deck.DrawTop();
             var player = game.GetPlayer(PlayerId);
-            player.AddCard(card);
-            if (card.Type == CardType.AtomicPigletCard)
+            player.AddCard(DrawCard);
+            if (DrawCard.Type == CardType.AtomicPigletCard)
             {
                 if (player.IsGameOver())
                 {
+                    game.PlayAction(new GameOverAction(player));
+
                     game.PlayerTurns = 1;
                     game.NextPlayer();
                 }
@@ -49,6 +51,8 @@ namespace GameLogic
         {
             return "Draw from deck";
         }
+
+        [JsonProperty] public Card DrawCard { get; private set; }
     }
 
     public interface ICardAction : IGameAction
@@ -232,7 +236,13 @@ namespace GameLogic
         Guid TargetPlayerId { get; }
     }
 
-    public class FavorAction : ICardAction, ITargetGameAction
+    public interface IDrawCardAction
+    {
+        Card DrawCard { get; }
+    }
+
+
+    public class FavorAction : ICardAction, ITargetGameAction, IDrawCardAction
     {
         [JsonProperty]
         public Guid PlayerId { get; private set; }
@@ -252,6 +262,8 @@ namespace GameLogic
         public IEnumerable<Card> Cards => new[] { card };
         public float PlayDelay => AtomicPigletRules.DefaultPlayDelay;
         [JsonProperty] public Player TargetPlayer;
+        [JsonProperty] public Card DrawCard { get; private set; }
+
         public Guid TargetPlayerId => TargetPlayer.Id;
 
         public void Execute(AtomicGame game)
@@ -262,9 +274,9 @@ namespace GameLogic
                 ? GameHelper.SelectFromRandomOtherPlayer(game, PlayerId)
                 : game.GetPlayer(TargetPlayerId);
 
-            var otherCard = GameHelper.OrderByPriority(otherPlayer.Hand).Reverse().FirstOrDefault();
+            DrawCard = GameHelper.OrderByPriority(otherPlayer.Hand).Reverse().FirstOrDefault();
 
-            otherPlayer.Hand.TransferCardTo(otherCard, player.Hand);
+            otherPlayer.Hand.TransferCardTo(DrawCard, player.Hand);
         }
 
         public string FormatShort()
@@ -309,7 +321,7 @@ namespace GameLogic
         Card[] SelectableCards { get; }
     }
 
-    public class DrawFromPlayerAction : ICardAction, ITargetGameAction, ISelectableCardsActions
+    public class DrawFromPlayerAction : ICardAction, ITargetGameAction, ISelectableCardsActions, IDrawCardAction
     {
         [JsonProperty]
         public Guid PlayerId { get; private set; }
@@ -338,6 +350,7 @@ namespace GameLogic
 
         [JsonProperty] public Player TargetPlayer;
         public Guid TargetPlayerId => TargetPlayer.Id;
+        [JsonProperty] public Card DrawCard { get; private set; }
 
         public void Execute(AtomicGame game)
         {
@@ -347,18 +360,18 @@ namespace GameLogic
                 ? GameHelper.SelectFromRandomOtherPlayer(game, PlayerId)
                 : game.GetPlayer(TargetPlayerId);
 
-            var card = GameHelper.SelectRandomCard(otherPlayer.Hand);
+            DrawCard = GameHelper.SelectRandomCard(otherPlayer.Hand);
 
-            otherPlayer.Hand.TransferCardTo(card, player.Hand);
+            otherPlayer.Hand.TransferCardTo(DrawCard, player.Hand);
         }
 
         public string FormatShort()
         {
-            return $"Draw from {TargetPlayer.Name} with 2x {SelectedCards.First()})";
+            return $"Draw from {TargetPlayer.Name} with 2x {SelectedCards.First()}";
         }
     }
 
-    public class DemandCardFromPlayerAction : ICardAction, ITargetGameAction, ISelectableCardsActions
+    public class DemandCardFromPlayerAction : ICardAction, ITargetGameAction, ISelectableCardsActions, IDrawCardAction
     {
         [JsonProperty]
         public Guid PlayerId { get; private set; }
@@ -387,6 +400,7 @@ namespace GameLogic
         public float PlayDelay => AtomicPigletRules.DefaultPlayDelay;
         [JsonProperty] public Player TargetPlayer;
         public Guid TargetPlayerId => TargetPlayer.Id;
+        [JsonProperty] public Card DrawCard { get; private set; }
         public CardType CardType { get; set; } = CardType.DefuseCard;
 
         public void Execute(AtomicGame game)
@@ -397,12 +411,12 @@ namespace GameLogic
                 ? GameHelper.SelectFromRandomOtherPlayer(game, PlayerId)
                 : game.GetPlayer(TargetPlayerId);
 
-            var otherCard =
+            DrawCard =
                 CardType == CardType.NoCard // Default action
                     ? GameHelper.SelectRandomCard(otherPlayer.Hand)
                     : otherPlayer.Hand.PeekFromTop(CardType);
 
-            otherPlayer.Hand.TransferCardTo(otherCard, player.Hand);
+            otherPlayer.Hand.TransferCardTo(DrawCard, player.Hand);
         }
 
         public string FormatShort()
@@ -411,7 +425,7 @@ namespace GameLogic
         }
     }
 
-    public class DrawFromDiscardPileAction : ICardAction, ISelectableCardsActions
+    public class DrawFromDiscardPileAction : ICardAction, ISelectableCardsActions, IDrawCardAction
     {
         [JsonProperty]
         public Guid PlayerId { get; private set; }
@@ -444,17 +458,19 @@ namespace GameLogic
 
             var player = game.GetPlayer(PlayerId);
             
-            var card =                 
+            DrawCard =                 
                 (CardType == CardType.NoCard) // Default action
                     ? GameHelper.OrderByPriority(game.DiscardPile).FirstOrDefault()
                     : game.DiscardPile.DrawFromTop(CardType);
-            game.DiscardPile.TransferCardTo(card, player.Hand);
+            game.DiscardPile.TransferCardTo(DrawCard, player.Hand);
         }
 
         public string FormatShort()
         {
             return "Draw from discards";
         }
+
+        [JsonProperty] public Card DrawCard { get; private set; }
     }
 
     public class GameOverAction : IGameAction
