@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Assets.Bots;
 using Assets.Dto;
 using UnityEngine;
@@ -43,10 +44,15 @@ namespace Assets.Network
         /// </summary>
         private static LobbyServer _instance;
 
+        private int _botsCount;
+
         private void Awake()
         {
             Debug.Log("Lobby server awake");
             _instance = this;
+            var hostGameObject = GameObject.Find("HostGame");
+            var hostScript = hostGameObject.GetComponent<HostScript>();
+            _botsCount = (int)hostScript.Bots.value;
             _playerInfos.OnChange += _playerInfos_OnChange;
         }
 
@@ -116,8 +122,10 @@ namespace Assets.Network
 
             isGameRunning = true;
             Debug.Log("Loading game scene");
-            var gameScene = new SceneLoadData("GameScene");
-            gameScene.ReplaceScenes = ReplaceOption.All;
+            var gameScene = new SceneLoadData("GameScene")
+            {
+                ReplaceScenes = ReplaceOption.All
+            };
 
             foreach (var playerInfo in _playerInfos)
             {
@@ -131,11 +139,9 @@ namespace Assets.Network
                 Debug.Log(networkObjectsText.ToString());
             }
 
-            gameScene.MovedNetworkObjects = _playerInfos.Select(x => x.Key).SelectMany(x => x.Objects).ToArray();
+            gameScene.MovedNetworkObjects = _playerInfos.Select(x => x.Key).SelectMany(x => x.Objects).Where(x => !x.IsSceneObject).ToArray();
 
             SceneManager.LoadGlobalScenes(gameScene);
-
-            StartClientGame();
         }
 
         private void SceneManager_OnClientPresenceChangeEnd(ClientPresenceChangeEventArgs obj)
@@ -146,7 +152,7 @@ namespace Assets.Network
                 if (gameNetworking != null)
                 {
                     var gameServer = gameNetworking.GetComponent<GameServer>();
-                    var bots = MakeBots(2);
+                    var bots = MakeBots(HostScript.BotsCount);
                     gameServer.StartGame(_playerInfos, bots);
                 }
             }
@@ -156,21 +162,10 @@ namespace Assets.Network
         {
             for (int i = 0; i < count; i++)
             {
-                if (i % 2 == 0) yield return new MonkeyBot();
-                else yield return new HorseBot();
+                IAtomicPigletBot bot = i % 2 == 0 ? new MonkeyBot() : new HorseBot();
+                if (count > 2) bot.PlayerInfo.PlayerName += " " + (1 + i / 2);
+                yield return bot;
             }
-        }
-
-
-        [ObserversRpc]
-        public void StartClientGame()
-        {
-
-            
-            //var game = Resources.FindObjectsOfTypeAll<GameObject>().Single(x => x.name == "Game");
-            //game.SetActive(true);
-            //var menu = Resources.FindObjectsOfTypeAll<GameObject>().Single(x => x.name == "Menu");
-            //menu.SetActive(false);
         }
 
         /// <summary>

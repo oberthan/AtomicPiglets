@@ -24,6 +24,7 @@ namespace Assets.Network
             Debug.Log("Lobby client awake");
             IsReady.onValueChanged.AddListener((isReady) =>
             {
+                Debug.Log("Is ready changed to "+isReady);
                 Player.IsReady = isReady;
                 ServerUpdatePlayerInfo();
             });

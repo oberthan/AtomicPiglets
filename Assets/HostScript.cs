@@ -8,7 +8,8 @@ using FishNet;
 
 public class HostScript : MonoBehaviour{
     private const int Z = 0;
-    public Slider Players;
+    public static int BotsCount = 2;
+    public Slider Bots;
     public TextMeshProUGUI Value;
 
     public GameObject toggle;
@@ -70,21 +71,22 @@ public class HostScript : MonoBehaviour{
         toggle.transform.localPosition = new Vector3(x, startPosition.y, startPosition.z);
     }
 
-    public void UpdatePlayerCount()
+    public void UpdateBotsCount()
     {
-        Value.text = Players.value.ToString("0" + " Players");
+        BotsCount = (int)Bots.value;
+        Value.text = BotsCount.ToString("0" + " Bots");
     }
     
-    public void PlayerPlus()
+    public void BotsPlus()
     {
-        Players.value++;
-        UpdatePlayerCount();
+        Bots.value++;
+        UpdateBotsCount();
     }
 
-    public void PlayerMinus()
+    public void BotsMinus()
     {
-        Players.value--;
-        UpdatePlayerCount();
+        Bots.value--;
+        UpdateBotsCount();
     }
 
 

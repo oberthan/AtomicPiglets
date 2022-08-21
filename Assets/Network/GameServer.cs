@@ -113,7 +113,7 @@ namespace Assets.Network
             _rules = new AtomicPigletRules(_game);
 
             Debug.Log(
-                $"Starting new game with {_playerConnectionMap.Count} connected players. Players in game: {_game.Players.Count} with {_game.Players.Sum(x => x.Hand.Count)} cards dealt");
+                $"Starting new game with {_playerConnectionMap.Count} connected players. Bots in game: {_game.Players.Count} with {_game.Players.Sum(x => x.Hand.Count)} cards dealt");
 
             foreach (var playerConnection in _playerConnectionMap)
             {
@@ -136,9 +136,8 @@ namespace Assets.Network
             {
                 var playerState = PlayerGameState.FromAtomicGame(player, _rules);
 
-                if (_playerConnectionMap.TryGetValue(player.Id, out var networkConnection))
+                if (_playerConnectionMap.TryGetValue(player.Id, out var connection))
                 {
-                    var connection = _playerConnectionMap[player.Id];
                     ClientUpdateGameState(connection, playerState, publicState);
                 }
 
@@ -304,7 +303,6 @@ namespace Assets.Network
         [SerializeField] GameObject ButtonPrefab;         
         public void LegalActionsButtonList(List<IGameAction> availableActions)
         {
-//            Debug.Log($"Action owner: {IsOwner}");
             foreach (Transform child in LegalActionsList.transform)
             {
                 Destroy(child.gameObject);
@@ -314,11 +312,9 @@ namespace Assets.Network
             {
                 if (action is NoAction) continue;
 
-                var theAction = action;
-                GameObject button = Instantiate(ButtonPrefab);
+                var button = Instantiate(ButtonPrefab);
                 var textComponent = button.GetComponentInChildren<TMP_Text>();
                 textComponent.text = action.FormatShort();
-//                Debug.Log($"Creating a button for the action: {theAction}");
 
                 button.transform.SetParent(LegalActionsList.transform, false);
                 button.transform.rotation = new Quaternion(0, 0, 0, 0);

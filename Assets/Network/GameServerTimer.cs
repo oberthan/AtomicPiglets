@@ -38,7 +38,7 @@ namespace Assets.Network
             _startTime = Time.time;
             _elapseTime = _startTime + delay;
             _gameServer.ExecutePlayedCardsTimerMax = delay;
-            _gameServer.UpdateClients();
+            if (delay <= 0) OnTimerElapsed();
         }
 
         public event EventHandler TimerElapsed;
