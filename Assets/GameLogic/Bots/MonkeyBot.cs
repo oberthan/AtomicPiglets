@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Xml.Serialization;
 using Assets.Dto;
 using GameLogic;
 
@@ -24,6 +25,11 @@ namespace Assets.Bots
                 return new NoAction(player);
             }
             var actions = rules.GetLegalActionsForPlayer(PlayerId).ToList();
+
+            // Remove really stupid trades
+            actions.RemoveAll(x => x is ISelectableCardsActions selectableCardsAction
+                                   && selectableCardsAction.SelectedCards.Any(y => y.Type is CardType.DefuseCard or CardType.NopeCard or CardType.AttackCard));
+
             return actions[_rnd.Next(actions.Count)];
         }
     }

@@ -86,7 +86,7 @@ namespace GameLogic
                         yield return new SeeTheFutureAction(player, hand.PeekFromTop(CardType.SeeTheFutureCard));
                     if (hand.Contains(CardType.FavorCard))
                         yield return new FavorAction(player, hand.PeekFromTop(CardType.FavorCard),
-                            GameHelper.SelectRandomOtherPlayer(Game, player.Id));
+                            GameHelper.SelectFromRandomOtherPlayer(Game, player.Id));
                     var twoEqualCardGroups = (from card in hand
                         group card by card.Type
                         into collectionGroup
@@ -94,7 +94,7 @@ namespace GameLogic
                         select collectionGroup.Take(2)).ToList();
                     if (twoEqualCardGroups.Any())
                         yield return new DrawFromPlayerAction(player, twoEqualCardGroups,
-                            GameHelper.SelectRandomOtherPlayer(Game, player.Id));
+                            GameHelper.SelectFromRandomOtherPlayer(Game, player.Id));
 
                     var threeEqualCardGroups = (from card in hand
                         group card by card.Type
@@ -103,13 +103,15 @@ namespace GameLogic
                         select collectionGroup.Take(3)).ToList();
                     if (threeEqualCardGroups.Any())
                         yield return new DemandCardFromPlayerAction(player, threeEqualCardGroups,
-                            GameHelper.SelectRandomOtherPlayer(Game, player.Id));
+                            GameHelper.SelectFromRandomOtherPlayer(Game, player.Id));
 
                     var distinctCards = hand.All.Distinct(new GenericEqualityComparer<Card, CardType>(x => x.Type)).ToList();
                     if (distinctCards.Count >= 5) yield return new DrawFromDiscardPileAction(player, distinctCards.ToArray());
                 }
             }
         }
+
+        public static float DefaultPlayDelay = 4;
     }
 
     public class GenericEqualityComparer<T, U> : IEqualityComparer<T>

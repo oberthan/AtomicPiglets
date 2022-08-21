@@ -18,6 +18,11 @@ namespace Assets.Bots
             if (gameAction == null) return false;
             return gameAction is ITargetGameAction targetGameAction && targetGameAction.TargetPlayerId == playerId;
         }
+        public static bool IsTargetingOther(IGameAction gameAction, Guid playerId)
+        {
+            if (gameAction == null) return false;
+            return gameAction is ITargetGameAction targetGameAction && targetGameAction.TargetPlayerId != playerId;
+        }
          
         public static readonly CardType[] CollectionCardTypes = {
             CardType.BeardCard, CardType.PotatoCard, CardType.RainbowCard, CardType.WatermelonCard, CardType.TacoCard

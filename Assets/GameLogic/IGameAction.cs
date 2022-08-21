@@ -13,6 +13,7 @@ namespace GameLogic
 
         string FormatShort();
     }
+
     public class DrawFromDeckAction : IGameAction
     {
         [JsonProperty]
@@ -53,6 +54,7 @@ namespace GameLogic
     public interface ICardAction : IGameAction
     {
         IEnumerable<Card> Cards { get; }
+        float PlayDelay { get; }
     }
 
     public class DefuseAction : ICardAction
@@ -77,6 +79,7 @@ namespace GameLogic
         }
 
         public IEnumerable<Card> Cards => new[] { defuseCard };
+        public float PlayDelay => 2;
 
         public int AtomicPositionFromTop { get; set; }
 
@@ -114,6 +117,7 @@ namespace GameLogic
         }
 
         public IEnumerable<Card> Cards => new[] { card };
+        public float PlayDelay => AtomicPigletRules.DefaultPlayDelay;
 
         public void Execute(AtomicGame game)
         {
@@ -142,6 +146,7 @@ namespace GameLogic
         }
 
         public IEnumerable<Card> Cards => new[] { card };
+        public float PlayDelay => AtomicPigletRules.DefaultPlayDelay;
 
         public void Execute(AtomicGame game)
         {
@@ -178,6 +183,7 @@ namespace GameLogic
         }
 
         public IEnumerable<Card> Cards => new[] { card };
+        public float PlayDelay => AtomicPigletRules.DefaultPlayDelay;
 
         public void Execute(AtomicGame game)
         {
@@ -207,6 +213,7 @@ namespace GameLogic
         }
 
         public IEnumerable<Card> Cards => new[] { card };
+        public float PlayDelay => AtomicPigletRules.DefaultPlayDelay;
 
         public void Execute(AtomicGame game)
         {
@@ -243,6 +250,7 @@ namespace GameLogic
         }
 
         public IEnumerable<Card> Cards => new[] { card };
+        public float PlayDelay => AtomicPigletRules.DefaultPlayDelay;
         [JsonProperty] public Player TargetPlayer;
         public Guid TargetPlayerId => TargetPlayer.Id;
 
@@ -251,7 +259,7 @@ namespace GameLogic
             var player = game.GetPlayer(PlayerId);
 
             var otherPlayer = TargetPlayerId == Guid.Empty
-                ? GameHelper.SelectRandomOtherPlayer(game, PlayerId)
+                ? GameHelper.SelectFromRandomOtherPlayer(game, PlayerId)
                 : game.GetPlayer(TargetPlayerId);
 
             var otherCard = GameHelper.OrderByPriority(otherPlayer.Hand).Reverse().FirstOrDefault();
@@ -280,6 +288,7 @@ namespace GameLogic
         }
 
         public IEnumerable<Card> Cards => new[] { card };
+        public float PlayDelay => AtomicPigletRules.DefaultPlayDelay;
 
         public void Execute(AtomicGame game)
         {
@@ -293,7 +302,14 @@ namespace GameLogic
 
     }
 
-    public class DrawFromPlayerAction : ICardAction, ITargetGameAction
+    public interface ISelectableCardsActions
+    {
+        Card[] SelectedCards { get; set; }
+
+        Card[] SelectableCards { get; }
+    }
+
+    public class DrawFromPlayerAction : ICardAction, ITargetGameAction, ISelectableCardsActions
     {
         [JsonProperty]
         public Guid PlayerId { get; private set; }
@@ -302,12 +318,12 @@ namespace GameLogic
         /// Two cards of same type.
         /// </summary>
         [JsonProperty]
-        public Card[] SelectedCards;
+        public Card[] SelectedCards { get; set; }
 
         /// <summary>
         /// All pair-cards of same type in player hand.
         /// </summary>
-        [JsonProperty] public Card[] SelectableCards;
+        [JsonProperty] public Card[] SelectableCards { get; private set; }
         private DrawFromPlayerAction() { }
         public DrawFromPlayerAction(Player player, List<IEnumerable<Card>> cards, Player targetPlayer)
         {
@@ -318,6 +334,7 @@ namespace GameLogic
         }
 
         public IEnumerable<Card> Cards => SelectedCards;
+        public float PlayDelay => AtomicPigletRules.DefaultPlayDelay;
 
         [JsonProperty] public Player TargetPlayer;
         public Guid TargetPlayerId => TargetPlayer.Id;
@@ -327,7 +344,7 @@ namespace GameLogic
             var player = game.GetPlayer(PlayerId);
 
             var otherPlayer = TargetPlayerId == Guid.Empty
-                ? GameHelper.SelectRandomOtherPlayer(game, PlayerId)
+                ? GameHelper.SelectFromRandomOtherPlayer(game, PlayerId)
                 : game.GetPlayer(TargetPlayerId);
 
             var card = GameHelper.SelectRandomCard(otherPlayer.Hand);
@@ -341,7 +358,7 @@ namespace GameLogic
         }
     }
 
-    public class DemandCardFromPlayerAction : ICardAction, ITargetGameAction
+    public class DemandCardFromPlayerAction : ICardAction, ITargetGameAction, ISelectableCardsActions
     {
         [JsonProperty]
         public Guid PlayerId { get; private set; }
@@ -350,12 +367,12 @@ namespace GameLogic
         /// Three cards of same type.
         /// </summary>
         [JsonProperty]
-        public Card[] SelectedCards;
+        public Card[] SelectedCards { get; set; }
 
         /// <summary>
         /// All triple-cards of same type in player hand.
         /// </summary>
-        [JsonProperty] public Card[] SelectableCards;
+        [JsonProperty] public Card[] SelectableCards { get; private set; }
 
         private DemandCardFromPlayerAction() { }
         public DemandCardFromPlayerAction(Player player, List<IEnumerable<Card>> cards, Player targetPlayer)
@@ -367,6 +384,7 @@ namespace GameLogic
         }
 
         public IEnumerable<Card> Cards => SelectedCards;
+        public float PlayDelay => AtomicPigletRules.DefaultPlayDelay;
         [JsonProperty] public Player TargetPlayer;
         public Guid TargetPlayerId => TargetPlayer.Id;
         public CardType CardType { get; set; } = CardType.DefuseCard;
@@ -376,7 +394,7 @@ namespace GameLogic
             var player = game.GetPlayer(PlayerId);
 
             var otherPlayer = TargetPlayerId == Guid.Empty
-                ? GameHelper.SelectRandomOtherPlayer(game, PlayerId)
+                ? GameHelper.SelectFromRandomOtherPlayer(game, PlayerId)
                 : game.GetPlayer(TargetPlayerId);
 
             var otherCard =
@@ -393,7 +411,7 @@ namespace GameLogic
         }
     }
 
-    public class DrawFromDiscardPileAction : ICardAction
+    public class DrawFromDiscardPileAction : ICardAction, ISelectableCardsActions
     {
         [JsonProperty]
         public Guid PlayerId { get; private set; }
@@ -401,12 +419,12 @@ namespace GameLogic
         /// Three cards of same type.
         /// </summary>
         [JsonProperty]
-        public Card[] SelectedCards;
+        public Card[] SelectedCards { get; set; }
 
         /// <summary>
         /// All triple-cards of same type in player hand.
         /// </summary>
-        [JsonProperty] public Card[] SelectableCards;
+        [JsonProperty] public Card[] SelectableCards { get; private set; }
 
         private DrawFromDiscardPileAction() { }
         public DrawFromDiscardPileAction(Player player, Card[] cards)
@@ -417,6 +435,7 @@ namespace GameLogic
         }
 
         public IEnumerable<Card> Cards => SelectedCards;
+        public float PlayDelay => AtomicPigletRules.DefaultPlayDelay;
         public CardType CardType { get; set; }
 
         public void Execute(AtomicGame game)

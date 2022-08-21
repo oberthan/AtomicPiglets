@@ -90,6 +90,7 @@ namespace Assets.Bots
 
                 // No nope nope
                 if (topCard.Type == CardType.NopeCard) actions.Remove(nope);
+                else if (BotHelper.IsTargetingOther(game.PlayPileActions.Last(), PlayerId)) actions.Remove(nope);
                 else
                 {
                     if (BotHelper.IsTargeting(game.PlayPileActions.Last(), PlayerId))

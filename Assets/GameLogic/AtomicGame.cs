@@ -100,11 +100,7 @@ namespace GameLogic
             var player = GetPlayer(cardAction.PlayerId);
             player.Hand.RemoveAll(cardAction.Cards);
             PlayPileActions.Add(cardAction);
-
-            if (cardAction is DefuseAction)
-                ExecutePlayedCards();
-            else
-                PlayTimer.Start(4f);
+            PlayTimer.Start(cardAction.PlayDelay);
         }
 
         public void ExecutePlayedCards()

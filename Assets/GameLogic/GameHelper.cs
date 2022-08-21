@@ -18,11 +18,13 @@ namespace GameLogic
             }
         }
 
-        public static Player SelectRandomOtherPlayer(AtomicGame game, Guid playerId)
+        public static Player SelectFromRandomOtherPlayer(AtomicGame game, Guid playerId)
         {
             var otherPlayers = game.Players.Where(x => x.Id != playerId && !x.IsGameOver()).ToList();
             if (!otherPlayers.Any()) return game.Players.First(); // Single player test
-            return otherPlayers[Rnd.Next(otherPlayers.Count)];            
+            var otherPlayersWithCards = otherPlayers.Where(x => x.Hand.Any()).ToList();
+            if (!otherPlayersWithCards.Any()) return otherPlayers.First();
+            return otherPlayersWithCards[Rnd.Next(otherPlayersWithCards.Count)];            
         }
         public static Card SelectRandomCard(CardCollection cards)
         {
