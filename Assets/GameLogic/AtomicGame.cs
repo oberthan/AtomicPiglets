@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Assets.Dto;
 using JetBrains.Annotations;
+using Newtonsoft.Json;
 
 namespace GameLogic
 {
@@ -201,7 +202,10 @@ namespace GameLogic
 
             // Hide information not visible to player
             var drawCard = lastGameEvent.DrawCard;
-            if (drawCard != null && player.Id != lastGameEvent.Player.Id && player.Id != lastGameEvent.Target?.Id)
+            if (drawCard != null && // Do not hide if no card was drawn.
+                player.Id != lastGameEvent.Player.Id && // Do not hide if player is self.
+                player.Id != lastGameEvent.Target?.Id &&  // Do not hide if player was target of draw card.
+                drawCard.Type != CardType.AtomicPigletCard) // Do not hide if drawn card is Atomic Piglet. That must be announced.
                 drawCard = new Card(CardType.Secret);
 
             return new GameEvent
