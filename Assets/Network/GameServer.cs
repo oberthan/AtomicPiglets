@@ -203,7 +203,9 @@ namespace Assets.Network
 
             var isMyGameEvent = gameEvent.IsMyEvent(myPlayerId);
             if (isMyGameEvent && gameEvent.ActionType == nameof(DrawFromDeckAction))
-                AnimateDrawMyCard();
+                AnimateDrawMyCard(publicState.DeckCardsLeft);
+            else if (!isMyGameEvent && gameEvent.ActionType == nameof(DrawFromDeckAction))
+                AnimateEnemyDrawCard(publicState.DeckCardsLeft);
 
             Debug.Log($"Client side game event for {playerState.PlayerInfo.PlayerName}: " + gameEvent.FormatShortMessage(playerState.PlayerInfo.Id));
             var actionList = GameDataSerializer.DeserializeActionListJson(playerState.ActionListJson);
@@ -236,11 +238,17 @@ namespace Assets.Network
             PlaySoundEffect(gameEvent);
         }
 
-        private void AnimateDrawMyCard()
+        private void AnimateDrawMyCard(int cardIndex)
         {
             var deck = GameObject.Find("Deck");
             var deckScript = deck.GetComponent<CardDeckScript>();
-            deckScript.DrawTopCardToBottom();
+            deckScript.DrawCardToBottom(cardIndex);
+        }
+        private void AnimateEnemyDrawCard(int cardIndex)
+        {
+            var deck = GameObject.Find("Deck");
+            var deckScript = deck.GetComponent<CardDeckScript>();
+            deckScript.DrawCardToTop(cardIndex);
         }
 
         private void PlaySoundEffect(GameEvent gameEvent)

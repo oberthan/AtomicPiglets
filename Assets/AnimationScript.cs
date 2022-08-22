@@ -13,9 +13,15 @@ public class AnimationScript : MonoBehaviour
     }
 
     // Update is called once per frame
-    private void DrawCard()
+    public void DrawCard()
     {
         _animator.SetTrigger("DrawCard");
+
+    }
+    public void EnemyDrawCard()
+    {
+        _animator.SetTrigger("EnemyDrawCard");
+
     }
     private void Update()
     {

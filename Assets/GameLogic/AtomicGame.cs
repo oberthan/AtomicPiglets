@@ -278,6 +278,7 @@ namespace GameLogic
 
         public bool IsMyEvent(Guid playerId)
         {
+            if (Player == null) return false;
             return playerId == Player.Id;
         }
     }

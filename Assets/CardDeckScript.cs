@@ -6,7 +6,7 @@ using UnityEngine;
 public class CardDeckScript : MonoBehaviour
 {
     public GameObject CardPrefab;
- //   public GameObject Deck;
+    //   public GameObject Deck;
 
     public int MaxCards = 56;
     private double _dx = 0.1;
@@ -23,19 +23,19 @@ public class CardDeckScript : MonoBehaviour
         for (int i = 0; i < MaxCards; i++)
         {
             var card = Instantiate(CardPrefab);
-            var x = (float) RandomSigned(rnd, _dx) ;
+            var x = (float)RandomSigned(rnd, _dx);
             var y = (float)(i * _dy);
-            var z = (float) RandomSigned(rnd, _dz);
-            float angle = (float) RandomSigned(rnd, _dr);
+            var z = (float)RandomSigned(rnd, _dz);
+            float angle = (float)RandomSigned(rnd, _dr);
             card.transform.position = new Vector3(x, y, z);
             card.transform.Rotate(new Vector3(0, 1, 0), angle);
             card.transform.SetParent(deck.transform, false);
-        } 
+        }
     }
 
     private double RandomSigned(System.Random rnd, double scale)
     {
-        return scale*(rnd.NextDouble() * 2 - 1);
+        return scale * (rnd.NextDouble() * 2 - 1);
     }
 
     // Update is called once per frame
@@ -57,22 +57,45 @@ public class CardDeckScript : MonoBehaviour
     private Transform GetTopActiveTransform()
     {
         var deck = this.GameObject();
-        for (int i = deck.transform.childCount-1; i>= 0; i--)
+        for (int i = deck.transform.childCount - 1; i >= 0; i--)
         {
             var child = deck.transform.GetChild(i);
-            return child;
+            if (child.gameObject.activeInHierarchy)
+                return child;
         }
 
         return null;
     }
 
-    public void DrawTopCardToBottom()
+    public void DrawCardToBottom(int cardIndex)
     {
+        SetCardCount(cardIndex + 1);
         var deck = this.GameObject();
-        var transform = GetTopActiveTransform();
-        var cardGameObject = transform.gameObject;
+        var card = deck.transform.GetChild(cardIndex);
+        //var transform = GetTopActiveTransform();
+        var cardGameObject = card.gameObject;
+        var animationScript = cardGameObject.GetComponentInChildren<AnimationScript>();
+        var animationComponant = cardGameObject.GetComponentInChildren<Animator>();
+
+        animationComponant.enabled = true;
+        animationScript.DrawCard();
         // Get top card   
         // Start animation for top card.
 
+    }
+    public void DrawCardToTop(int cardIndex)
+    {
+        SetCardCount(cardIndex + 1);
+        var deck = this.GameObject();
+        var card = deck.transform.GetChild(cardIndex);
+        //var transform = GetTopActiveTransform();
+        var cardGameObject = card.gameObject;
+        var animationScript = cardGameObject.GetComponentInChildren<AnimationScript>();
+        var animationComponant = cardGameObject.GetComponentInChildren<Animator>();
+
+        animationComponant.enabled = true;
+        animationScript.EnemyDrawCard();
+        // Get top card   
+        // Start animation for top card.
     }
 }
