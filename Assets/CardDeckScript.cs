@@ -54,4 +54,25 @@ public class CardDeckScript : MonoBehaviour
         }
     }
 
+    private Transform GetTopActiveTransform()
+    {
+        var deck = this.GameObject();
+        for (int i = deck.transform.childCount-1; i>= 0; i--)
+        {
+            var child = deck.transform.GetChild(i);
+            return child;
+        }
+
+        return null;
+    }
+
+    public void DrawTopCardToBottom()
+    {
+        var deck = this.GameObject();
+        var transform = GetTopActiveTransform();
+        var cardGameObject = transform.gameObject;
+        // Get top card   
+        // Start animation for top card.
+
+    }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using Assets.Dto;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
+using UnityEngine;
 
 namespace GameLogic
 {
@@ -118,9 +119,8 @@ namespace GameLogic
                 var topAction = DiscardTopPlayCards();
                 topAction.Execute(this);
 
-                var gameEvent = CreateGameEventFromAction(topAction);
-                if (topAction is IDrawCardAction drawCardAction)
-                    gameEvent.DrawCard = drawCardAction.DrawCard;
+                var gameEvent = CreateGameEventFromAction(topAction, GameEventType.ActionExecuted);
+                Debug.Log("Game execute played cards: "+gameEvent.FormatShortMessage(CurrentPlayer.Id));
 
                 _gameEvents.Add(gameEvent);
             }
@@ -140,11 +140,11 @@ namespace GameLogic
             var player = GetPlayer(action.PlayerId);
             PublicMessage = $"{player.Name} plays {action.FormatShort()}";
 
-            var gameEvent = CreateGameEventFromAction(action);
-
+            var gameEventType = GameEventType.ActionExecuted;
             if (action is ICardAction cardAction)
             {
                 PlayCard(cardAction);
+                gameEventType = GameEventType.CardsPlayed;
             }
             else
             {
@@ -153,23 +153,26 @@ namespace GameLogic
             // Hide future cards
             CurrentPlayer.FutureCards = new CardCollection();
 
+            var gameEvent = CreateGameEventFromAction(action, gameEventType);
+
+            Debug.Log("Play action event: " + gameEvent.FormatShortMessage(action.PlayerId));
             _gameEvents.Add(gameEvent);
 
             return gameEvent;
         }
 
-        private GameEvent CreateGameEventFromAction(IGameAction action)
+        private GameEvent CreateGameEventFromAction(IGameAction action, GameEventType eventType)
         {
             var gameEvent = new GameEvent
             {
-                Type = GameEventType.ActionExecuted,
+                Type = eventType,
                 ActionType = action.GetType().Name,
                 Player = GetPlayer(action.PlayerId).GetPlayerInfo()
             };
 
             if (action is ICardAction cardAction)
             {
-                gameEvent.Type = GameEventType.CardsPlayed;
+                gameEvent.Type = eventType;
                 gameEvent.PlayCards = cardAction.Cards.ToArray();
                 if (cardAction is ITargetGameAction targetGameAction)
                 {
@@ -256,16 +259,26 @@ namespace GameLogic
                 case GameEventType.NewGameStarted:
                     return "New game started";
                 case GameEventType.GameOver:
-                    return Player.PlayerName + " game over";
+                    return Player.PlayerName + " is game over";
                 case GameEventType.GameWon:
-                    return Player.PlayerName + " won";
+                    return Player.PlayerName + " wins";
                 case GameEventType.CardsPlayed:
-                    return Player.PlayerName + " plays "+string.Join(", ",PlayCards.Select(x => x.Name));
+                    var cardsPlayedMessage = Player.PlayerName + " plays "+string.Join(", ",PlayCards.Select(x => x.Name));
+                    if (Target != null) cardsPlayedMessage += " against " + Target.PlayerName;
+                    return cardsPlayedMessage;
                 case GameEventType.ActionExecuted:
-                    return Player.PlayerName + " executed " + ActionType;
+                    var actionExecutedMessage = Player.PlayerName + " executes " + ActionType;
+                    if (DrawCard != null) actionExecutedMessage += " drew " + DrawCard.Name;
+                    if (Target != null) actionExecutedMessage += " from " + Target.PlayerName;
+                    return actionExecutedMessage;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        public bool IsMyEvent(Guid playerId)
+        {
+            return playerId == Player.Id;
         }
     }
 

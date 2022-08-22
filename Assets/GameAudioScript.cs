@@ -130,18 +130,18 @@ public class GameAudioScript : MonoBehaviour
                 switch (gameEvent.ActionType)
                 {
                     case nameof(DrawFromPlayerAction):
-                        if (gameEvent.DrawCard.Type == CardType.AtomicPigletCard)
-                            PlayDrawAtomicPiglet();
-                        else
-                            PlayDraw();
-                        break;
                     case nameof(DemandCardFromPlayerAction):
                     case nameof(FavorAction):
                         PlayDrawFromPlayer();
                         break;
                     case nameof(DrawFromDiscardPileAction):
-                    case nameof(DrawFromDeckAction):
                         PlayDraw();
+                        break;
+                    case nameof(DrawFromDeckAction):
+                        if (gameEvent.DrawCard.Type == CardType.AtomicPigletCard)
+                            PlayDrawAtomicPiglet();
+                        else
+                            PlayDraw();
                         break;
                     case nameof(NopeAction):
                         PlayNope();

@@ -138,9 +138,11 @@ namespace Assets.Network
                 var playerState = PlayerGameState.FromAtomicGame(player, _rules);
 
                 var gameEvent = _game.GetLastGameEvent(player);
+                Debug.Log($"Server side game event for {player}: " + gameEvent.FormatShortMessage(playerState.PlayerInfo.Id));
 
                 if (_playerConnectionMap.TryGetValue(player.Id, out var connection))
                 {
+
                     ClientUpdateGameState(connection, gameEvent, playerState, publicState);
                 }
 
@@ -171,7 +173,7 @@ namespace Assets.Network
         {
             if (action is ICardAction cardAction)
             {
-                return Join(", ", cardAction.Cards.Select(x => $"{x.Name}({x.Id}"));
+                return Join(", ", cardAction.Cards.Select(x => $"{x.Name}({x.Id})"));
             }
 
             return "";
@@ -197,6 +199,13 @@ namespace Assets.Network
         [TargetRpc]
         public void ClientUpdateGameState(NetworkConnection conn, GameEvent gameEvent, PlayerGameState playerState, PublicGameState publicState)
         {
+            var myPlayerId = playerState.PlayerInfo.Id;
+
+            var isMyGameEvent = gameEvent.IsMyEvent(myPlayerId);
+            if (isMyGameEvent && gameEvent.ActionType == nameof(DrawFromDeckAction))
+                AnimateDrawMyCard();
+
+            Debug.Log($"Client side game event for {playerState.PlayerInfo.PlayerName}: " + gameEvent.FormatShortMessage(playerState.PlayerInfo.Id));
             var actionList = GameDataSerializer.DeserializeActionListJson(playerState.ActionListJson);
             LegalActionsButtonList(actionList);
 
@@ -216,9 +225,6 @@ namespace Assets.Network
 
             MessageText.text = publicState.PublicMessage;
 
-            var deck = GameObject.Find("Deck");
-            var deckScript = deck.GetComponent<CardDeckScript>();
-            deckScript.SetCardCount(_cardsLeft);
 
             if (gameEvent.Type == GameEventType.GameOver)
             {
@@ -228,6 +234,13 @@ namespace Assets.Network
             }
 
             PlaySoundEffect(gameEvent);
+        }
+
+        private void AnimateDrawMyCard()
+        {
+            var deck = GameObject.Find("Deck");
+            var deckScript = deck.GetComponent<CardDeckScript>();
+            deckScript.DrawTopCardToBottom();
         }
 
         private void PlaySoundEffect(GameEvent gameEvent)
