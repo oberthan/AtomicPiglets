@@ -220,7 +220,9 @@ namespace Assets.Network
         public void ClientUpdateGameState(NetworkConnection conn, GameEvent gameEvent, PlayerGameState playerState, PublicGameState publicState)
         {
             if (gameEvent.Type == GameEventType.NewGameStarted)
-                GetDeckScript().SetCardCount(publicState.DeckCardsLeft);
+            {
+                StartCoroutine(GetDeckScript().InitializeNewDeck(gameEvent.GameState.DeckCardsLeft));
+            }
 
             var myPlayerId = playerState.PlayerInfo.Id;
 

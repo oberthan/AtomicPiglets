@@ -1,12 +1,9 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Net;
 using FishNet;
 using FishNet.Discovery;
-using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
-using UnityEngine.PlayerLoop;
 using UnityEngine.UI;
 
 public class FindGameScript : MonoBehaviour
@@ -25,26 +22,25 @@ public class FindGameScript : MonoBehaviour
 
 
 
-    private static readonly List<IPEndPoint> _newEndPoints = new List<IPEndPoint>();
+    private static readonly List<IPEndPoint> NewEndPoints = new();
 
     // Start is called before the first frame update
     private void Start()
     {
         if (networkDiscovery == null) networkDiscovery = FindObjectOfType<NetworkDiscovery>();
 
-        //NetworkDiscoveryOnServerFoundCallback(new IPEndPoint(123412, 1234));
         networkDiscovery.ServerFoundCallback += NetworkDiscoveryOnServerFoundCallback;
     }
 
     private void NetworkDiscoveryOnServerFoundCallback(IPEndPoint endPoint)
     {
-        lock (_newEndPoints)
-            if (!_newEndPoints.Contains(endPoint))
+        lock (NewEndPoints)
+            if (!NewEndPoints.Contains(endPoint))
             {
 
-                _newEndPoints.Add(endPoint);
+                NewEndPoints.Add(endPoint);
 
-                Debug.Log($"FOUND ENDPOINT {endPoint}. {_newEndPoints.Count}");
+                Debug.Log($"FOUND ENDPOINT {endPoint}. {NewEndPoints.Count}");
             }
     }
 
@@ -52,9 +48,9 @@ public class FindGameScript : MonoBehaviour
     void Update()
     {
 
-        lock (_newEndPoints)
+        lock (NewEndPoints)
         {
-            foreach (var endPoint in _newEndPoints)
+            foreach (var endPoint in NewEndPoints)
             {
                 var matchButtons = MatchButtonList;
 
@@ -77,13 +73,14 @@ public class FindGameScript : MonoBehaviour
                 Debug.Log("Added button to join list");
             }
 
-            _newEndPoints.Clear();
+            NewEndPoints.Clear();
         }
 
     }
 
     public void Scan()
     {
+        networkDiscovery.StopSearchingForServers();
         networkDiscovery.StartSearchingForServers();
     }
 }

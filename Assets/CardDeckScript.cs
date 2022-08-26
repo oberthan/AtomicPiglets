@@ -8,28 +8,39 @@ public class CardDeckScript : MonoBehaviour
     public GameObject CardPrefab;
     //   public GameObject Deck;
 
-    public int MaxCards = 56;
     private double _dx = 0.1;
     private double _dy = 0.021;
     private double _dz = 0.1;
     private double _dr = 3.0;
+    private readonly System.Random _rnd = new();
 
     // Start is called before the first frame update
     void Start()
     {
-        var deck = this.GameObject();
-        var rnd = new System.Random();
 
-        for (int i = 0; i < MaxCards; i++)
+        //InitializeNewDeck(56);
+    }
+
+    public IEnumerator InitializeNewDeck(int maxCards)
+    {
+        var deck = this.GameObject();
+
+        foreach (Transform child in deck.transform)
+        {
+            Destroy(child.gameObject);
+        }
+
+        for (int i = 0; i < maxCards; i++)
         {
             var card = Instantiate(CardPrefab);
-            var x = (float)RandomSigned(rnd, _dx);
+            var x = (float)RandomSigned(_rnd, _dx);
             var y = (float)(i * _dy);
-            var z = (float)RandomSigned(rnd, _dz);
-            float angle = (float)RandomSigned(rnd, _dr);
+            var z = (float)RandomSigned(_rnd, _dz);
+            float angle = (float)RandomSigned(_rnd, _dr);
             card.transform.position = new Vector3(x, y, z);
             card.transform.Rotate(new Vector3(0, 1, 0), angle);
             card.transform.SetParent(deck.transform, false);
+            yield return new WaitForSeconds(0.02f);
         }
     }
 

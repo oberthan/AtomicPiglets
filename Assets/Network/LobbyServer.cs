@@ -50,8 +50,12 @@ namespace Assets.Network
             Debug.Log("Lobby server awake");
             _instance = this;
             var hostGameObject = GameObject.Find("HostGame");
-            var hostScript = hostGameObject.GetComponent<HostScript>();
-            _botsCount = (int)hostScript.Bots.value;
+            if (hostGameObject != null)
+            {
+                var hostScript = hostGameObject.GetComponent<HostScript>();
+                _botsCount = (int)hostScript.Bots.value;
+            }
+
             _playerInfos.OnChange += _playerInfos_OnChange;
         }
 
@@ -212,6 +216,7 @@ namespace Assets.Network
         [ServerRpc(RequireOwnership = false)]
         private void ServerUpdatePlayerInfo(PlayerInfo playerInfo, NetworkConnection sender = null)
         {
+            playerInfo.PlayerName = playerInfo.PlayerName.Substring(0, Math.Min(playerInfo.PlayerName.Length, 15));
             _playerInfos[sender] = playerInfo;
         }
     }

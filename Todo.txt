@@ -6,7 +6,7 @@ TODO
 
 
 Canvas eller game object, der viser en CardCollection som en hånd.
-Canvas eller game object, der viser en CardCollection som en stak.
+OK Canvas eller game object, der viser en CardCollection som en stak.
 
 OK * Vis hvor mange kort, der er tilbage.
 OK * Vis navnet på den spiller, hvis tur det er.
@@ -15,7 +15,7 @@ Kort-grafik. Forside og bagside.
 
 Vis discard pile
 Vis play pile
-Pause efter kort er spillet, hvor der kan spilles nope.
+OK Pause efter kort er spillet, hvor der kan spilles nope.
 
 Fix:
 OK Demand card
@@ -26,7 +26,7 @@ Træk fra spiller.
 "Demand from player" skal vise valgmuligheder for type, der skal trækkes.
 
 
-Game over scene / præsentation.
+OK Game over scene / præsentation.
 
 
 Hvis en spiller forlader spillet, skal der fjernes et bombekort fra deck
@@ -36,4 +36,32 @@ og deres kort skal lægges til discard pile.
 OK Bug: Attack + Nope kørte stadig Attack efter timeout.
 OK Bug: to-ens / tre-ens virker ikke.
 
-Win action
+OK Win action
+
+
+Bugs:
+
+Hvis Nope smides præcis som timeren udløber mistes nope-kortet. Det bør det ikke.
+Der smides denne exception:
+
+InvalidOperationException: Sequence contains no elements
+  at System.Linq.Enumerable.Last[TSource] (System.Collections.Generic.IEnumerable`1[T] source) [0x00010] in <a8d5ce651b9742ecb5c87f14df5ab000>:0 
+  at GameLogic.AtomicGame.DiscardTopPlayCards () [0x00001] in C:\Projects\Unity\AtomicPiglets\Assets\GameLogic\AtomicGame.cs:131 
+  at GameLogic.NopeAction.Execute (GameLogic.AtomicGame game) [0x00001] in C:\Projects\Unity\AtomicPiglets\Assets\GameLogic\IGameAction.cs:306 
+  at GameLogic.AtomicGame.ExecutePlayedCards () [0x0000b] in C:\Projects\Unity\AtomicPiglets\Assets\GameLogic\AtomicGame.cs:120 
+  at GameLogic.AtomicGame.PlayTimerOnTimerElapsed (System.Object sender, System.EventArgs e) [0x00001] in C:\Projects\Unity\AtomicPiglets\Assets\GameLogic\AtomicGame.cs:39 
+  at (wrapper delegate-invoke) <Module>.invoke_void_object_EventArgs(object,System.EventArgs)
+  at Assets.Network.GameServerTimer.OnTimerElapsed () [0x00001] in C:\Projects\Unity\AtomicPiglets\Assets\Network\GameServerTimer.cs:48 
+  at Assets.Network.GameServerTimer.Update () [0x0005f] in C:\Projects\Unity\AtomicPiglets\Assets\Network\GameServerTimer.cs:29 
+  at Assets.Network.GameServer.Update () [0x00001] in C:\Projects\Unity\AtomicPiglets\Assets\Network\GameServer.cs:94 
+
+
+Dette sker tit, når spiller startes:
+ArgumentException: Cannot find a player with id d4a09789-6e6b-4147-b69f-69c6cef31d21. Players: Horse bot (1760b584-ac25-403e-9d9e-147ed21245b2), JoNaThAn​ (e07c4b8f-77df-49b7-b8db-ef1805d92318), Søren​ (e190a75f-a52a-4787-b3c3-476369a5475a)
+  at GameLogic.AtomicGame.GetPlayer (System.Guid playerId) [0x00073] in C:\Projects\Unity\AtomicPiglets\Assets\GameLogic\AtomicGame.cs:50 
+  at Assets.Network.GameServer+<DelayedPlayAction>d__22.MoveNext () [0x000d9] in C:\Projects\Unity\AtomicPiglets\Assets\Network\GameServer.cs:187 
+  at UnityEngine.SetupCoroutine.InvokeMoveNext (System.Collections.IEnumerator enumerator, System.IntPtr returnValueAddress) [0x00020] in C:\buildslave\unity\build\Runtime\Export\Scripting\Coroutines.cs:17 
+
+
+
+Knas med hosting / find. Det er ikke sikkert, at "Scan" knappen virker.
