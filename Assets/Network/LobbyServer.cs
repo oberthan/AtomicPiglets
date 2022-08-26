@@ -161,7 +161,7 @@ namespace Assets.Network
         {
             for (int i = 0; i < count; i++)
             {
-                IAtomicPigletBot bot = i % 2 == 0 ? new MonkeyBot() : new HorseBot();
+                IAtomicPigletBot bot = i % 2 == 0 ? new HorseBot() : new MonkeyBot();
                 if (count > 2) bot.PlayerInfo.PlayerName += " " + (1 + i / 2);
                 yield return bot;
             }

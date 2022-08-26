@@ -69,33 +69,28 @@ public class CardDeckScript : MonoBehaviour
 
     public void DrawCardToBottom(int cardIndex)
     {
-        SetCardCount(cardIndex + 1);
-        var deck = this.GameObject();
-        var card = deck.transform.GetChild(cardIndex);
-        //var transform = GetTopActiveTransform();
-        var cardGameObject = card.gameObject;
-        var animationScript = cardGameObject.GetComponentInChildren<AnimationScript>();
-        var animationComponant = cardGameObject.GetComponentInChildren<Animator>();
+        var animationScript = GetCardAnimator(cardIndex, out var animator);
 
-        animationComponant.enabled = true;
+        animator.enabled = true;
         animationScript.DrawCard();
-        // Get top card   
-        // Start animation for top card.
 
     }
     public void DrawCardToTop(int cardIndex)
     {
-        SetCardCount(cardIndex + 1);
+        var animationScript = GetCardAnimator(cardIndex, out var animator);
+
+        animator.enabled = true;
+        animationScript.EnemyDrawCard();
+    }
+
+    private AnimationScript GetCardAnimator(int cardIndex, out Animator animator)
+    {
+//        SetCardCount(cardIndex + 1);
         var deck = this.GameObject();
         var card = deck.transform.GetChild(cardIndex);
-        //var transform = GetTopActiveTransform();
         var cardGameObject = card.gameObject;
         var animationScript = cardGameObject.GetComponentInChildren<AnimationScript>();
-        var animationComponant = cardGameObject.GetComponentInChildren<Animator>();
-
-        animationComponant.enabled = true;
-        animationScript.EnemyDrawCard();
-        // Get top card   
-        // Start animation for top card.
+        animator = cardGameObject.GetComponentInChildren<Animator>();
+        return animationScript;
     }
 }

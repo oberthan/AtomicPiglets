@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Assets.Dto;
-using JetBrains.Annotations;
-using Newtonsoft.Json;
 using UnityEngine;
 
 namespace GameLogic
@@ -21,9 +19,9 @@ namespace GameLogic
             }
         }
 
-        private List<GameEvent> _gameEvents = new List<GameEvent>();
+        private readonly List<GameEvent> _gameEvents = new();
 
-        public AtomicGame(CardCollection deck, List<Player> players)
+        public AtomicGame(CardCollection deck, IEnumerable<Player> players)
         {
             Deck = deck;
             Players = players.ToList();
@@ -33,7 +31,7 @@ namespace GameLogic
 
             PlayTimer.TimerElapsed += PlayTimerOnTimerElapsed;
 
-            _gameEvents.Add(new GameEvent {Type = GameEventType.NewGameStarted});
+            AddGameEvent(new GameEvent {Type = GameEventType.NewGameStarted});
         }
 
         private void PlayTimerOnTimerElapsed(object sender, EventArgs e)
@@ -54,9 +52,9 @@ namespace GameLogic
         /// <summary>
         /// Cards played, but not yet executed.
         /// </summary>
-        public List<ICardAction> PlayPileActions { get; } = new List<ICardAction>();
+        public List<ICardAction> PlayPileActions { get; } = new();
 
-        public CardCollection PlayPile => new CardCollection(PlayPileActions.SelectMany(x => x.Cards));
+        public CardCollection PlayPile => new(PlayPileActions.SelectMany(x => x.Cards));
 
         /// <summary>
         /// Cards played and executed.
@@ -90,7 +88,9 @@ namespace GameLogic
                 currentPlayerIndex = (currentPlayerIndex + 1) % playerCount;
                 CurrentPlayer = Players[currentPlayerIndex];
             } while (CurrentPlayer.IsGameOver());
-
+            
+            if (GetActivePlayers().Count() == 1)
+                AddGameEvent(new GameEvent {Type = GameEventType.GameWon, Player = CurrentPlayer.GetPlayerInfo()});
         }
 
         public void EndTurn()
@@ -122,7 +122,7 @@ namespace GameLogic
                 var gameEvent = CreateGameEventFromAction(topAction, GameEventType.ActionExecuted);
                 Debug.Log("Game execute played cards: "+gameEvent.FormatShortMessage(CurrentPlayer.Id));
 
-                _gameEvents.Add(gameEvent);
+                AddGameEvent(gameEvent);
             }
         }
 
@@ -156,9 +156,16 @@ namespace GameLogic
             var gameEvent = CreateGameEventFromAction(action, gameEventType);
 
             Debug.Log("Play action event: " + gameEvent.FormatShortMessage(action.PlayerId));
-            _gameEvents.Add(gameEvent);
+            AddGameEvent(gameEvent);
 
             return gameEvent;
+        }
+
+        private void AddGameEvent(GameEvent gameEvent)
+        {
+            gameEvent.EventIndex = _gameEvents.Count;
+            gameEvent.GameState = PublicGameState.FromAtomicGame(this);
+            _gameEvents.Add(gameEvent);
         }
 
         private GameEvent CreateGameEventFromAction(IGameAction action, GameEventType eventType)
@@ -199,27 +206,49 @@ namespace GameLogic
                 .Concat(Players.SelectMany(x => x.Hand)));
         }
 
+        /// <summary>
+        /// Gets all game events after some index.
+        /// </summary>
+        public IEnumerable<GameEvent> GetLastGameEvents(Player player, int lastIndex)
+        {
+            var events = _gameEvents.AsEnumerable().Reverse().Where(x => x.EventIndex > lastIndex).Reverse().ToList();
+            return events.Select(x => GetCensoredGameEvent(player, x));
+
+        }
+
         public GameEvent GetLastGameEvent(Player player)
         {
             var lastGameEvent = _gameEvents.Last();
+            return GetCensoredGameEvent(player, lastGameEvent);
+        }
 
+        private static GameEvent GetCensoredGameEvent(Player player, GameEvent gameEvent)
+        {
             // Hide information not visible to player
-            var drawCard = lastGameEvent.DrawCard;
+            var drawCard = gameEvent.DrawCard;
             if (drawCard != null && // Do not hide if no card was drawn.
-                player.Id != lastGameEvent.Player.Id && // Do not hide if player is self.
-                player.Id != lastGameEvent.Target?.Id &&  // Do not hide if player was target of draw card.
-                drawCard.Type != CardType.AtomicPigletCard) // Do not hide if drawn card is Atomic Piglet. That must be announced.
+                player.Id != gameEvent.Player.Id && // Do not hide if player is self.
+                player.Id != gameEvent.Target?.Id && // Do not hide if player was target of draw card.
+                drawCard.Type !=
+                CardType.AtomicPigletCard) // Do not hide if drawn card is Atomic Piglet. That must be announced.
                 drawCard = new Card(CardType.Secret);
 
             return new GameEvent
             {
-                Type = lastGameEvent.Type,
-                ActionType = lastGameEvent.ActionType,
-                Player = lastGameEvent.Player,
-                Target = lastGameEvent.Target,
-                PlayCards = lastGameEvent.PlayCards,
-                DrawCard = drawCard
+                EventIndex = gameEvent.EventIndex,
+                Type = gameEvent.Type,
+                ActionType = gameEvent.ActionType,
+                Player = gameEvent.Player,
+                Target = gameEvent.Target,
+                PlayCards = gameEvent.PlayCards,
+                GameState = gameEvent.GameState,
+                DrawCard = drawCard,
             };
+        }
+
+        public IEnumerable<Player> GetActivePlayers()
+        {
+            return Players.Where(x => x.IsGameOver());
         }
     }
 
@@ -245,12 +274,14 @@ namespace GameLogic
 
     public class GameEvent
     {
+        public int EventIndex { get; set; }
         public GameEventType Type { get; set; }
         public PlayerInfo Player { get; set; }
         public PlayerInfo Target { get; set; }
         public Card[] PlayCards { get; set; }
         public Card DrawCard { get; set; }
         public string ActionType { get; set; }
+        public PublicGameState GameState { get; set; }
 
         public string FormatShortMessage(Guid playerId)
         {

@@ -35,8 +35,17 @@ namespace Assets.Network
         [SyncVar(SendRate = 0.1f)]
         public float ExecutePlayedCardsTimer;
 
-        private Dictionary<Guid, NetworkConnection> _playerConnectionMap;
+        private Dictionary<Guid, PlayerConnection> _playerConnectionMap;
         private Dictionary<Guid, IAtomicPigletBot> _botMap;
+
+        private class PlayerConnection
+        {
+            public Guid PlayerId;
+            public NetworkConnection Connection;
+            public int LastGameEventIndex = -1;
+            public int Wins;
+            public int ClientId => Connection.ClientId;
+        }
 
         // ReSharper disable once UnusedMember.Local
         private void Awake()
@@ -99,7 +108,11 @@ namespace Assets.Network
                 Debug.LogWarning("Only servers can start a new game");
                 return;
             }
-            _playerConnectionMap = netPlayers.ToDictionary(x => x.Value.Id, x => x.Key);
+            _playerConnectionMap = netPlayers.ToDictionary(x => x.Value.Id,  x => new PlayerConnection
+            {
+                PlayerId = x.Value.Id,
+                Connection = x.Key
+            });
 
             _botMap = bots.ToDictionary(x => x.PlayerInfo.Id);
 
@@ -111,6 +124,10 @@ namespace Assets.Network
         [Server]
         private void StartNewGame(IEnumerable<Player> players)
         {
+            foreach (var playerConnection in _playerConnectionMap.Values)
+            {
+                playerConnection.LastGameEventIndex = -1;
+            }
             _game = GameFactory.CreateExplodingKittensLikeGame(players);
             _game.PlayTimer = _gameServerTimer;
             _rules = new AtomicPigletRules(_game);
@@ -121,7 +138,7 @@ namespace Assets.Network
             foreach (var playerConnection in _playerConnectionMap)
             {
                 Debug.Log(
-                    $"Connection for player {playerConnection.Key} with client id {playerConnection.Value.ClientId} is {playerConnection.Value.IsValid}");
+                    $"Connection for player {playerConnection.Key} with client id {playerConnection.Value.ClientId} is {playerConnection.Value.Connection.IsValid}");
             }
         }
 
@@ -137,13 +154,16 @@ namespace Assets.Network
             {
                 var playerState = PlayerGameState.FromAtomicGame(player, _rules);
 
-                var gameEvent = _game.GetLastGameEvent(player);
-                Debug.Log($"Server side game event for {player}: " + gameEvent.FormatShortMessage(playerState.PlayerInfo.Id));
+//                Debug.Log($"Server side game event for {player}: " + gameEvent.FormatShortMessage(playerState.PlayerInfo.Id));
 
-                if (_playerConnectionMap.TryGetValue(player.Id, out var connection))
+                if (_playerConnectionMap.TryGetValue(player.Id, out var playerConnection))
                 {
-
-                    ClientUpdateGameState(connection, gameEvent, playerState, publicState);
+                    var gameEvents = _game.GetLastGameEvents(player, playerConnection.LastGameEventIndex);
+                    foreach (var gameEvent in gameEvents)
+                    {
+                        ClientUpdateGameState(playerConnection.Connection, gameEvent, playerState, publicState);
+                        playerConnection.LastGameEventIndex = gameEvent.EventIndex;
+                    }
                 }
 
                 if (_botMap.TryGetValue(player.Id, out var bot))
@@ -199,13 +219,16 @@ namespace Assets.Network
         [TargetRpc]
         public void ClientUpdateGameState(NetworkConnection conn, GameEvent gameEvent, PlayerGameState playerState, PublicGameState publicState)
         {
+            if (gameEvent.Type == GameEventType.NewGameStarted)
+                GetDeckScript().SetCardCount(publicState.DeckCardsLeft);
+
             var myPlayerId = playerState.PlayerInfo.Id;
 
             var isMyGameEvent = gameEvent.IsMyEvent(myPlayerId);
             if (isMyGameEvent && gameEvent.ActionType == nameof(DrawFromDeckAction))
-                AnimateDrawMyCard(publicState.DeckCardsLeft);
+                AnimateDrawMyCard(gameEvent.GameState.DeckCardsLeft);
             else if (!isMyGameEvent && gameEvent.ActionType == nameof(DrawFromDeckAction))
-                AnimateEnemyDrawCard(publicState.DeckCardsLeft);
+                AnimateOpponentDrawCard(gameEvent.GameState.DeckCardsLeft);
 
             Debug.Log($"Client side game event for {playerState.PlayerInfo.PlayerName}: " + gameEvent.FormatShortMessage(playerState.PlayerInfo.Id));
             var actionList = GameDataSerializer.DeserializeActionListJson(playerState.ActionListJson);
@@ -240,15 +263,18 @@ namespace Assets.Network
 
         private void AnimateDrawMyCard(int cardIndex)
         {
-            var deck = GameObject.Find("Deck");
-            var deckScript = deck.GetComponent<CardDeckScript>();
-            deckScript.DrawCardToBottom(cardIndex);
+            GetDeckScript().DrawCardToBottom(cardIndex);
         }
-        private void AnimateEnemyDrawCard(int cardIndex)
+        private void AnimateOpponentDrawCard(int cardIndex)
+        {
+            GetDeckScript().DrawCardToTop(cardIndex);
+        }
+
+        private static CardDeckScript GetDeckScript()
         {
             var deck = GameObject.Find("Deck");
             var deckScript = deck.GetComponent<CardDeckScript>();
-            deckScript.DrawCardToTop(cardIndex);
+            return deckScript;
         }
 
         private void PlaySoundEffect(GameEvent gameEvent)

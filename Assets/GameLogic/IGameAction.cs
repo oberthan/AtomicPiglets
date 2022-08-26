@@ -38,7 +38,6 @@ namespace GameLogic
                 if (player.IsGameOver())
                 {
                     game.PlayAction(new GameOverAction(player));
-
                     game.PlayerTurns = 1;
                     game.NextPlayer();
                 }
