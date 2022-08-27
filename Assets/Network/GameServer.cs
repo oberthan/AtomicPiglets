@@ -219,7 +219,7 @@ namespace Assets.Network
         [TargetRpc]
         public void ClientUpdateGameState(NetworkConnection conn, GameEvent gameEvent, PlayerGameState playerState, PublicGameState publicState)
         {
-            if (gameEvent.Type == GameEventType.NewGameStarted)
+            if (gameEvent.Type == GameEventType.NewGameStarted || (gameEvent.Type == GameEventType.ActionExecuted && gameEvent.ActionType == nameof(ShuffleAction)))
             {
                 StartCoroutine(GetDeckScript().InitializeNewDeck(gameEvent.GameState.DeckCardsLeft));
             }
