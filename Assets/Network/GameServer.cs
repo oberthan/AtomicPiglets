@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Assets.Bots;
 using Assets.Dto;
+using FishNet.Managing.Scened;
 using FishNet.Transporting;
 using TMPro;
 using UnityEngine;
@@ -391,6 +392,18 @@ namespace Assets.Network
             Debug.Log(action.FormatShort() + " was chosen.");
             Debug.Log($"Action pressed owner: {IsOwner}");
             PlayAction(action);
+        }
+
+        public void QuitToMenu()
+        {
+            var gameScene = new SceneLoadData("MenuScene")
+            {
+                ReplaceScenes = ReplaceOption.All
+            };
+
+            gameScene.MovedNetworkObjects = _playerConnectionMap.Select(x => x.Value.Connection).SelectMany(x => x.Objects).Where(x => !x.IsSceneObject).ToArray();
+
+            SceneManager.LoadGlobalScenes(gameScene);
         }
     }
 }

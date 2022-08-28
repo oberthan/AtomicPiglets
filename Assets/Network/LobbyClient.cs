@@ -24,47 +24,17 @@ namespace Assets.Network
         private void Awake()
         {
             Debug.Log("Lobby client awake");
-            IsReady.onValueChanged.AddListener((isReady) =>
-            {
-                Debug.Log("Is ready changed to "+isReady);
-                Player.IsReady = isReady;
-                ServerUpdatePlayerInfo();
-            });
-
         }
 
         private void Start()
         {
-            GameStartCountdownSlider.minValue = 0;
-            GameStartCountdownSlider.maxValue = LobbyServer.GameStartCountdownSeconds;
-            if (InstanceFinder.ServerManager.Started)
+            Debug.Log("Start lobby client");
+            IsReady.onValueChanged.AddListener((isReady) =>
             {
-                var statusText = "Hosting";
-                var networkDiscovery = FindObjectOfType<NetworkDiscovery>();
-                if (networkDiscovery != null)
-                {
-                    statusText += "\n" + (networkDiscovery.IsAdvertising ? "public" : "private");
-                }
-
-                StatusText.text = statusText;
-            }
-            else
-            {
-                var clientManager = InstanceFinder.ClientManager;
-                if (clientManager.Started)
-                {
-                    var address = clientManager.NetworkManager.TransportManager.Transport.GetClientAddress();
-                    var hostName = address;
-                    var statusText = "Connected to\n" + hostName;
-                    StatusText.text = statusText;
-                    clientManager.OnClientConnectionState += ClientManagerOnOnClientConnectionState;
-                }
-            }
-        }
-
-        private void Stop()
-        {
-            InstanceFinder.ClientManager.OnClientConnectionState -= ClientManagerOnOnClientConnectionState;
+                Debug.Log("Is ready changed to " + isReady);
+                Player.IsReady = isReady;
+                ServerUpdatePlayerInfo();
+            });
 
         }
 
@@ -90,13 +60,49 @@ namespace Assets.Network
             base.OnStartClient();
             Debug.Log("Lobby client started");
             LobbyServer.OnPlayerInfoChange += LobbyServer_OnPlayerInfoChange;
-            GiveOwnership(this.LocalConnection);
+            if (InstanceFinder.IsServer) GiveOwnership(LocalConnection);
+
+            GameStartCountdownSlider.minValue = 0;
+            GameStartCountdownSlider.maxValue = LobbyServer.GameStartCountdownSeconds;
+
+            if (InstanceFinder.ServerManager.Started)
+            {
+                var statusText = "Hosting";
+                var networkDiscovery = FindObjectOfType<NetworkDiscovery>();
+                if (networkDiscovery != null)
+                {
+                    statusText += "\n" + (networkDiscovery.IsAdvertising ? "public" : "private");
+                }
+
+                StatusText.text = statusText;
+            }
+            else
+            {
+                var clientManager = InstanceFinder.ClientManager;
+                if (clientManager.Started)
+                {
+                    var address = clientManager.NetworkManager.TransportManager.Transport.GetClientAddress();
+                    var hostName = address;
+                    var statusText = "Connected to\n" + hostName;
+                    StatusText.text = statusText;
+                    clientManager.OnClientConnectionState += ClientManagerOnOnClientConnectionState;
+                }
+            }
+
+            ServerUpdatePlayerInfo();
+            UpdatePlayerList();
+
+        }
+
+        public override void OnOwnershipServer(NetworkConnection prevOwner)
+        {
+            base.OnOwnershipServer(prevOwner);
         }
 
         public override void OnOwnershipClient(NetworkConnection prevOwner)
         {
             base.OnOwnershipClient(prevOwner);
-            //            Debug.Log($"Is owner: {IsOwner}");
+            Debug.Log($"Lobby client is owner: {IsOwner}");
             ServerUpdatePlayerInfo();
             UpdatePlayerList();
         }
@@ -106,6 +112,8 @@ namespace Assets.Network
             base.OnStopClient();
             Debug.Log("Lobby client Stopped");
             LobbyServer.OnPlayerInfoChange -= LobbyServer_OnPlayerInfoChange;
+            InstanceFinder.ClientManager.OnClientConnectionState -= ClientManagerOnOnClientConnectionState;
+
             UpdatePlayerList();
         }
 
@@ -143,8 +151,9 @@ namespace Assets.Network
 
         public void Leave()
         {
-            InstanceFinder.ServerManager.StopConnection(true);
             InstanceFinder.ClientManager.StopConnection();
+            if (InstanceFinder.ServerManager.Started)
+                InstanceFinder.ServerManager.StopConnection(true);
         }
 
     }

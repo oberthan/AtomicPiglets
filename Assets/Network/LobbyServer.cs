@@ -130,17 +130,17 @@ namespace Assets.Network
                 ReplaceScenes = ReplaceOption.All
             };
 
-            foreach (var playerInfo in _playerInfos)
-            {
-                var networkObjectsText = new StringBuilder();
-                var connection = playerInfo.Key;
-                networkObjectsText.AppendLine($"Player {playerInfo.Value.PlayerName} objects:");
-                foreach (var obj in connection.Objects)
-                {
-                    networkObjectsText.AppendLine(obj.name);
-                }
-                Debug.Log(networkObjectsText.ToString());
-            }
+            //foreach (var playerInfo in _playerInfos)
+            //{
+            //    var networkObjectsText = new StringBuilder();
+            //    var connection = playerInfo.Key;
+            //    networkObjectsText.AppendLine($"Player {playerInfo.Value.PlayerName} objects:");
+            //    foreach (var obj in connection.Objects)
+            //    {
+            //        networkObjectsText.AppendLine(obj.name);
+            //    }
+            //    Debug.Log(networkObjectsText.ToString());
+            //}
 
             gameScene.MovedNetworkObjects = _playerInfos.Select(x => x.Key).SelectMany(x => x.Objects).Where(x => !x.IsSceneObject).ToArray();
 

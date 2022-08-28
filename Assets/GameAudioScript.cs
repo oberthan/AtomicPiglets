@@ -33,7 +33,7 @@ public class GameAudioScript : MonoBehaviour
 
     private AudioSource _audioSource;
 
-    private System.Random _rnd = new();
+    private readonly System.Random _rnd = new();
     // Start is called before the first frame update
     void Start()
     {
@@ -97,6 +97,7 @@ public class GameAudioScript : MonoBehaviour
     private void PlayRandom(AudioClip[] clips)
     {
         if (clips.Length == 0) return;
+        if (_audioSource == null) return;
         _audioSource.clip = clips[_rnd.Next(clips.Length)];
         _audioSource.pitch = (float)(1.0 + 0.2 * (_rnd.NextDouble() - 0.5));
         _audioSource.Play();

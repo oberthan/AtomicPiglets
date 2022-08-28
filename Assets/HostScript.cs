@@ -30,7 +30,13 @@ public class HostScript : MonoBehaviour{
         
         
     }
-    
+
+    public void OnEnable()
+    {
+        InstanceFinder.ClientManager.StopConnection();
+        InstanceFinder.ServerManager.StopConnection(true);
+
+    }
 
     public void makePrivate(bool isPrivate)
     {

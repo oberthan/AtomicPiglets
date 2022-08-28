@@ -3022,6 +3022,86 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 782628375}
   m_CullTransparentMesh: 1
+--- !u!1 &788942313
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 788942316}
+  - component: {fileID: 788942315}
+  - component: {fileID: 788942314}
+  m_Layer: 0
+  m_Name: LobbyClient
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &788942314
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 788942313}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26b716c41e9b56b4baafaf13a523ba2e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <IsNested>k__BackingField: 0
+  <ComponentIndex>k__BackingField: 0
+  _networkBehaviours:
+  - {fileID: 788942315}
+  <ParentNetworkObject>k__BackingField: {fileID: 0}
+  <ChildNetworkObjects>k__BackingField: []
+  _isNetworked: 1
+  _isGlobal: 0
+  _disableOnDespawn: 0
+  NetworkObserver: {fileID: 0}
+  <PrefabId>k__BackingField: -1
+  _scenePathHash: 1565888657
+  <SceneId>k__BackingField: 6725440571098093632
+  <AssetPathHash>k__BackingField: 0
+  _sceneNetworkObjects:
+  - {fileID: 792833241}
+--- !u!114 &788942315
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 788942313}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72ccc7e251a88f043a7cfd2528c19ad7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _componentIndexCache: 0
+  _addedNetworkObject: {fileID: 792833241}
+  _networkObjectCache: {fileID: 788942314}
+  IsReady: {fileID: 1063179379}
+  AllPlayers: {fileID: 1350922966}
+  GameStartCountdownSlider: {fileID: 9016724758017174195}
+  StatusText: {fileID: 972033797}
+--- !u!4 &788942316
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 788942313}
+  m_LocalRotation: {x: -0.23031752, y: -0.027729418, z: 0.0065658335, w: 0.9726982}
+  m_LocalPosition: {x: -0.00017014227, y: 0.00022685635, z: -5946.9023}
+  m_LocalScale: {x: 59.46904, y: 59.469032, z: 59.46903}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1668265396}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &789987546
 GameObject:
   m_ObjectHideFlags: 0
@@ -3091,7 +3171,6 @@ GameObject:
   - component: {fileID: 792833243}
   - component: {fileID: 792833242}
   - component: {fileID: 792833241}
-  - component: {fileID: 792833244}
   m_Layer: 0
   m_Name: LobbyServer
   m_TagString: Untagged
@@ -3115,7 +3194,6 @@ MonoBehaviour:
   <ComponentIndex>k__BackingField: 0
   _networkBehaviours:
   - {fileID: 792833242}
-  - {fileID: 792833244}
   <ParentNetworkObject>k__BackingField: {fileID: 0}
   <ChildNetworkObjects>k__BackingField: []
   _isNetworked: 1
@@ -3157,27 +3235,8 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &792833244
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 792833240}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 72ccc7e251a88f043a7cfd2528c19ad7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _componentIndexCache: 1
-  _addedNetworkObject: {fileID: 792833241}
-  _networkObjectCache: {fileID: 792833241}
-  IsReady: {fileID: 1063179379}
-  AllPlayers: {fileID: 1350922966}
-  GameStartCountdownSlider: {fileID: 9016724758017174195}
-  StatusText: {fileID: 972033797}
 --- !u!1 &821147887
 GameObject:
   m_ObjectHideFlags: 0
@@ -3262,7 +3321,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 792833244}
+      - m_Target: {fileID: 788942315}
         m_TargetAssemblyTypeName: Assets.Network.LobbyClient, Assembly-CSharp
         m_MethodName: Leave
         m_Mode: 1
@@ -6608,7 +6667,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1668265396
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6626,6 +6685,7 @@ RectTransform:
   - {fileID: 821147888}
   - {fileID: 9016724758017174192}
   - {fileID: 972033796}
+  - {fileID: 788942316}
   m_Father: {fileID: 211018971}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -7702,7 +7762,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1873087736
 GameObject:
@@ -7735,7 +7795,7 @@ Transform:
   - {fileID: 963194228}
   - {fileID: 211018971}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1941647381
 GameObject:
@@ -8262,7 +8322,7 @@ Transform:
   m_Children:
   - {fileID: 6411577145423093150}
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!224 &1935076974328299737
 RectTransform:
@@ -9143,8 +9203,8 @@ RectTransform:
   m_Father: {fileID: 9016724759720881642}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMin: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -9257,7 +9317,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
