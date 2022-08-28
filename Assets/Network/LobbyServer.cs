@@ -34,9 +34,9 @@ namespace Assets.Network
         [SyncVar(SendRate = 0.1f)]
         public float GameStartTimer = GameStartCountdownSeconds;
 
-        private bool gameStartTimerIsRunning;
-        private float gameStartTimerStarted;
-        private bool isGameRunning;
+        private bool _gameStartTimerIsRunning;
+        private float _gameStartTimerStarted;
+        private bool _isGameRunning;
 
         /// <summary>
         /// Singleton instance of this object.
@@ -94,26 +94,26 @@ namespace Assets.Network
             GameStartTimer = GameStartCountdownSeconds;
             if (_playerInfos.Any() && _playerInfos.Values.All(x => x.IsReady))
             {
-                gameStartTimerIsRunning = true;
-                gameStartTimerStarted = Time.time;
+                _gameStartTimerIsRunning = true;
+                _gameStartTimerStarted = Time.time;
             }
             else
             {
-                gameStartTimerIsRunning = false;
+                _gameStartTimerIsRunning = false;
             }
         }
 
         void Update()
         {
-            if (gameStartTimerIsRunning && !isGameRunning)
+            if (_gameStartTimerIsRunning && !_isGameRunning)
             {
-                var deltaTime = Time.time - gameStartTimerStarted;
+                var deltaTime = Time.time - _gameStartTimerStarted;
                 var startTimer = GameStartCountdownSeconds - deltaTime;
                 if (startTimer < 0) startTimer = 0;
                 GameStartTimer = startTimer;
                 if (startTimer == 0)
                 {
-                    gameStartTimerIsRunning = false;
+                    _gameStartTimerIsRunning = false;
                     StartServerGame();
                 }
             }
@@ -123,7 +123,7 @@ namespace Assets.Network
         {
             if (!InstanceFinder.NetworkManager.IsServer) return;
 
-            isGameRunning = true;
+            _isGameRunning = true;
             Debug.Log("Loading game scene");
             var gameScene = new SceneLoadData("GameScene")
             {

@@ -3,6 +3,9 @@ using FishNet.Object;
 using System;
 using System.Linq;
 using Assets.Dto;
+using FishNet;
+using FishNet.Discovery;
+using FishNet.Transporting;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,13 +14,12 @@ namespace Assets.Network
 {
     public class LobbyClient : NetworkBehaviour
     {
-        public TMP_Text NameInput;
-        public PlayerInfo Player = new PlayerInfo { PlayerName = "player", Id = Guid.NewGuid() };       
-        //public  Player = PlayerInfoScript.PlayerName;
+        public PlayerInfo Player = new() { PlayerName = "player", Id = Guid.NewGuid() };       
+
         public Toggle IsReady;
         public TMP_Text AllPlayers;
         public Slider GameStartCountdownSlider;
-        // public TMP_Text GameStartCountDown;
+        public TMP_Text StatusText;
 
         private void Awake()
         {
@@ -29,9 +31,50 @@ namespace Assets.Network
                 ServerUpdatePlayerInfo();
             });
 
+        }
+
+        private void Start()
+        {
             GameStartCountdownSlider.minValue = 0;
             GameStartCountdownSlider.maxValue = LobbyServer.GameStartCountdownSeconds;
-       }
+            if (InstanceFinder.ServerManager.Started)
+            {
+                var statusText = "Hosting";
+                var networkDiscovery = FindObjectOfType<NetworkDiscovery>();
+                if (networkDiscovery != null)
+                {
+                    statusText += "\n" + (networkDiscovery.IsAdvertising ? "public" : "private");
+                }
+
+                StatusText.text = statusText;
+            }
+            else
+            {
+                var clientManager = InstanceFinder.ClientManager;
+                if (clientManager.Started)
+                {
+                    var address = clientManager.NetworkManager.TransportManager.Transport.GetClientAddress();
+                    var hostName = address;
+                    var statusText = "Connected to\n" + hostName;
+                    StatusText.text = statusText;
+                    clientManager.OnClientConnectionState += ClientManagerOnOnClientConnectionState;
+                }
+            }
+        }
+
+        private void Stop()
+        {
+            InstanceFinder.ClientManager.OnClientConnectionState -= ClientManagerOnOnClientConnectionState;
+
+        }
+
+        private void ClientManagerOnOnClientConnectionState(ClientConnectionStateArgs args)
+        {
+            if (args.ConnectionState == LocalConnectionState.Stopped)
+            {
+                StatusText.text = "Disconnected";
+            }
+        }
 
         private void ServerUpdatePlayerInfo()
         {
@@ -98,6 +141,11 @@ namespace Assets.Network
             AllPlayers.text = text;
         }
 
+        public void Leave()
+        {
+            InstanceFinder.ServerManager.StopConnection(true);
+            InstanceFinder.ClientManager.StopConnection();
+        }
 
     }
 }

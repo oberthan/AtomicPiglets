@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using FishNet;
 using FishNet.Discovery;
@@ -35,7 +36,7 @@ public class FindGameScript : MonoBehaviour
     private void NetworkDiscoveryOnServerFoundCallback(IPEndPoint endPoint)
     {
         lock (NewEndPoints)
-            if (!NewEndPoints.Contains(endPoint))
+            if (NewEndPoints.All(x => x.ToString() != endPoint.ToString()))
             {
 
                 NewEndPoints.Add(endPoint);
