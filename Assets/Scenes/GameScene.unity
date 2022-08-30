@@ -279,7 +279,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 51397065}
-  - component: {fileID: 51397067}
   - component: {fileID: 51397066}
   - component: {fileID: 51397068}
   - component: {fileID: 51397069}
@@ -327,8 +326,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <IsNested>k__BackingField: 0
   <ComponentIndex>k__BackingField: 0
-  _networkBehaviours:
-  - {fileID: 51397067}
+  _networkBehaviours: []
   <ParentNetworkObject>k__BackingField: {fileID: 0}
   <ChildNetworkObjects>k__BackingField:
   - {fileID: 986554877}
@@ -344,25 +342,6 @@ MonoBehaviour:
   - {fileID: 51397066}
   - {fileID: 986554877}
   - {fileID: 1675844272}
---- !u!114 &51397067
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 51397064}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2cb6a27ea4816a1488ba903115cffad6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _componentIndexCache: 0
-  _addedNetworkObject: {fileID: 51397066}
-  _networkObjectCache: {fileID: 51397066}
-  AvailableActionsText: {fileID: 971746620}
-  CurrentPlayerName: {fileID: 834085943}
-  CurrentPlayerCards: {fileID: 974163611}
-  yourButton: {fileID: 0}
 --- !u!114 &51397068
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1683,7 +1662,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 89.15
+  m_fontSize: 88.5
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -2030,7 +2009,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 59.35
+  m_fontSize: 58.75
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -2648,7 +2627,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 74.45
+  m_fontSize: 73.95
   m_fontSizeBase: 45.7
   m_fontWeight: 400
   m_enableAutoSizing: 1
