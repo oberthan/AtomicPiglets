@@ -75,7 +75,7 @@ public class FindGameScript : MonoBehaviour
                     {
                         string ipAddress = endPoint.Address.ToString();
                         networkDiscovery.StopSearchingForServers();
-                        InstanceFinder.ClientManager.StartConnection(ipAddress, (ushort) endPoint.Port);
+                        InstanceFinder.ClientManager.StartConnection(ipAddress);
                         GameObject.Find("FindGame").SetActive(false);
                         Lobby.SetActive(true);
                     }

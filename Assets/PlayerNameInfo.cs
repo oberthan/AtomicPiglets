@@ -47,19 +47,12 @@ public class PlayerNameInfo : MonoBehaviour
         
 
         PlayerPrefs.SetString("name", PlayerName);
-        print(PlayerName);
-        
-        
-        //showButton.SetActive(false);
-
         
     }
 
     private void loadName()
     {
         PlayerName = PlayerPrefs.GetString("name");
-        print(PlayerName);
-
 
 
         PlayerNameTextPreview.text = PlayerName;
@@ -73,7 +66,6 @@ public class PlayerNameInfo : MonoBehaviour
         {
             PlayerName = null;
         }
-       // PlayerNameTextField.GetComponent<InputField>().text = PlayerName;
 
       
         if (PlayerName == null)

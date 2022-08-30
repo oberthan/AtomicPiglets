@@ -11,5 +11,10 @@ namespace Assets.Dto
         // In game only
         public int CardsLeft;
         public bool IsGameOver;
+
+        public override string ToString()
+        {
+            return $"{PlayerName}:{Id}";
+        }
     }
 }

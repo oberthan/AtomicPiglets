@@ -84,9 +84,27 @@ namespace Assets.Network
         /// </summary>
         private void ServerManager_OnRemoteConnectionState(NetworkConnection conn, RemoteConnectionStateArgs state)
         {
-            if (state.ConnectionState != RemoteConnectionState.Started)
+            if (state.ConnectionState == RemoteConnectionState.Started)
+            {
+                Debug.Log($"{conn.ClientId} remote connection started");
+                conn.OnLoadedStartScenes += ConnOnOnLoadedStartScenes;
+            }
+            else // Started
+            {
                 _playerInfos.Remove(conn);
+                conn.OnLoadedStartScenes -= ConnOnOnLoadedStartScenes;
+            }
             RestartGameStartTimer();
+        }
+
+        private void ConnOnOnLoadedStartScenes(NetworkConnection conn, bool isServer)
+        {
+            Debug.Log($"Connection {conn.ClientId} loaded start scenes {FormatConnectionScenes(conn)}. IsServer: {isServer}");
+        }
+
+        private static string FormatConnectionScenes(NetworkConnection conn)
+        {
+            return string.Join(", ", conn.Scenes.Select(x => x.name));
         }
 
         private void RestartGameStartTimer()
@@ -130,35 +148,44 @@ namespace Assets.Network
                 ReplaceScenes = ReplaceOption.All
             };
 
-            //foreach (var playerInfo in _playerInfos)
-            //{
-            //    var networkObjectsText = new StringBuilder();
-            //    var connection = playerInfo.Key;
-            //    networkObjectsText.AppendLine($"Player {playerInfo.Value.PlayerName} objects:");
-            //    foreach (var obj in connection.Objects)
-            //    {
-            //        networkObjectsText.AppendLine(obj.name);
-            //    }
-            //    Debug.Log(networkObjectsText.ToString());
-            //}
+            foreach (var playerInfo in _playerInfos)
+            {
+                var networkObjectsText = new StringBuilder();
+                var connection = playerInfo.Key;
+                networkObjectsText.AppendLine($"Player {playerInfo.Value.PlayerName} objects:");
+                foreach (var obj in connection.Objects.Where(x => !x.IsSceneObject))
+                {
+                    networkObjectsText.AppendLine(obj.name);
+                }
+                Debug.Log(networkObjectsText.ToString());
+            }
 
-            gameScene.MovedNetworkObjects = _playerInfos.Select(x => x.Key).SelectMany(x => x.Objects).Where(x => !x.IsSceneObject).ToArray();
+            var gameSceneMovedNetworkObjects = _playerInfos.Select(x => x.Key).SelectMany(x => x.Objects).Where(x => !x.IsSceneObject).ToArray();
+            gameScene.MovedNetworkObjects = gameSceneMovedNetworkObjects;
 
             SceneManager.LoadGlobalScenes(gameScene);
         }
 
         private void SceneManager_OnClientPresenceChangeEnd(ClientPresenceChangeEventArgs obj)
         {
-            if (_playerInfos.All(x => x.Key.LoadedStartScenes))
+            Debug.Log($"Client presence changed for {obj.Connection.ClientId} for scene {obj.Scene.name}");
+            Debug.Log($"All player scenes {string.Join(", ", _playerInfos.Keys.Select(x => $"{x.ClientId}:{FormatConnectionScenes(x)}"))}");
+            if (_playerInfos.All(x => x.Key.Scenes.Any(y => y.name == "GameScene")))
             {
                 var gameNetworking = GameObject.Find("GameNetworking");
                 if (gameNetworking != null)
                 {
                     var gameServer = gameNetworking.GetComponent<GameServer>();
+                    Debug.Log("Making bots");
                     var bots = MakeBots(HostScript.BotsCount);
                     gameServer.StartGame(_playerInfos, bots);
                 }
             }
+        }
+
+        private string FormatPlayers()
+        {
+            return string.Join(", ", _playerInfos.Select(x => $"{x.Value}. Conn: {x.Key.ClientId}"));
         }
 
         private IEnumerable<IAtomicPigletBot> MakeBots(int count)
@@ -199,6 +226,7 @@ namespace Assets.Network
         [Client]
         public static void UpdatePlayerInfo(PlayerInfo playerInfo)
         {
+            Debug.Log($"Client update player info for {playerInfo}");
             _instance.ServerUpdatePlayerInfo(playerInfo);
         }
 
@@ -211,11 +239,11 @@ namespace Assets.Network
         /// <summary>
         /// Sets name on server.
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="sender"></param>
         [ServerRpc(RequireOwnership = false)]
         private void ServerUpdatePlayerInfo(PlayerInfo playerInfo, NetworkConnection sender = null)
         {
+            Debug.Log($"Server update player info for {playerInfo}. Conn: {sender?.ClientId}");
+            if (sender == null) return;
             playerInfo.PlayerName = playerInfo.PlayerName.Substring(0, Math.Min(playerInfo.PlayerName.Length, 15));
             _playerInfos[sender] = playerInfo;
         }

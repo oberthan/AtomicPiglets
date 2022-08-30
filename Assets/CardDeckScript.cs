@@ -88,6 +88,7 @@ public class CardDeckScript : MonoBehaviour
     }
     public void DrawCardToTop(int cardIndex)
     {
+        if (this.GameObject().transform.childCount <= cardIndex) return;
         var animationScript = GetCardAnimator(cardIndex, out var animator);
 
         animator.enabled = true;

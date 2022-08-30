@@ -61,6 +61,15 @@ namespace Assets.Network
             Debug.Log("Game server started");
             NetworkManager.ServerManager.OnRemoteConnectionState += ServerManager_OnRemoteConnectionState;
             NetworkManager.ServerManager.OnServerConnectionState += ServerManagerOnOnServerConnectionState;
+            NetworkManager.ClientManager.OnClientConnectionState += ClientManagerOnOnClientConnectionState;
+        }
+
+        private void ClientManagerOnOnClientConnectionState(ClientConnectionStateArgs args)
+        {
+            if (args.ConnectionState == LocalConnectionState.Stopped)
+            {
+                Debug.LogWarning("Client disconnected");
+            }
         }
 
         private void ServerManagerOnOnServerConnectionState(ServerConnectionStateArgs args)
@@ -77,6 +86,7 @@ namespace Assets.Network
             {
                 var playerId = _playerConnectionMap.First(x => x.Value.ClientId == conn.ClientId).Key;
                 var player = _game.GetPlayer(playerId);
+                Debug.Log($"Player {player.Name} with conn id: {conn.ClientId} disconnected");
                 player.Name += "(no net)";
             }
         }
@@ -134,7 +144,7 @@ namespace Assets.Network
             _rules = new AtomicPigletRules(_game);
 
             Debug.Log(
-                $"Starting new game with {_playerConnectionMap.Count} connected players. Bots in game: {_game.Players.Count} with {_game.Players.Sum(x => x.Hand.Count)} cards dealt");
+                $"Starting new game with {_playerConnectionMap.Count} connected players. Total players in game: {_game.Players.Count} with {_game.Players.Sum(x => x.Hand.Count)} cards dealt");
 
             foreach (var playerConnection in _playerConnectionMap)
             {
@@ -401,7 +411,9 @@ namespace Assets.Network
                 ReplaceScenes = ReplaceOption.All
             };
 
-            gameScene.MovedNetworkObjects = _playerConnectionMap.Select(x => x.Value.Connection).SelectMany(x => x.Objects).Where(x => !x.IsSceneObject).ToArray();
+            var networkConnections = _playerConnectionMap.Select(x => x.Value.Connection);
+            var networkObjects = networkConnections.SelectMany(x => x.Objects);
+            gameScene.MovedNetworkObjects = networkObjects.Where(x => !x.IsSceneObject).ToArray();
 
             SceneManager.LoadGlobalScenes(gameScene);
         }
