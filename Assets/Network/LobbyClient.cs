@@ -86,12 +86,22 @@ namespace Assets.Network
                     var statusText = "Connected to\n" + hostName;
                     StatusText.text = statusText;
                     clientManager.OnClientConnectionState += ClientManagerOnOnClientConnectionState;
+                    clientManager.NetworkManager.TransportManager.Transport.OnClientConnectionState += TransportOnOnClientConnectionState;
                 }
             }
 
             ServerUpdatePlayerInfo();
             UpdatePlayerList();
 
+        }
+
+        private void TransportOnOnClientConnectionState(ClientConnectionStateArgs obj)
+        {
+            Debug.Log($"Client connection state change: {obj.ConnectionState}");
+            if (obj.ConnectionState == LocalConnectionState.Stopped)
+            {
+                StatusText.text = "Connection lost";
+            }
         }
 
         public override void OnOwnershipServer(NetworkConnection prevOwner)

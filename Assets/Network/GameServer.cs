@@ -62,6 +62,16 @@ namespace Assets.Network
             NetworkManager.ServerManager.OnRemoteConnectionState += ServerManager_OnRemoteConnectionState;
             NetworkManager.ServerManager.OnServerConnectionState += ServerManagerOnOnServerConnectionState;
             NetworkManager.ClientManager.OnClientConnectionState += ClientManagerOnOnClientConnectionState;
+            NetworkManager.TransportManager.Transport.OnClientConnectionState += TransportOnOnClientConnectionState;
+
+        }
+
+        private void TransportOnOnClientConnectionState(ClientConnectionStateArgs args)
+        {
+            if (args.ConnectionState == LocalConnectionState.Stopped)
+            {
+                Debug.LogWarning("Server connection lost???");
+            }
         }
 
         private void ClientManagerOnOnClientConnectionState(ClientConnectionStateArgs args)

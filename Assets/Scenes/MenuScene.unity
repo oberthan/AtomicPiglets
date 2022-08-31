@@ -9017,7 +9017,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   secret: AtomicPiglets
   port: 6581
-  discoveryInterval: 3
+  discoveryInterval: 1
   automatic: 1
 --- !u!114 &8633038823790872354
 MonoBehaviour:
